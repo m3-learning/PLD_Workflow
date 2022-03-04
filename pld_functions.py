@@ -520,7 +520,7 @@ def upload_to_datafed(file_path, file_name, growth_para):
     '''
     required to setup the endpoint before run this function
     '''
-
+    df_api = API()
     dc_resp = df_api.dataCreate(file_name,
                                 metadata=json.dumps(growth_para),
                                 parent_id='c/390952462', # parent collection
