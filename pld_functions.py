@@ -157,6 +157,9 @@ class PLD_dropdown(QWidget):
         self.notes_layout.addRow(QLabel("Notes"), self.notes_input)
         self.toplayout.addWidget(self.form_notes)
         
+    def convert_to_image(self):
+        print('not working currently, convert manually!')
+        
 
     def create_folder(self):
         '''
