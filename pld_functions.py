@@ -526,7 +526,7 @@ def upload_to_datafed(file_path, file_name, growth_para):
 
     dc_resp = df_api.dataCreate(file_name,
                                 metadata=json.dumps(growth_para),
-                                parent_id='c/251388118', # parent collection
+                                parent_id='c/390952462', # parent collection
                                )
     rec_id = dc_resp[0].data[0].id
     put_resp = df_api.dataPut(rec_id, # record id
