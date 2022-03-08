@@ -12,18 +12,18 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 
 
-import shutil
-import sys
-import json
-import datetime
 import os, glob, h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import json # For dealing with metadata
+import os # For file level operations
+import time # For timing demonstrations
+import datetime # To demonstrate conversion between date and time formats
+import glob
+
+import matplotlib.pyplot as plt
 from datafed.CommandLib import API
 
-from PyQt5.QtGui import QFont 
-from PyQt5.QtCore import * 
-from PyQt5.QtWidgets import * 
 
 class PLD_form(QWidget):
     def __init__(self):
@@ -339,18 +339,7 @@ class PLD_form(QWidget):
         print('Done!')
 
 
-import shutil
-import sys
-import json
-import datetime
-import os, glob, h5py
-import numpy as np
-import matplotlib.pyplot as plt
-from datafed.CommandLib import API
 
-from PyQt5.QtGui import QFont 
-from PyQt5.QtCore import * 
-from PyQt5.QtWidgets import * 
 
 class PLD_Form_with_Plume_Management(QWidget):
     def __init__(self):
@@ -830,14 +819,12 @@ class PLD_Form_with_Plume_Management(QWidget):
     
 # version that take all images
 
-import os, glob, h5py
-import numpy as np
-import matplotlib.pyplot as plt
+
     
 def pack_to_hdf5(ds_path, growth_para=None):
     '''
     This function will read the images in folders(plumes) under "ds_path/BMP/<target_name>" 
-    and convert them into a hdf5 file with following data struction:
+    and convert them into a hdf5 file with following data structure:
     
     file_name:ds_path.h5
         group: PLD_Plumes
@@ -876,14 +863,6 @@ def pack_to_hdf5(ds_path, growth_para=None):
 #                         print(file)
                         create_data[i, j] = plt.imread(file)
     
-import json # For dealing with metadata
-import os # For file level operations
-import time # For timing demonstrations
-import datetime # To demonstrate conversion between date and time formats
-import glob
-
-import matplotlib.pyplot as plt
-from datafed.CommandLib import API
 
 # pip install datafed -U
 
