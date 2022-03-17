@@ -302,7 +302,7 @@ class PLD_form(QWidget):
                         "Laser Voltage(kV)": self.laser_voltage_input[i].text(),
                         "Laser Energy(mJ)": self.laser_energy_input[i].text(),
                         "Measured Energy Mean(mJ)": self.energy_mean_input[i].text(),
-                        "Measured Energy Std(mJ)": self.energy_std_input[i].text(),
+                        "Measured Energy Std(%)": self.energy_std_input[i].text(),
 
                         "Temperature(\N{DEGREE SIGN}C)": self.pre_temperature_input[i].text(),
                         "Pressure(mTorr)": self.pre_pressure_input[i].text(),
@@ -564,6 +564,8 @@ class PLD_Form_with_Plume_Management(QWidget):
             print('Moving videos to ablation folder...')
 
         for file in file_list:
+            if file == 'desktop.ini':
+                pass
             shutil.move(file, dst)
             
         print('Done!')
@@ -614,7 +616,22 @@ class PLD_Form_with_Plume_Management(QWidget):
         if os.path.isfile(ds_path + '.h5'): os.remove(ds_path + '.h5')
         with h5py.File(ds_path + '.h5', mode='a') as h5_file:
             h5_group_plume = h5_file.create_group('PLD_Plumes')
+            
+            p = './HP075_PZO_SRO_DSO_HP_03162022/'
+            for target_folder in os.listdir(p):
+#                 print(target_folder)
+                if target_folder == 'desktop.ini':
+                    os.remove(p+target_folder)  
+#                     print('d')
+                for plume_folder in os.listdir(p+target_folder+'/BMP/'):
+#                     print(plume_folder, 'desktop.ini')
+                    if plume_folder == 'desktop.ini':
+                        os.remove(p+target_folder+'/BMP/'+plume_folder)  
+                    for file in os.listdir(p+target_folder+'/BMP/'+plume_folder):
+                        if file == 'desktop.ini':
+                            os.remove(p+target_folder+'/BMP/'+plume_folder+'/'+file)  
 
+            
             target_list = os.listdir(ds_path+'/')
             for target in target_list:
 #                 print(target)
@@ -628,7 +645,8 @@ class PLD_Form_with_Plume_Management(QWidget):
                 
                 for folder in os.listdir(target_path + '/BMP'):
 
-                    
+                    if folder == 'desktop.ini':
+                        pass
                     length_list.append(len(os.listdir(target_path + '/BMP/' + folder)))
                     img_shape = plt.imread(glob.glob(target_path+'/BMP/'+folder+'/*')[0]).shape
 
@@ -701,7 +719,7 @@ class PLD_Form_with_Plume_Management(QWidget):
         layout_laser.addRow(QLabel("Laser Voltage (kV)"), self.laser_voltage_input[create_index])
         layout_laser.addRow(QLabel("Laser Energy (mJ)"), self.laser_energy_input[create_index])
         layout_laser.addRow(QLabel("Measured Energy Mean(mJ)"), self.energy_mean_input[create_index])
-        layout_laser.addRow(QLabel("Measured Energy Std(mJ)"), self.energy_std_input[create_index])
+        layout_laser.addRow(QLabel("Measured Energy Std(%)"), self.energy_std_input[create_index])
 
 
         form_pre = QGroupBox("Pre-ablation")
