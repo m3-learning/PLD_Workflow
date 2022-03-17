@@ -617,14 +617,10 @@ class PLD_Form_with_Plume_Management(QWidget):
         with h5py.File(ds_path + '.h5', mode='a') as h5_file:
             h5_group_plume = h5_file.create_group('PLD_Plumes')
             
-            p = './HP075_PZO_SRO_DSO_HP_03162022/'
             for target_folder in os.listdir(p):
-#                 print(target_folder)
                 if target_folder == 'desktop.ini':
                     os.remove(p+target_folder)  
-#                     print('d')
                 for plume_folder in os.listdir(p+target_folder+'/BMP/'):
-#                     print(plume_folder, 'desktop.ini')
                     if plume_folder == 'desktop.ini':
                         os.remove(p+target_folder+'/BMP/'+plume_folder)  
                     for file in os.listdir(p+target_folder+'/BMP/'+plume_folder):
