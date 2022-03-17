@@ -598,7 +598,7 @@ class PLD_Form_with_Plume_Management(QWidget):
             df_api = API()
             dc_resp = df_api.dataCreate(file_name,
                                         metadata=json.dumps(growth_para),
-                                        parent_id='c/251388118', # parent collection
+                                        parent_id='c/391937642', # parent collection
                                        )
             rec_id = dc_resp[0].data[0].id
             put_resp = df_api.dataPut(rec_id, # record id
