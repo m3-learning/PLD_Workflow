@@ -26,9 +26,9 @@ from datafed.CommandLib import API
 
 class PLD_Form(QWidget):
     '''
-    version: "Clear", "Plume_Recording". Default: "Clear"
+    version: "parameter", "plume". Default: "parameter"
     '''
-    def __init__(self, version='Clear'):
+    def __init__(self, version='parameter'):
         super().__init__()
         self.version = version
         
@@ -137,7 +137,6 @@ class PLD_Form(QWidget):
         # define the layout
         self.setWindowTitle("PLD Growth Record")
         
-        # Create a top-level layout
         self.toplayout = QVBoxLayout()
         self.setLayout(self.toplayout)
 
@@ -168,7 +167,7 @@ class PLD_Form(QWidget):
             ### Add the combo box and the stacked layout to the top-level layout
         self.button_layout.addWidget(self.pageCombo, 0, 0)
       
-        if self.version == 'Plume_Recording':
+        if self.version == 'plume':
             self.button_create = QPushButton(self)
             self.button_create.setText("Create Directory")
             self.button_create.clicked.connect(lambda: self.create_folder())
@@ -193,7 +192,7 @@ class PLD_Form(QWidget):
         self.button_save.clicked.connect(lambda: self.save())
         self.toplayout.addWidget(self.button_save)
         
-        if self.version == 'Plume_Recording':
+        if self.version == 'plume':
         
             self.button_image = QPushButton(self)
             self.button_image.setText("Convert Video to Images")
@@ -202,7 +201,7 @@ class PLD_Form(QWidget):
             
             self.button_pack = QPushButton(self)
             self.button_pack.setText("Save to HDF5 and Upload")
-            self.button_pack.clicked.connect(lambda: self.pack_to_hdf5_and_upload())
+            self.button_pack.clicked.connect(lambda: pack_to_hdf5_and_upload(self.path, self.file_name, self.info_dict))
             self.toplayout.addWidget(self.button_pack)
         
         #  notes - second level
@@ -241,7 +240,6 @@ class PLD_Form(QWidget):
                     os.mkdir(ablation_folder)
         print('Done!')
 
-            
 
     def move_to_folder(self, pre):
         date_list = self.date_input.text().split('/')
@@ -262,101 +260,7 @@ class PLD_Form(QWidget):
             shutil.move(file, dst)
             
         print('Done!')
-
-        
-            
-    def pack_to_hdf5_and_upload(self):
-        '''
-        This function will read the images in folders(plumes) under "ds_path/BMP/<target_name>" 
-        and convert them into a hdf5 file with following data struction:
-
-        file_name:ds_path.h5
-            group: PLD_Plumes
-                dataset: target_name(SrRuO3) = n_videos*n_frames*H*W (np.float32)
-        '''
-        print('Packing to HDF5 file...')
-
-        ds_path = self.path + '/' + self.file_name
-        print(ds_path)
-        
-        growth_para = self.get_info()   
-        
-        
-        def upload_to_datafed(file_path, file_name, growth_para):
-            '''
-            required to setup the endpoint before run this function
-            '''
-            print('Uploading to Datafed...')
-            
-            df_api = API()
-            dc_resp = df_api.dataCreate(file_name,
-                                        metadata=json.dumps(growth_para),
-                                        parent_id='c/391937642', # parent collection
-                                       )
-            rec_id = dc_resp[0].data[0].id
-            put_resp = df_api.dataPut(rec_id, # record id
-                                      file_path+file_name+'.h5', # path to file
-                                      wait=True  # Waitcas until transfer completes.
-                                      )
-            out = put_resp
-            return out
-        
-        
-        # make sure the format is without '/'
-        if ds_path[-1] == '/': ds_path[:-1]
-            
-        # overwrite the original .h5 file
-        if os.path.isfile(ds_path + '.h5'): os.remove(ds_path + '.h5')
-        with h5py.File(ds_path + '.h5', mode='a') as h5_file:
-            h5_group_plume = h5_file.create_group('PLD_Plumes')
-            
-            for target_folder in os.listdir(p):
-                if target_folder == 'desktop.ini':
-                    os.remove(p+target_folder)  
-                for plume_folder in os.listdir(p+target_folder+'/BMP/'):
-                    if plume_folder == 'desktop.ini':
-                        os.remove(p+target_folder+'/BMP/'+plume_folder)  
-                    for file in os.listdir(p+target_folder+'/BMP/'+plume_folder):
-                        if file == 'desktop.ini':
-                            os.remove(p+target_folder+'/BMP/'+plume_folder+'/'+file)  
-
-            
-            target_list = os.listdir(ds_path+'/')
-            for target in target_list:
-#                 print(target)
-                if target == '.ipynb_checkpoints': continue 
-                        
-                length_list = []
-                target_path = ds_path + '/' + target
-                
-                if os.listdir(target_path) == []:
-                    os.rmdir(target_path)                
-                
-                for folder in os.listdir(target_path + '/BMP'):
-
-                    if folder == 'desktop.ini':
-                        pass
-                    length_list.append(len(os.listdir(target_path + '/BMP/' + folder)))
-                    img_shape = plt.imread(glob.glob(target_path+'/BMP/'+folder+'/*')[0]).shape
-
-#                 print((len(length_list), max(length_list), img_shape[0], img_shape[1]))
-                # assign to hdf5 dataset
-                create_data = h5_group_plume.create_dataset(target, dtype=np.uint8, 
-                                                            shape=((len(length_list), max(length_list), 
-                                                                    img_shape[0], img_shape[1]))) # dtype=np.uint8
-
-                for i, folder in enumerate(os.listdir(target_path + '/BMP')):
-                    for j, file in enumerate(glob.glob(target_path + '/BMP/' + folder + '/*')):
-#                         print(file)
-                        create_data[i, j] = plt.imread(file)
-        
        
-        if growth_para == None:
-            print('Reminder: growth parameters are not recorded.')
-        upload_to_datafed(self.path, self.file_name, growth_para)
-        
-        print('Done!')
-
 
     def create_header(self):
         header_layout = QFormLayout()
@@ -411,7 +315,7 @@ class PLD_Form(QWidget):
         layout_laser.addRow(QLabel("Laser Voltage (kV)"), self.laser_voltage_input[create_index])
         layout_laser.addRow(QLabel("Laser Energy (mJ)"), self.laser_energy_input[create_index])
         layout_laser.addRow(QLabel("Measured Energy Mean(mJ)"), self.energy_mean_input[create_index])
-        layout_laser.addRow(QLabel("Measured Energy Std(%)"), self.energy_std_input[create_index])
+        layout_laser.addRow(QLabel("Measured Energy Std"), self.energy_std_input[create_index])
 
 
         form_pre = QGroupBox("Pre-ablation")
@@ -424,15 +328,12 @@ class PLD_Form(QWidget):
         layout_pre.addRow(QLabel("Frequency (Hz)"), self.pre_frequency_input[create_index])
         layout_pre.addRow(QLabel("Pulses"), self.pre_number_pulses_input[create_index])
         
-        if self.version == 'Plume_Recording':
+        if self.version == 'plume':
             self.button_move_pre = QPushButton(self)
     #         self.button_folder.setFixedSize(300, self.window_height)
             self.button_move_pre.setText("Move Videos To Pre-ablation Folder")
             self.button_move_pre.clicked.connect(lambda: self.move_to_folder(pre=True))
             layout.addWidget(self.button_move_pre, 3, 0)  
-        
-
-        
         
         form_ablation = QGroupBox("Ablation")
         layout_ablation = QFormLayout()
@@ -444,7 +345,7 @@ class PLD_Form(QWidget):
         layout_ablation.addRow(QLabel("Frequency (Hz)"), self.frequency_input[create_index])
         layout_ablation.addRow(QLabel("Pulses"), self.number_pulses_input[create_index])
         
-        if self.version == 'Plume_Recording':
+        if self.version == 'plume':
             self.button_move = QPushButton(self)
     #         self.button_folder.setFixedSize(300, self.window_height)
             self.button_move.setText("Move Videos To Ablation Folder")
@@ -523,78 +424,94 @@ class PLD_Form(QWidget):
         date = ''.join(self.date_input.text().split('/'))
         file_name = id + '_' + name + '_' + date
         
-        info_dict = self.get_info()   
+        self.info_dict = self.get_info()   
         with open(path + '/' + file_name + '.json', 'w') as file:
-            json.dump(info_dict, file)     
+            json.dump(self.info_dict, file)     
         print('Done!')
 
 
-    
-    
-# version that take all images
+
+def pack_to_hdf5_and_upload(file_path, file_name, growth_para):
+    pack_to_hdf5(file_path, file_name)
+    upload_to_datafed(file_path, file_name, growth_para, dataset_id='c/391937642')
 
 
-    
-def pack_to_hdf5(ds_path, growth_para=None):
+def pack_to_hdf5(file_path, file_name):
     '''
     This function will read the images in folders(plumes) under "ds_path/BMP/<target_name>" 
-    and convert them into a hdf5 file with following data structure:
-    
+    and convert them into a hdf5 file with following data struction:
+
     file_name:ds_path.h5
         group: PLD_Plumes
             dataset: target_name(SrRuO3) = n_videos*n_frames*H*W (np.float32)
     '''
-    
+    print('Packing to hdf5...')
+    ds_path = file_path + '/' + file_name
+
+#     growth_para = self.get_info()   
+
     # make sure the format is without '/'
     if ds_path[-1] == '/': ds_path[:-1]
-    
+
+    # overwrite the original .h5 file
+    if os.path.isfile(ds_path + '.h5'): os.remove(ds_path + '.h5')
     with h5py.File(ds_path + '.h5', mode='a') as h5_file:
         h5_group_plume = h5_file.create_group('PLD_Plumes')
-        
-        target_list = os.listdir(ds_path+'/')
-        for target in target_list:
-            if target[-3:] == 'ini': continue # naive way to pass wrong folder
-            if target == '.ipynb_checkpoints': continue 
-            
-            print(target)
-            
+
+        # remote 'desktop.ini' file
+        for target_folder in os.listdir(ds_path+'/'):
+            if target_folder == 'desktop.ini':
+                os.remove(ds_path+'/'+target_folder)  
+            for plume_folder in os.listdir(ds_path+'/'+target_folder+'/BMP/'):
+                if plume_folder == 'desktop.ini':
+                    os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder) 
+                else:
+                    for file in os.listdir(ds_path+'/'+target_folder+'/BMP/'+plume_folder):
+                        if file == 'desktop.ini':
+                            os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder+'/'+file)  
+
+
+        for target_folder in os.listdir(ds_path+'/'):
+            if target_folder == '.ipynb_checkpoints': continue 
+
             length_list = []
-            target_path = ds_path + '/' + target
-            for folder in os.listdir(target_path + '/BMP'):
-                if folder[-15:-9] == 'Camera': # naive way to get right folder name
-                    length_list.append(len(os.listdir(target_path + '/BMP/' + folder)))
-                    img_shape = plt.imread(glob.glob(target_path+'/BMP/'+folder+'/*')[0]).shape
+            target_path = ds_path + '/' + target_folder
+
+            if os.listdir(target_path) == []:
+                os.rmdir(target_path)                
             
-            print((len(length_list), max(length_list), img_shape[0], img_shape[1]))
+            # define the image shape
+            for plume_folder in os.listdir(target_path + '/BMP'):
+                length_list.append(len(os.listdir(target_path + '/BMP/' + plume_folder)))
+                img_shape = plt.imread(glob.glob(target_path+'/BMP/'+plume_folder+'/*')[0]).shape
+
             # assign to hdf5 dataset
-            create_data = h5_group_plume.create_dataset(target, dtype=np.uint8, 
+            create_data = h5_group_plume.create_dataset(target_folder, dtype=np.uint8, 
                                                         shape=((len(length_list), max(length_list), 
                                                                 img_shape[0], img_shape[1]))) # dtype=np.uint8
-            
-            for i, folder in enumerate(os.listdir(target_path + '/BMP')):
-                for j, file in enumerate(glob.glob(target_path + '/BMP/' + folder + '/*')):
-                    if file[-4:] == '.bmp':
-#                         print(file)
-                        create_data[i, j] = plt.imread(file)
-    
+            for i, plume_folder in enumerate(os.listdir(target_path + '/BMP')):
+                for j, file in enumerate(glob.glob(target_path + '/BMP/' + plume_folder + '/*')):
+                    create_data[i, j] = plt.imread(file)
 
-# pip install datafed -U
+    print('Done!')
 
-# !globus endpoint activate --web 1fd2cdcc-05da-11ec-b33e-1feaf93e3729
 
-def upload_to_datafed(file_path, file_name, growth_para, parent_id):
+def upload_to_datafed(file_path, file_name, growth_para, dataset_id='c/391937642'):
     '''
     required to setup the endpoint before run this function
     '''
+    print('Uploading to Datafed...')
+
     df_api = API()
     dc_resp = df_api.dataCreate(file_name,
                                 metadata=json.dumps(growth_para),
-                                parent_id=parent_id, # parent collection
+                                parent_id=dataset_id, # parent collection
                                )
     rec_id = dc_resp[0].data[0].id
     put_resp = df_api.dataPut(rec_id, # record id
-                              file_path, # path to file
+                              file_path+'/'+file_name+'.h5', # path to file
                               wait=True  # Waitcas until transfer completes.
                               )
     out = put_resp
+    print('Done!')
     return out
