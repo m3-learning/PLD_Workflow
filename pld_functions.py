@@ -462,13 +462,14 @@ def pack_to_hdf5(file_path, file_name):
         for target_folder in os.listdir(ds_path+'/'):
             if target_folder == 'desktop.ini':
                 os.remove(ds_path+'/'+target_folder)  
-            for plume_folder in os.listdir(ds_path+'/'+target_folder+'/BMP/'):
-                if plume_folder == 'desktop.ini':
-                    os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder) 
-                else:
-                    for file in os.listdir(ds_path+'/'+target_folder+'/BMP/'+plume_folder):
-                        if file == 'desktop.ini':
-                            os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder+'/'+file)  
+            else:
+                for plume_folder in os.listdir(ds_path+'/'+target_folder+'/BMP/'):
+                    if plume_folder == 'desktop.ini':
+                        os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder) 
+                    else:
+                        for file in os.listdir(ds_path+'/'+target_folder+'/BMP/'+plume_folder):
+                            if file == 'desktop.ini':
+                                os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder+'/'+file)  
 
 
         for target_folder in os.listdir(ds_path+'/'):
