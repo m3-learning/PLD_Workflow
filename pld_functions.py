@@ -11,18 +11,6 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import * 
 from PyQt5.QtWidgets import * 
 
-import os, glob, h5py
-import numpy as np
-import matplotlib.pyplot as plt
-import json # For dealing with metadata
-import os # For file level operations
-import time # For timing demonstrations
-import datetime # To demonstrate conversion between date and time formats
-import glob
-
-import matplotlib.pyplot as plt
-from datafed.CommandLib import API
-
 
 class PLD_Form(QWidget):
     '''
@@ -47,7 +35,8 @@ class PLD_Form(QWidget):
         self.date_input = QLineEdit(datetime.datetime.today().strftime("%m/%d/%Y"))
         self.time_input = QLineEdit(datetime.datetime.now().strftime("%H:%M:%S"))
         self.save_path_input = QLineEdit(os.getcwd()) 
-        
+#         self.save_path_input = QLineEdit('C:/Image/') 
+
         self.custom_key = QLineEdit()
         self.custom_key.setFixedSize(80, self.window_height)
         self.custom_value = QLineEdit()
@@ -254,9 +243,11 @@ class PLD_Form(QWidget):
             dst = self.path+self.file_name+'/'+str(i)+'-'+self.target_input[i].text()
             print('Moving videos to ablation folder...')
 
+        # remove desktop.ini file from all sub-directory
+        remove_desktop_ini(self.path)
+        remove_desktop_ini(dst)
+
         for file in file_list:
-            if file == 'desktop.ini':
-                pass
             shutil.move(file, dst)
             
         print('Done!')
@@ -430,7 +421,35 @@ class PLD_Form(QWidget):
         print('Done!')
 
 
+def remove_desktop_ini(path):
+    'remove desktop.ini file in 4 level directories'
+    if path[-1] == '/': path = path[:-1]
+        
+    # level 1
+    if os.path.isdir(path):
+        for folder_1 in glob.glob(path+'/*'):
+            if folder_1.split('/')[-1].split('\\')[-1] == 'desktop.ini':
+                os.remove(folder_1)  
 
+            # level 2
+            if os.path.isdir(folder_1):
+                for folder_2 in glob.glob(folder_1+'/*'):
+                    if folder_2.split('/')[-1].split('\\')[-1] == 'desktop.ini':
+                        os.remove(folder_2)  
+
+                    # level 3
+                    if os.path.isdir(folder_2):
+                        for folder_3 in glob.glob(folder_2+'/*'):
+                            if folder_3.split('/')[-1].split('\\')[-1] == 'desktop.ini':
+                                os.remove(folder_3)  
+
+                            # level 4
+                            if os.path.isdir(folder_3):
+                                for folder_4 in glob.glob(folder_3+'/*'):
+                                    if folder_4.split('/')[-1].split('\\')[-1] == 'desktop.ini':
+                                        os.remove(folder_4) 
+                                        
+                                        
 def pack_to_hdf5_and_upload(file_path, file_name, growth_para):
     pack_to_hdf5(file_path, file_name)
     upload_to_datafed(file_path, file_name, growth_para, dataset_id='c/391937642')
@@ -455,22 +474,13 @@ def pack_to_hdf5(file_path, file_name):
 
     # overwrite the original .h5 file
     if os.path.isfile(ds_path + '.h5'): os.remove(ds_path + '.h5')
+        
+
     with h5py.File(ds_path + '.h5', mode='a') as h5_file:
         h5_group_plume = h5_file.create_group('PLD_Plumes')
 
-        # remote 'desktop.ini' file
-        for target_folder in os.listdir(ds_path+'/'):
-            if target_folder == 'desktop.ini':
-                os.remove(ds_path+'/'+target_folder)  
-            else:
-                for plume_folder in os.listdir(ds_path+'/'+target_folder+'/BMP/'):
-                    if plume_folder == 'desktop.ini':
-                        os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder) 
-                    else:
-                        for file in os.listdir(ds_path+'/'+target_folder+'/BMP/'+plume_folder):
-                            if file == 'desktop.ini':
-                                os.remove(ds_path+'/'+target_folder+'/BMP/'+plume_folder+'/'+file)  
-
+        # remove desktop.ini file from all sub-directory
+        remove_desktop_ini(ds_path)
 
         for target_folder in os.listdir(ds_path+'/'):
             if target_folder == '.ipynb_checkpoints': continue 
