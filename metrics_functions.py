@@ -15,6 +15,11 @@ from skimage.measure import label, regionprops, regionprops_table
 from skimage.transform import rotate
 import seaborn as sns
 
+
+def process_func(images):
+    images = images[np.random.randint(0, images.shape[0])]
+    return images
+
 def show_images(images, labels=None, img_per_row=8, colorbar=False):
     h = images[0].shape[1] // images[0].shape[0]*0.5 + 1
     if not labels:
