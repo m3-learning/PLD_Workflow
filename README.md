@@ -27,6 +27,16 @@
   Used to plot metrics of plumes for plume dynamic analysis.
   
   Usage: 
+  
+  0. Import functions:
+
+    from metrics_functions import show_h5_dataset_name
+    from metrics_functions import load_h5_examples
+    from metrics_functions import show_images
+    from metrics_functions import plumes_to_df
+    from metrics_functions import plot_metrics
+    from metrics_functions import process_func
+    import numpy as np
 
   1. Load and visualize plume examples: 
   
