@@ -172,15 +172,27 @@ def plumes_to_df(ds_path, ds_name, condition, show_plume=False):
     df = convert_df(plots_all, condition)
     return df
 
+
 def plot_metrics(df, metrics_name, label_with='condition'):
     for metric in metrics_name:
         print(metric)
         sns.set(rc={'figure.figsize':(12,8)})
         sns.set_style("white")
 
-#         if label_with == 'growth_index':
-            
+        # bin to 10 growth_index classes
+        if label_with == 'growth_index': 
+            df = df.copy()
+            start_index_list = np.arange(np.min(df['growth_index']), np.max(df['growth_index']), np.max(df['growth_index'])//10)
+
+            for i in range(len(start_index_list)):
+                if i == len(start_index_list)-1:
+                    for index in range(start_index_list[i], np.max(df['growth_index'])):
+                        df['growth_index'] = df['growth_index'].replace(index, start_index_list[i])
+                else:
+                    for index in range(start_index_list[i], start_index_list[i+1]):
+                        df['growth_index'] = df['growth_index'].replace(index, start_index_list[i])
             
         plot = sns.lineplot(data=df[df['metric']==metric], 
                             x='time_step', y='a.u.', hue=label_with)
         plt.show()
+    return df
