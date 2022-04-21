@@ -1,8 +1,10 @@
 # Utility functions for Pulsed Laser Deposition
 
-## pld_functions.py: include digital form for growth condition recording and plume imaging management.
+## pld_functions.py: 
 
-Usage: 
+  Include digital form for growth condition recording and plume imaging management.
+
+  Usage: 
 
   1. For condition recording only: 
     
@@ -20,7 +22,11 @@ Usage:
       window.show()
       app.exec_()
          
-## metrics_functions.py: used to plot metrics of plumes for plume dynamic analysis.
+## metrics_functions.py: 
+
+  Used to plot metrics of plumes for plume dynamic analysis.
+  
+  Usage: 
 
   1. Load and visualize plume examples: 
   
