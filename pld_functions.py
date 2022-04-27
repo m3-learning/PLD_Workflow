@@ -156,11 +156,11 @@ class PLD_Form(QWidget):
             ### Add the combo box and the stacked layout to the top-level layout
         self.button_layout.addWidget(self.pageCombo, 0, 0)
       
-        if self.version == 'plume':
-            self.button_create = QPushButton(self)
-            self.button_create.setText("Create Directory")
-            self.button_create.clicked.connect(lambda: self.create_folder())
-            self.button_layout.addWidget(self.button_create, 0, 1) 
+#         if self.version == 'plume':
+#             self.button_create = QPushButton(self)
+#             self.button_create.setText("Create Directory")
+#             self.button_create.clicked.connect(lambda: self.create_folder())
+#             self.button_layout.addWidget(self.button_create, 0, 1) 
 
         ## create QGridLayout - second level
         self.multiPages = QFormLayout()
@@ -201,51 +201,64 @@ class PLD_Form(QWidget):
         self.toplayout.addWidget(self.form_notes)
         
 
-    def create_folder(self):
-        '''
-        Run this function before save dictionary and plumes.
-        '''
-        print('Creating directory...')
+#     def create_folder(self):
+#         '''
+#         Run this function before save dictionary and plumes.
+#         '''
+#         print('Creating directory...')
 
+#         self.path = self.save_path_input.text() + '/'
+#         if not os.path.isdir(self.path):
+#             os.mkdir(self.path)
+        
+#         id = self.growth_id_input.text()
+#         name = self.name_input.text()
+#         date = ''.join(self.date_input.text().split('/'))
+#         self.file_name = id + '_' + name + '_' + date
+
+#         if not os.path.isdir(self.path + self.file_name):
+#             os.mkdir(self.path + self.file_name)
+            
+#         for i in range(6):
+#             if self.target_input[i].text():
+#                 pre_ablation_folder = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()+'_'+'Pre'
+#                 ablation_folder = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()
+#                 if not os.path.isdir(pre_ablation_folder):
+#                     os.mkdir(pre_ablation_folder)
+#                 if not os.path.isdir(ablation_folder):
+#                     os.mkdir(ablation_folder)
+#         print('Done!')
+
+
+    def move_to_folder(self, pre):
         self.path = self.save_path_input.text() + '/'
-        if not os.path.isdir(self.path):
-            os.mkdir(self.path)
         
         id = self.growth_id_input.text()
         name = self.name_input.text()
         date = ''.join(self.date_input.text().split('/'))
         self.file_name = id + '_' + name + '_' + date
 
-        if not os.path.isdir(self.path + self.file_name):
-            os.mkdir(self.path + self.file_name)
-            
-        for i in range(6):
-            if self.target_input[i].text():
-                pre_ablation_folder = self.path+self.file_name+'/'+str(i)+'-'+self.target_input[i].text()+'_'+'Pre'
-                ablation_folder = self.path+self.file_name+'/'+str(i)+'-'+self.target_input[i].text()
-                if not os.path.isdir(pre_ablation_folder):
-                    os.mkdir(pre_ablation_folder)
-                if not os.path.isdir(ablation_folder):
-                    os.mkdir(ablation_folder)
-        print('Done!')
-
-
-    def move_to_folder(self, pre):
+        
         date_list = self.date_input.text().split('/')
         date_m = date_list[2]+'_'+date_list[0]+'_'+date_list[1]
-        
+        remove_desktop_ini(self.path)
+
         file_list = glob.glob(self.path + date_m + '/*')
         i = self.current_page
         if pre:
-            dst = self.path+self.file_name+'/'+str(i)+'-'+self.target_input[i].text()+'_'+'Pre'
-            print('Moving videos to pre-ablation folder...')
+            dst = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()+'_'+'Pre'
+            print('Saving videos to pre-ablation folder...')
         else:
-            dst = self.path+self.file_name+'/'+str(i)+'-'+self.target_input[i].text()
-            print('Moving videos to ablation folder...')
-
+            dst = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()
+            print('Saving videos to ablation folder...')
+            
+        if not os.path.isdir(dst):
+            os.mkdir(dst)
+            remove_desktop_ini(dst)
+#             print('The target directory is not created, please "Create Directory" first.')
+#             return 
+           
         # remove desktop.ini file from all sub-directory
-        remove_desktop_ini(self.path)
-        remove_desktop_ini(dst)
 
         for file in file_list:
             shutil.move(file, dst)
@@ -386,11 +399,11 @@ class PLD_Form(QWidget):
                         "Measured Energy Mean(mJ)": self.energy_mean_input[i].text(),
                         "Measured Energy Std(mJ)": self.energy_std_input[i].text(),
 
-                        "Temperature(\N{DEGREE SIGN}C)": self.pre_temperature_input[i].text(),
-                        "Pressure(mTorr)": self.pre_pressure_input[i].text(),
-                        "Gas Atmosphere": self.pre_gas_input[i].currentText(),
-                        "Frequency(Hz)": self.pre_frequency_input[i].text(),
-                        "Pulses": self.pre_number_pulses_input[i].text(),           
+                        "Pre-Temperature(\N{DEGREE SIGN}C)": self.pre_temperature_input[i].text(),
+                        "Pre-Pressure(mTorr)": self.pre_pressure_input[i].text(),
+                        "Pre-Gas Atmosphere": self.pre_gas_input[i].currentText(),
+                        "Pre-Frequency(Hz)": self.pre_frequency_input[i].text(),
+                        "Pre-Pulses": self.pre_number_pulses_input[i].text(),           
 
                         "Temperature(\N{DEGREE SIGN}C)": self.temperature_input[i].text(),
                         "Pressure(mTorr)": self.pressure_input[i].text(),
