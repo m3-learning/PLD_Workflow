@@ -8,3 +8,4 @@ PyQt5
 pandas
 scikit-image
 seaborn
+sphinx==4.5.0
