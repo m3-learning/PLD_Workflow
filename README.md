@@ -37,7 +37,7 @@
 
 
 
-#PLDForm README:
+# PLDForm README:
 ## Utility functions for Pulsed Laser Deposition
 
 ### PLDForm.py: 
@@ -78,7 +78,7 @@
 3). Decrease the "EXPOSE" to 2,000,000ns and Click "REC" to start recording before ablation.
 
 
-#PlumeEvaluation README:
+# PlumeEvaluation README:
 
 Used to plot metrics of plumes for dynamic plume analysis.
 
