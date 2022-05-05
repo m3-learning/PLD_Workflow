@@ -1,0 +1,15 @@
+shutil
+json
+datetime
+glob
+h5py
+numpy
+matplotlib
+datafed
+PyQt5
+time
+datetime
+math
+pandas
+skimage
+seaborn
