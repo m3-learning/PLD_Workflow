@@ -29,4 +29,4 @@ sphinx:
 python:
    version: 3.8
 
-requirements_file: requirements: requirements.txt
+requirements_file: requirements.txt
