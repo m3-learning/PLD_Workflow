@@ -27,6 +27,6 @@ sphinx:
 # conda:
 #     file: environment.yml
 python:
-   version: 3.7
+   version: 3.9
    install:
    - requirements: requirements.txt
