@@ -39,8 +39,8 @@ class GenerateForm(QWidget):
         self.name_input = QLineEdit()
         self.date_input = QLineEdit(datetime.datetime.today().strftime("%m/%d/%Y"))
         self.time_input = QLineEdit(datetime.datetime.now().strftime("%H:%M:%S"))
-        self.save_path_input = QLineEdit(os.getcwd()) 
-#         self.save_path_input = QLineEdit('C:/Image/') 
+#         self.save_path_input = QLineEdit(os.getcwd()) 
+        self.save_path_input = QLineEdit('C:/Image/') 
 
         self.custom_key = QLineEdit()
         self.custom_key.setFixedSize(80, self.window_height)
@@ -160,7 +160,7 @@ class GenerateForm(QWidget):
         self.pageCombo.activated.connect(self.switchPage)
             ### Add the combo box and the stacked layout to the top-level layout
         self.button_layout.addWidget(self.pageCombo, 0, 0)
-      
+
 #         if self.version == 'plume':
 #             self.button_create = QPushButton(self)
 #             self.button_create.setText("Create Directory")
@@ -189,7 +189,7 @@ class GenerateForm(QWidget):
         if self.version == 'plume':
         
             self.button_image = QPushButton(self)
-            self.button_image.setText("Convert Video to Images")
+            self.button_image.setText("Convert Video to Images (Not Functional)")
             self.button_image.clicked.connect(lambda: self.convert_to_image())
             self.toplayout.addWidget(self.button_image)  
             
@@ -205,35 +205,14 @@ class GenerateForm(QWidget):
         self.notes_layout.addRow(QLabel("Notes"), self.notes_input)
         self.toplayout.addWidget(self.form_notes)
         
+    def convert_to_image(self):
 
-#     def create_folder(self):
-#         '''
-#         Run this function before save dictionary and plumes.
-#         '''
-#         print('Creating directory...')
+        '''
+        This is a function to convert raw plume file to readable images.
 
-#         self.path = self.save_path_input.text() + '/'
-#         if not os.path.isdir(self.path):
-#             os.mkdir(self.path)
+        '''
+        print('This is button is not functional yet, please convert manually with README instruction.
         
-#         id = self.growth_id_input.text()
-#         name = self.name_input.text()
-#         date = ''.join(self.date_input.text().split('/'))
-#         self.file_name = id + '_' + name + '_' + date
-
-#         if not os.path.isdir(self.path + self.file_name):
-#             os.mkdir(self.path + self.file_name)
-            
-#         for i in range(6):
-#             if self.target_input[i].text():
-#                 pre_ablation_folder = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()+'_'+'Pre'
-#                 ablation_folder = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()
-#                 if not os.path.isdir(pre_ablation_folder):
-#                     os.mkdir(pre_ablation_folder)
-#                 if not os.path.isdir(ablation_folder):
-#                     os.mkdir(ablation_folder)
-#         print('Done!')
-
 
     def move_to_folder(self, pre):
 
@@ -250,8 +229,9 @@ class GenerateForm(QWidget):
         id = self.growth_id_input.text()
         name = self.name_input.text()
         date = ''.join(self.date_input.text().split('/'))
-        self.file_name = id + '_' + name + '_' + date
-
+        
+        if not os.path.isdir(self.path+self.file_name):
+            os.mkdir(self.path+self.file_name)
         
         date_list = self.date_input.text().split('/')
         date_m = date_list[2]+'_'+date_list[0]+'_'+date_list[1]
