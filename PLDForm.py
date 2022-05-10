@@ -211,7 +211,7 @@ class GenerateForm(QWidget):
         This is a function to convert raw plume file to readable images.
 
         '''
-        print('This is button is not functional yet, please convert manually with README instruction.
+        print('This is button is not functional yet, please convert manually with README instruction.')
         
 
     def move_to_folder(self, pre):
