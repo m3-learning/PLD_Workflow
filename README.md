@@ -12,7 +12,7 @@
 
 1). Start the form by copying the following code in the terminal:
 
-      python pld_app_parameter.py
+      python examples/pld_app_parameter.py
       
 2). Fill in growth conditions and customized information
 
@@ -23,7 +23,7 @@
   
 1). Start the form by copying the following code in the opened terminal:
 
-      python pld_app_plume.py
+      python examples/pld_app_plume.py
       
 2). Fill in growth conditions and customized information
 
