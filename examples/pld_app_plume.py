@@ -11,7 +11,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import * 
 from PyQt5.QtWidgets import * 
 sys.path.append('C:/Image/PLD_Workflow/')
-from pld_functions import PLD_Form
+from PLDForm import GenerateForm
 
 
 if __name__ == "__main__":
@@ -24,6 +24,6 @@ if __name__ == "__main__":
     app.setFont(custom_font, "QLineEdit")
     app.setFont(custom_font, "QPlainTextEdit")
 
-    window = PLD_Form(version="plume")
+    window = GenerateForm(version="plume")
     window.show()
     app.exec_()

@@ -23,7 +23,7 @@
   
 1). Start the form by copying the following code in the opened terminal:
 
-      python examples/pld_app_plume.py
+      python  examples/pld_app_plume.py
       
 2). Fill in growth conditions and customized information
 
@@ -50,7 +50,7 @@
     
     if __name__ == "__main__":
       app = QApplication(sys.argv)
-      window = PLD_Form(version="parameter")
+      window = GenerateForm(version="parameter")
       window.show()
       app.exec_()
 
@@ -58,7 +58,7 @@
   
     if __name__ == "__main__":
       app = QApplication(sys.argv)
-      window = PLD_Form(version="plume")
+      window = GenerateForm(version="plume")
       window.show()
       app.exec_()
       
@@ -78,7 +78,7 @@
 3). Decrease the "EXPOSE" to 2,000,000ns and Click "REC" to start recording before ablation.
 
 
-# PlumeEvaluation README:
+<!-- # PlumeEvaluation README:
 
 Used to plot metrics of plumes for dynamic plume analysis.
 
@@ -116,3 +116,4 @@ Usage in python:
                 'eccentricity', 'perimeter', 'velocity'] 
     plot_metrics(df, metrics_name, label_with='condition')
     plot_metrics(df, metrics_name, label_with='growth_index')  
+ -->
