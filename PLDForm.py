@@ -94,7 +94,8 @@ class GenerateForm(QWidget):
                              QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
         self.energy_mean_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
                              QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-
+        self.energy_mean_end_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
         self.energy_std_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
                              QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
 
@@ -332,6 +333,7 @@ class GenerateForm(QWidget):
         layout_laser.addRow(QLabel("Laser Voltage (kV)"), self.laser_voltage_input[create_index])
         layout_laser.addRow(QLabel("Laser Energy (mJ)"), self.laser_energy_input[create_index])
         layout_laser.addRow(QLabel("Measured Energy Mean(mJ)"), self.energy_mean_input[create_index])
+        layout_laser.addRow(QLabel("Measured Energy Mean(mJ)-end"), self.energy_mean_end_input[create_index])
         layout_laser.addRow(QLabel("Measured Energy Std"), self.energy_std_input[create_index])
 
 
@@ -415,6 +417,7 @@ class GenerateForm(QWidget):
                         "Laser Voltage(kV)": self.laser_voltage_input[i].text(),
                         "Laser Energy(mJ)": self.laser_energy_input[i].text(),
                         "Measured Energy Mean(mJ)": self.energy_mean_input[i].text(),
+                        "Measured Energy Mean(mJ)-end": self.energy_mean_input_end[i].text(),
                         "Measured Energy Std(mJ)": self.energy_std_input[i].text(),
 
                         "Pre-Temperature(\N{DEGREE SIGN}C)": self.pre_temperature_input[i].text(),
