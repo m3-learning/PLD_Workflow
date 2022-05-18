@@ -94,8 +94,7 @@ class GenerateForm(QWidget):
                              QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
         self.energy_mean_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
                              QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.energy_mean_end_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+
         self.energy_std_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
                              QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
 
@@ -188,10 +187,6 @@ class GenerateForm(QWidget):
         self.toplayout.addWidget(self.button_save)
         
         if self.version == 'plume':
-            id = self.growth_id_input.text()
-            name = self.name_input.text()
-            date = ''.join(self.date_input.text().split('/'))
-            self.file_name = id + '_' + name + '_' + date
         
             self.button_image = QPushButton(self)
             self.button_image.setText("Convert Video to Images (Not Functional)")
@@ -234,8 +229,7 @@ class GenerateForm(QWidget):
         id = self.growth_id_input.text()
         name = self.name_input.text()
         date = ''.join(self.date_input.text().split('/'))
-        self.file_name = id + '_' + name + '_' + date
-
+        
         if not os.path.isdir(self.path+self.file_name):
             os.mkdir(self.path+self.file_name)
         
@@ -333,7 +327,6 @@ class GenerateForm(QWidget):
         layout_laser.addRow(QLabel("Laser Voltage (kV)"), self.laser_voltage_input[create_index])
         layout_laser.addRow(QLabel("Laser Energy (mJ)"), self.laser_energy_input[create_index])
         layout_laser.addRow(QLabel("Measured Energy Mean(mJ)"), self.energy_mean_input[create_index])
-        layout_laser.addRow(QLabel("Measured Energy Mean(mJ)-end"), self.energy_mean_end_input[create_index])
         layout_laser.addRow(QLabel("Measured Energy Std"), self.energy_std_input[create_index])
 
 
@@ -417,7 +410,6 @@ class GenerateForm(QWidget):
                         "Laser Voltage(kV)": self.laser_voltage_input[i].text(),
                         "Laser Energy(mJ)": self.laser_energy_input[i].text(),
                         "Measured Energy Mean(mJ)": self.energy_mean_input[i].text(),
-                        "Measured Energy Mean(mJ)-end": self.energy_mean_input_end[i].text(),
                         "Measured Energy Std(mJ)": self.energy_std_input[i].text(),
 
                         "Pre-Temperature(\N{DEGREE SIGN}C)": self.pre_temperature_input[i].text(),
@@ -451,9 +443,9 @@ class GenerateForm(QWidget):
         id = self.growth_id_input.text()
         name = self.name_input.text()
         date = ''.join(self.date_input.text().split('/'))
-        self.file_name = id + '_' + name + '_' + date
+        file_name = id + '_' + name + '_' + date
         
         self.info_dict = self.get_info()   
-        with open(path + '/' + self.file_name + '.json', 'w') as file:
+        with open(path + '/' + file_name + '.json', 'w') as file:
             json.dump(self.info_dict, file)     
         print('Done!')
