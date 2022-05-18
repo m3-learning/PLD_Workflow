@@ -35,8 +35,15 @@
 "File" -> "Convert" -> Find the directory labelled start with your growth id -> Select all and click "CONVERT" 
 
 
+## 4. Addition instruction for camera position calibration:
 
+1). Open Software "HPV-X" on desktop
 
+2). Click the "Live" button and increase "EXPOSE" to 10,000,000ns to align the camera focus between the target and substrate holder.
+
+3). Decrease the "EXPOSE" to 2,000,000ns and Click "REC" to start recording before ablation.
+
+<!-- 
 # PLDForm README:
 ## Utility functions for Pulsed Laser Deposition
 
@@ -67,15 +74,8 @@
   3>. Waiting time depends on how many videos are selected.
 
 4). After finishing all recording and converting all videos, click "Save Parameters", and "Save to HDF5 and Upload". It may take a longer time to finish.
+ -->
 
-
-## 4. Addition instruction for camera position calibration:
-
-1). Open Software "HPV-X" on desktop
-
-2). Click the "Live" button and increase "EXPOSE" to 10,000,000ns to align the camera focus between the target and substrate holder.
-
-3). Decrease the "EXPOSE" to 2,000,000ns and Click "REC" to start recording before ablation.
 
 
 <!-- # PlumeEvaluation README:
