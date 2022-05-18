@@ -207,3 +207,23 @@ def plot_metrics(df, sort_by='condition'):
                             x='time_step', y='a.u.', hue=sort_by)
         plt.show()
     return df
+
+
+
+def plot_metrics_heatmap(df, frame_range):
+    
+    '''
+    This is a function to plot heatmap based calculated plume metrics.
+
+    :param frame_range: to specify the heatmap start from which frame  
+    :type frame_range: tuple(int, int)
+    
+    '''
+    
+    for m in df.metric.unique():
+        df_hm = df.loc[df['metric']==m]
+        df_hm = df_hm.loc[df_hm['time_step']<frame_range[1]]
+        df_hm = df_hm.loc[df_hm['time_step']>frame_range[0]]
+        df_hm = df_hm.pivot("growth_index", "time_step", "a.u.")
+        ax = sns.heatmap(df_hm).set(title=m)
+        plt.show()
