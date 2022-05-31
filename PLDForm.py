@@ -229,7 +229,8 @@ class GenerateForm(QWidget):
         id = self.growth_id_input.text()
         name = self.name_input.text()
         date = ''.join(self.date_input.text().split('/'))
-        
+        self.file_name = id + '_' + name + '_' + date
+
         if not os.path.isdir(self.path+self.file_name):
             os.mkdir(self.path+self.file_name)
         
@@ -438,14 +439,14 @@ class GenerateForm(QWidget):
         '''
         
         print('Saving dictionary...')
-        path = self.save_path_input.text() + '/'
+        self.path = self.save_path_input.text() + '/'
         
         id = self.growth_id_input.text()
         name = self.name_input.text()
         date = ''.join(self.date_input.text().split('/'))
-        file_name = id + '_' + name + '_' + date
+        self.file_name = id + '_' + name + '_' + date
         
         self.info_dict = self.get_info()   
-        with open(path + '/' + file_name + '.json', 'w') as file:
+        with open(self.path + '/' + self.file_name + '.json', 'w') as file:
             json.dump(self.info_dict, file)     
         print('Done!')
