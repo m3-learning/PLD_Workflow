@@ -112,6 +112,10 @@ def pack_to_hdf5(file_path, file_name):
                 os.rmdir(target_path)                
             
             # define the image shape
+            if not os.path.isdir(target_path + '/BMP'):
+                print('Please convert raw videos in this folder: ', target_path, 'to images first!')
+                continue
+                
             for plume_folder in os.listdir(target_path + '/BMP'):
                 length_list.append(len(os.listdir(target_path + '/BMP/' + plume_folder)))
                 img_shape = plt.imread(glob.glob(target_path+'/BMP/'+plume_folder+'/*')[0]).shape
