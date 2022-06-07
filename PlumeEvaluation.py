@@ -101,8 +101,8 @@ class PlumeMetrics():
             plots_all.append(y_plot)
         plots_all = np.stack(plots_all)        
         
-        velocity_all = self.calculate_speed()
-        plots_all = np.concatenate((plots_all, velocity_all.reshape(1, velocity_all.shape[0], velocity_all.shape[1])))
+        dist, velocity = self.calculate_speed()
+        plots_all = np.concatenate((plots_all, dist.reshape(1, dist.shape[0], dist.shape[1]), velocity.reshape(1, velocity.shape[0], velocity.shape[1])))
         return  plots_all
 
     
@@ -113,7 +113,7 @@ class PlumeMetrics():
 
         '''
         
-        velocity_all = []
+        dist = []
         for plume in self.plumes:
             start = []
             for i, img in enumerate(plume):
@@ -131,10 +131,12 @@ class PlumeMetrics():
                 else:
                     start.append(0)  
 
-            velocity_all.append(np.stack(start))
+            dist.append(np.stack(start))
 
-        velocity_all = np.stack(velocity_all, axis=0)
-        return velocity_all
+        dist = np.stack(dist, axis=0)
+        velocity = dist[:, 1:] - dist[:, :-1]
+        velocity = np.concatenate((dist[:,:1], velocity), axis=1)
+        return dist, velocity
 
 
     def to_df(self, plots_all):
@@ -149,7 +151,7 @@ class PlumeMetrics():
         
         metrics_name = ['area', 'area_filled', 'axis_major_length', 
                         'axis_minor_length', 'centroid-1', 'centroid-2', 'orientation', 
-                        'eccentricity', 'perimeter', 'velocity']
+                        'eccentricity', 'perimeter', 'distance', 'velocity']
         metric_name_index = np.repeat(metrics_name, plots_all.shape[1]*plots_all.shape[2])
         growth_index = list(np.repeat(np.arange(plots_all.shape[1]), plots_all.shape[2]))*plots_all.shape[0]
         time_index = np.array(list(np.arange(plots_all.shape[2]))*plots_all.shape[1]*plots_all.shape[0])
@@ -183,7 +185,7 @@ def plot_metrics(df, sort_by='condition'):
     
     metrics_name = ['area', 'area_filled', 'axis_major_length', 
                     'axis_minor_length', 'centroid-1', 'centroid-2', 'orientation', 
-                    'eccentricity', 'perimeter', 'velocity'] 
+                    'eccentricity', 'perimeter', 'distance', 'velocity'] 
     
     for metric in metrics_name:
         print(metric)
