@@ -1,5 +1,9 @@
 # Instruction to open PLD digital form:
 
+## start from jupyter notebook
+run all cell in examples/FormNotebook.ipynb
+
+
 ## 1. Start the program:
   1). Click "Start" - "Anaconda Prompt"
   2). Copy the following code in the opened terminal:
