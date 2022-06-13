@@ -1,18 +1,26 @@
 # Instruction to open PLD digital form:
 
-## start from jupyter notebook
-run all cell in examples/FormNotebook.ipynb
-
-
 ## 1. Start the program:
   1). Click "Start" - "Anaconda Prompt"
   2). Copy the following code in the opened terminal:
      
-     conda activate pld
+    conda activate pld
      
-     cd C:/Image/PLD_Workflow/
+    cd C:/Image/PLD_Workflow/
   
-## 2. For parameter recording only: 
+
+## 2. Open from jupyter notebook
+
+  1). Run the following code in the opened terminal:
+     
+    jupyter notebook
+     
+  2). Run the following code in the opened terminal:
+
+  Run all cell in examples/FormNotebook.ipynb. Version="plume" means digital form with recorded plume management; version="parameter" means digital form only with parameter recording function.
+
+  
+## 3. For parameter recording only: 
 
 1). Start the form by copying the following code in the terminal:
 
@@ -23,7 +31,7 @@ run all cell in examples/FormNotebook.ipynb
 3). After finishing all recording and converting all videos, click "Save Parameters", and "Save to HDF5 and Upload". It may take a longer time to finish. Local HDF5 file (plume images) and JSON file (condition) will be saved locally and uploaded to the cloud.
      
      
-## 3. For parameter and plume recording: 
+## 4. For parameter and plume recording: 
   
 1). Start the form by copying the following code in the opened terminal:
 
@@ -39,7 +47,7 @@ run all cell in examples/FormNotebook.ipynb
 "File" -> "Convert" -> Find the directory labelled start with your growth id -> Select all and click "CONVERT" 
 
 
-## 4. Addition instruction for camera position calibration:
+## 5. Addition instruction for camera position calibration:
 
 1). Open Software "HPV-X" on desktop
 
