@@ -12,6 +12,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import * 
 from ManagePlume import remove_desktop_ini, pack_to_hdf5_and_upload, pack_to_hdf5, upload_to_datafed
 
+class message_window(QWidget):
+    def __init__(self, message):
+        super().__init__()
+        self.message = '\n    '+message
+        self.initUI()
+    def initUI(self):
+        lblName = QLabel(self.message, self)
+
+
 class GenerateForm(QWidget):
     '''
     This is the digital form to record PLD experiment parameters mainly, 
@@ -195,7 +204,7 @@ class GenerateForm(QWidget):
             
             self.button_pack = QPushButton(self)
             self.button_pack.setText("Save to HDF5 and Upload")
-            self.button_pack.clicked.connect(lambda: pack_to_hdf5_and_upload(self.path, self.file_name, self.info_dict))
+            self.button_pack.clicked.connect(lambda: self.pack_to_hdf5_and_upload_with_popwindow(self.path, self.file_name, self.info_dict))
             self.toplayout.addWidget(self.button_pack)
         
         #  notes - second level
@@ -204,62 +213,7 @@ class GenerateForm(QWidget):
         self.form_notes.setLayout(self.notes_layout)
         self.notes_layout.addRow(QLabel("Notes"), self.notes_input)
         self.toplayout.addWidget(self.form_notes)
-        
-    def convert_to_image(self):
-
-        '''
-        This is a function to convert raw plume file to readable images.
-
-        '''
-        print('This is button is not functional yet, please convert manually with README instruction.')
-        
-
-    def move_to_folder(self, pre):
-
-        '''
-        This is a function to move plumes in default folder of acquisition software to target folder.
-
-        :param pre: if True, plume images will be moved to pre-ablation folder
-        :type pre: bool
-
-        '''
-
-        self.path = self.save_path_input.text() + '/'
-        
-        id = self.growth_id_input.text()
-        name = self.name_input.text()
-        date = ''.join(self.date_input.text().split('/'))
-        self.file_name = id + '_' + name + '_' + date
-
-        if not os.path.isdir(self.path+self.file_name):
-            os.mkdir(self.path+self.file_name)
-        
-        date_list = self.date_input.text().split('/')
-        date_m = date_list[2]+'_'+date_list[0]+'_'+date_list[1]
-        remove_desktop_ini(self.path)
-
-        file_list = glob.glob(self.path + date_m + '/*')
-        i = self.current_page
-        if pre:
-            dst = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()+'_'+'Pre'
-            print('Saving videos to pre-ablation folder...')
-        else:
-            dst = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()
-            print('Saving videos to ablation folder...')
-            
-        if not os.path.isdir(dst):
-            os.mkdir(dst)
-            remove_desktop_ini(dst)
-#             print('The target directory is not created, please "Create Directory" first.')
-#             return 
-           
-        # remove desktop.ini file from all sub-directory
-
-        for file in file_list:
-            shutil.move(file, dst)
-            
-        print('Done!')
-       
+ 
 
     def create_header(self):
 
@@ -367,6 +321,77 @@ class GenerateForm(QWidget):
         
         return layout
 
+    
+
+    def pack_to_hdf5_and_upload_with_popwindow(self, path, file_name, info_dict):
+        self.show_message_window('Hdf5 file packed and uploaded to datafed!')
+        pack_to_hdf5_and_upload(path, file_name, info_dict)
+    
+
+        
+    def show_message_window(self, message):
+        self.exPopup = message_window(message)
+        self.exPopup.setGeometry(200, 200, 600, 300)
+        self.exPopup.show()
+    
+    
+    def convert_to_image(self):
+
+        '''
+        This is a function to convert raw plume file to readable images.
+        '''
+        print('This is button is not functional yet, please convert manually with README instruction.')
+        self.show_message_window('This is button is not functional yet, please convert manually with README instruction.')
+        
+
+    def move_to_folder(self, pre):
+
+        '''
+        This is a function to move plumes in default folder of acquisition software to target folder.
+
+        :param pre: if True, plume images will be moved to pre-ablation folder
+        :type pre: bool
+
+        '''
+
+        self.path = self.save_path_input.text() + '/'
+        
+        id = self.growth_id_input.text()
+        name = self.name_input.text()
+        date = ''.join(self.date_input.text().split('/'))
+        self.file_name = id + '_' + name + '_' + date
+
+        if not os.path.isdir(self.path+self.file_name):
+            os.mkdir(self.path+self.file_name)
+        
+        date_list = self.date_input.text().split('/')
+        date_m = date_list[2]+'_'+date_list[0]+'_'+date_list[1]
+        remove_desktop_ini(self.path)
+
+        file_list = glob.glob(self.path + date_m + '/*')
+        i = self.current_page
+        if pre:
+            dst = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()+'_'+'Pre'
+            print('Saving videos to pre-ablation folder...')
+            
+        else:
+            dst = self.path+self.file_name+'/'+str(i+1)+'-'+self.target_input[i].text()
+            print('Saving videos to ablation folder...')
+            
+        if not os.path.isdir(dst):
+            os.mkdir(dst)
+            remove_desktop_ini(dst)
+#             print('The target directory is not created, please "Create Directory" first.')
+#             return 
+           
+        # remove desktop.ini file from all sub-directory
+
+        for file in file_list:
+            shutil.move(file, dst)
+            
+        print('Done!')
+        self.show_message_window('Recorded videos moved to target folder!')
+
 
     def switchPage(self, i):
         '''
@@ -450,3 +475,6 @@ class GenerateForm(QWidget):
         with open(self.path + '/' + self.file_name + '.json', 'w') as file:
             json.dump(self.info_dict, file)     
         print('Done!')
+        
+        self.show_message_window('Parameters saved!')
+        
