@@ -318,16 +318,11 @@ class GenerateForm(QWidget):
             self.button_move.setText("Move Videos To Ablation Folder")
             self.button_move.clicked.connect(lambda: self.move_to_folder(pre=False))
             layout.addWidget(self.button_move, 3, 1)  
-        
         return layout
-
-    
 
     def pack_to_hdf5_and_upload_with_popwindow(self, path, file_name, info_dict):
         self.show_message_window('Hdf5 file packed and uploaded to datafed!')
         pack_to_hdf5_and_upload(path, file_name, info_dict)
-    
-
         
     def show_message_window(self, message):
         self.exPopup = message_window(message)
@@ -380,11 +375,7 @@ class GenerateForm(QWidget):
             
         if not os.path.isdir(dst):
             os.mkdir(dst)
-            remove_desktop_ini(dst)
-#             print('The target directory is not created, please "Create Directory" first.')
-#             return 
-           
-        # remove desktop.ini file from all sub-directory
+            remove_desktop_ini(dst) # remove desktop.ini file from all sub-directory
 
         for file in file_list:
             shutil.move(file, dst)
@@ -422,8 +413,6 @@ class GenerateForm(QWidget):
                                 "Notes": self.notes_input.toPlainText()}
                                 }
         
-
-        
         for i in range(10):
             info_dict['target_'+str(i+1)] = {
                         "Target Material": self.target_input[i].text(),
@@ -438,17 +427,17 @@ class GenerateForm(QWidget):
                         "Measured Energy Mean(mJ)": self.energy_mean_input[i].text(),
                         "Measured Energy Std(mJ)": self.energy_std_input[i].text(),
 
-                        "Pre-Temperature(\N{DEGREE SIGN}C)": self.pre_temperature_input[i].text(),
-                        "Pre-Pressure(mTorr)": self.pre_pressure_input[i].text(),
-                        "Pre-Gas Atmosphere": self.pre_gas_input[i].currentText(),
-                        "Pre-Frequency(Hz)": self.pre_frequency_input[i].text(),
-                        "Pre-Pulses": self.pre_number_pulses_input[i].text(),           
+                        "Pre-Ablation-Temperature(\N{DEGREE SIGN}C)": self.pre_temperature_input[i].text(),
+                        "Pre-Ablation-Pressure(mTorr)": self.pre_pressure_input[i].text(),
+                        "Pre-Ablation-Gas Atmosphere": self.pre_gas_input[i].currentText(),
+                        "Pre-Ablation-Frequency(Hz)": self.pre_frequency_input[i].text(),
+                        "Pre-Ablation-Pulses": self.pre_number_pulses_input[i].text(),           
 
-                        "Temperature(\N{DEGREE SIGN}C)": self.temperature_input[i].text(),
-                        "Pressure(mTorr)": self.pressure_input[i].text(),
-                        "Atmosphere Gas": self.gas_input[i].currentText(),
-                        "Frequency(Hz)": self.frequency_input[i].text(),
-                        "Pulses": self.number_pulses_input[i].text(),            
+                        "Ablation-Temperature(\N{DEGREE SIGN}C)": self.temperature_input[i].text(),
+                        "Ablation-Pressure(mTorr)": self.pressure_input[i].text(),
+                        "Ablation-Atmosphere Gas": self.gas_input[i].currentText(),
+                        "Ablation-Frequency(Hz)": self.frequency_input[i].text(),
+                        "Ablation-Pulses": self.number_pulses_input[i].text(),            
                                             }
         # clean the empty pairs
         for name in info_dict.keys():
