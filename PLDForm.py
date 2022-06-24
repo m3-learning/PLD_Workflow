@@ -48,8 +48,8 @@ class GenerateForm(QWidget):
         self.name_input = QLineEdit()
         self.date_input = QLineEdit(datetime.datetime.today().strftime("%m/%d/%Y"))
         self.time_input = QLineEdit(datetime.datetime.now().strftime("%H:%M:%S"))
-#         self.save_path_input = QLineEdit(os.getcwd()) 
-        self.save_path_input = QLineEdit('C:/Image/') 
+        self.save_path_input = QLineEdit(os.getcwd()) 
+#         self.save_path_input = QLineEdit('C:/Image/') 
 
         self.custom_key = QLineEdit()
         self.custom_key.setFixedSize(80, self.window_height)
@@ -460,7 +460,14 @@ class GenerateForm(QWidget):
         date = ''.join(self.date_input.text().split('/'))
         self.file_name = id + '_' + name + '_' + date
         
-        self.info_dict = self.get_info()   
+        self.info_dict = self.get_info()  
+        
+        # convert to float if possible
+        for k in self.info_dict.keys():
+            for kk in self.info_dict[k].keys():
+                try: self.info_dict[k][kk] = float(self.info_dict[k][kk])
+                except ValueError: pass
+            
         with open(self.path + '/' + self.file_name + '.json', 'w') as file:
             json.dump(self.info_dict, file)     
         print('Done!')
