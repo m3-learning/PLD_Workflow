@@ -55,6 +55,14 @@
 
 3). Decrease the "EXPOSE" to 2,000,000ns and Click "REC" to start recording before ablation.
 
+
+## 6. Addition instruction to pack python code to executable file:
+
+Make sure the python file do not include any dependencies, and run:
+
+    pyinstaller --onefile pld_app_plume.py
+
+
 <!-- 
 # PLDForm README:
 ## Utility functions for Pulsed Laser Deposition
