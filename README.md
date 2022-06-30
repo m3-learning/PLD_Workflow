@@ -60,7 +60,7 @@
 
 Make sure the python file do not include any dependencies, and run:
 
-    pyinstaller --onefile pld_app_plume.py
+    pyinstaller --onefile --noconsole pld_app_plume.py
 
 
 <!-- 
