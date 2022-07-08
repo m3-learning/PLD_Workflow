@@ -1,3 +1,4 @@
+
 import shutil
 import sys
 import json
@@ -6,10 +7,18 @@ import os, glob, h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from datafed.CommandLib import API
+import re #regular expressions
 
-from PyQt5.QtGui import QFont 
+import getpass
+import subprocess
+from platform import platform
+
+
+
+from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import * 
 from PyQt5.QtWidgets import * 
+from PyQt5.Qt import QStandardItemModel, QStandardItem
 from ManagePlume import remove_desktop_ini, pack_to_hdf5_and_upload, pack_to_hdf5, upload_to_datafed
 
 class message_window(QWidget):
@@ -19,16 +28,31 @@ class message_window(QWidget):
         self.initUI()
     def initUI(self):
         lblName = QLabel(self.message, self)
+        
+ #for creating the folders (treeview) to view the data from Datafed
+class StandardItem(QStandardItem):
+    def __init__(self,txt='',fontsize=12,set_bold=False,color=QColor(0,0,0)):
+        super().__init__()
+        fnt = QFont('Times', fontsize)
+        fnt.setBold(set_bold)
 
+        self.setEditable(False)
+        self.setForeground(color)
+        self.setFont(fnt)
+        self.setText(txt)  
+                 
+                 
+                                
 
+    
+
+        
 class GenerateForm(QWidget):
     '''
     This is the digital form to record PLD experiment parameters mainly, 
     with additional feature features to manage, pack, and upload recorded plumes along with recorded parameters. 
-
     :param version: input variable used to determine user want to open which version of digital form, defaults to "parameter" 
     :type version: str
-
     '''
     def __init__(self, version='parameter'):
         super().__init__()
@@ -56,86 +80,206 @@ class GenerateForm(QWidget):
         self.custom_value = QLineEdit()
 
         # chamber part
+       # chamber part
         self.chamber_ComboBox = QComboBox()  # creating combo box to select degree
-        chamber_list = ["Laser 1A", "Laser 1C"]
+        self.chamber_ComboBox.setFixedSize(100, self.window_height)
+        chamber_list = ["","Laser 1A", "Laser 1C"]
         self.chamber_ComboBox.addItems(chamber_list)
         
-        substrate_list = ["", "SrTiO3", "None"]
+       # self.chamber_ComboBox.setCurrentText("Laser 1C")
+        
+        #the substrate part
+        substrate_list = ["", "SrTiO3", "None"]   
+        
         self.substrate_1_ComboBox = QComboBox()
+        self.substrate_1_ComboBox.setFixedSize(100, self.window_height)
         self.substrate_1_ComboBox.addItems(substrate_list)
+        
         self.substrate_2_ComboBox = QComboBox()
+        self.substrate_2_ComboBox.setFixedSize(100, self.window_height)
         self.substrate_2_ComboBox.addItems(substrate_list)
+        
         self.substrate_3_ComboBox = QComboBox()
+        self.substrate_3_ComboBox.setFixedSize(100, self.window_height)
         self.substrate_3_ComboBox.addItems(substrate_list)
+        
         self.substrate_4_ComboBox = QComboBox()
+        self.substrate_4_ComboBox.setFixedSize(100, self.window_height)
         self.substrate_4_ComboBox.addItems(substrate_list)
+
+        
         
         
         self.base_pressure_input = QLineEdit()
 
-        gas_list = ["Vacuum", "Oxygen", "Argon"]
+        gas_list = ["","Vacuum", "Oxygen", "Argon"]
         self.cool_down_gas = QComboBox()
+        self.cool_down_gas.setFixedSize(100, self.window_height)
         self.cool_down_gas.addItems(gas_list)
 
+
+        
+        
+    
+        
+        
+       # prior_list = projects
+    #    self.prior_session =  QTreeView()
+     #   self.prior_session.addItems(prior_list)
+
+        
+        self.prior_session =  QTreeWidget() #QTreeView()
+        #self.prior_session.addItems(prior_list)
+        
+        treeView =  self.prior_session #QTreeView()
+        #self.prior_session = treeView
+        treeView.setHeaderHidden(True)
+        
+        
+        treeModel = QStandardItemModel()
+        rootNode = treeModel.invisibleRootItem()
+        
+        
+        
+        #input list of records from previous sessions
+        #the below steps come from the Datafed Jupyter notebook tutorial: 
+        #https://ornl.github.io/DataFed/user/python/notebooks.html
+        #see the tutorial for help installing Datafed if necessary;
+        #the below assumes everything is working properly 
+        
+        df_api = API()
+
+        df_api.setContext('p/2022_pld_plume_recording')
+
+        ls_resp = df_api.collectionItemsList('root')
+        
+      #  projects=[]
+        
+         
+        for record in ls_resp[0].item:
+#             
+            folder = record.title #for example Datasets 
+            a = QTreeWidgetItem([folder])
+            treeView.addTopLevelItem(a)
+            
+            ID = record.id 
+            ls_resp_2 = df_api.collectionItemsList(ID,count = 1000) # listing children of folder, which I call 'session'  
+            
+            for record2 in ls_resp_2[0].item:
+                session = (QTreeWidgetItem([record2.title]))
+                a.insertChild(0,session)
+                
+                Id2 =  record2.id 
+                #add scan, then label,then value
+                try:
+                    metaData = json.loads(df_api.dataView(Id2)[0].data[0].metadata) # get metadata for session
+
+                    keys = metaData.keys()
+                    
+                    
+                    for key in keys:
+                        scan = QTreeWidgetItem([key]) #Header, target_NUM, etc. 
+                        session.addChild(scan) 
+  
+                        
+                        if type(metaData[key]) == str:
+                            scan.addChild(QTreeWidgetItem([metaData[key]])) #target material, etc. 
+                            
+                        else: #type == dict
+                            for val in metaData[key]:
+                                label = QTreeWidgetItem([val])
+                                scan.addChild(label) #PZO, 700, etc. 
+                                try: 
+                                    label.addChild(QTreeWidgetItem([str(metaData[key][val])]))
+                                except Exception as err:
+                                    label.addChild(QTreeWidgetItem([f"{type(err).__name__} was raised: {err}"]))
+                                   
+                except: # if no metaData
+                    session.addChild(QTreeWidgetItem(['no metadata found']))
+        
+            
+  
+   
+        
         # notes part
         self.notes_input = QPlainTextEdit()        
-        self.notes_input.setFixedSize(600, self.window_height*3)
+        self.notes_input.setFixedSize(600, self.window_height*3) #3
         
         
         # target
-        self.target_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        self.target_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
         
         # lens part
-        self.aperture_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.focus_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.attenuator_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.target_height_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        self.aperture_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.focus_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.attenuator_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.target_height_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
         
         # laser part
-        self.laser_voltage_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.laser_energy_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.energy_mean_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        self.laser_voltage_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.laser_energy_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.energy_mean_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
 
-        self.energy_std_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        self.energy_std_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
 
         
         # pre-ablation and ablation
-        self.pre_temperature_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.pre_pressure_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.pre_gas_input = [QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox(), 
-                              QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox()]   
-        self.pre_frequency_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.pre_number_pulses_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        self.pre_temperature_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.pre_pressure_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.pre_gas_input = [QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox(),QComboBox(),
+                              QComboBox(),QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox()]   
+        
+        self.pre_frequency_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.pre_number_pulses_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
 
-        self.temperature_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.pressure_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.gas_input = [QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox(), 
-                          QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox()]     
-        self.frequency_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
-        self.number_pulses_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), 
-                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        self.temperature_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.pressure_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.gas_input = [QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox(),QComboBox(),
+                              QComboBox(),QComboBox(), QComboBox(), QComboBox(), QComboBox(), QComboBox()]
+        
+        self.frequency_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
+        
+        self.number_pulses_input = [QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(),QLineEdit(),  
+                             QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit(), QLineEdit()]
         
         gas_list = ["", "Vacuum", "Oxygen", "Argon"]
+       
         for combobox in self.pre_gas_input:
             combobox.addItems(gas_list)
+            combobox.setFixedSize(100, self.window_height)
+
+            
         for combobox in self.gas_input:
             combobox.addItems(gas_list)
+            combobox.setFixedSize(100, self.window_height)
+          
+
         
         # define the layout
         self.setWindowTitle("PLD Growth Record")
@@ -151,24 +295,41 @@ class GenerateForm(QWidget):
         self.header_layout = self.create_header()
         self.header_form.setLayout(self.header_layout)
         self.layout.addWidget(self.header_form, 0, 0)
-        
+  #      self.layout.setColumnStretch(0,1)
+
         self.chamber_form = QGroupBox("Chamber Parameters")
         self.chamber_layout = self.create_chamber()
         self.chamber_form.setLayout(self.chamber_layout)
         self.layout.addWidget(self.chamber_form, 0, 1)
+  #      self.layout.setColumnStretch(1,0)
+        
+        self.prior_scans = treeView  #QGroupBox("Prior Scans")
+        self.prior_layout = self.create_prior()
+        self.prior_scans.setLayout(self.prior_layout)
+        #self.prior_scans.setAlignment(Qt.AlignLeft)
+        self.layout.addWidget(self.prior_scans, 0, 2,4,-1) #0,2,4,-1
+        self.layout.setColumnStretch(2,10)
+        
+      
+            ### Create and connect the combo box to switch between pages
+        target_list = ["Target_1", "Target_2", "Target_3", "Target_4", "Target_5", "Target_6", 
+                       "Target_7", "Target_8", "Target_9","Target_10","Target_11", "Target_12"]
+        self.target_ComboBox = QComboBox()
+
+        self.target_ComboBox.addItems(target_list)
+        self.target_ComboBox.activated.connect(self.switchPage)
+        
+            ### Add the combo box and the stacked layout to the top-level layout
+            
+        self.target_form= QGroupBox("Target")
+        self.target_layout = self.create_target()
+        self.target_form.setLayout(self.target_layout)
+        self.layout.addWidget(self.target_form, 1, 0)
         
         
-        ## create QVForm - second level
+#         ## create QVForm - second level
         self.button_layout = QGridLayout()
         self.toplayout.addLayout(self.button_layout)
-
-            ### Create and connect the combo box to switch between pages
-        self.pageCombo = QComboBox()
-        self.pageCombo.addItems(["Target_1", "Target_2", "Target_3", "Target_4", "Target_5", 
-                                 "Target_6", "Target_7", "Target_8", "Target_9", "Target_10"]) 
-        self.pageCombo.activated.connect(self.switchPage)
-            ### Add the combo box and the stacked layout to the top-level layout
-        self.button_layout.addWidget(self.pageCombo, 0, 0)
 
 #         if self.version == 'plume':
 #             self.button_create = QPushButton(self)
@@ -176,18 +337,22 @@ class GenerateForm(QWidget):
 #             self.button_create.clicked.connect(lambda: self.create_folder())
 #             self.button_layout.addWidget(self.button_create, 0, 1) 
 
-        ## create QGridLayout - second level
+#         ## create QGridLayout - second level 
         self.multiPages = QFormLayout()
         self.toplayout.addLayout(self.multiPages)
         
             ### Create the forms
         self.Stack = QStackedWidget (self)
-        self.multiPages.addWidget(self.Stack)
-        for i in range(10):
+        self.multiPages.addWidget(self.Stack)  
+        for i in range(len(target_list)):
             self.stack = QWidget()
             self.Stack.addWidget (self.stack)
             stack_layout = self.stackUI(i)
             self.stack.setLayout(stack_layout)
+        
+       
+        
+       
         
         #  save button - second level
         self.button_save = QPushButton(self)
@@ -214,12 +379,338 @@ class GenerateForm(QWidget):
         self.notes_layout.addRow(QLabel("Notes"), self.notes_input)
         self.toplayout.addWidget(self.form_notes)
  
+#     def getValue(self,treeView):
+#         item = treeView.currentItem()
+#         #    return val.data()
+
+#when an item in the tree is double clicked, import stuff to the form 
+        treeView.doubleClicked.connect(self.onItemClicked)
+
+    def onItemClicked(self,treeView):
+      
+        #first, define clicked on item
+        item=self.prior_session.currentItem()    
+        
+        
+#       then, clear everything from previously click so it is less confusing
+#      unless the curent click doesn't do anything (i.e. it is on the top level (Datasets, etc)  or individual items
+#level (i.e. aperture or 100)
+#for top level, parents are none. for individual items, no grandchildren (i.e. child(0).childCount()=0) 
+        
+    
+        if item.parent() != None and int(item.childCount())>0 and int(item.child(0).childCount())>0:
+
+            #the relevant header parameters
+            self.growth_id_input.setText("")
+            self.name_input.setText("")
+            self.save_path_input.setText("")
+
+            #chamber parameters (called "header" in dataFed)
+            self.chamber_ComboBox.setCurrentText("")
+            self.substrate_1_ComboBox.setCurrentText("")
+            self.substrate_2_ComboBox.setCurrentText("")
+            self.substrate_3_ComboBox.setCurrentText("")
+            self.substrate_4_ComboBox.setCurrentText("")
+            self.base_pressure_input.setText("")
+            self.cool_down_gas.setCurrentText("")
+            
+            #notes section at bottom of form
+            self.notes_input.clear()
+
+            #target material
+
+            for i in range(12):
+                self.target_input[i].setText("")
+
+                  #lens parameters
+                self.aperture_input[i].setText("")
+                self.focus_input[i].setText("")
+                self.attenuator_input[i].setText("")
+                self.target_height_input[i].setText("")
+
+               #laser parameters
+                self.laser_voltage_input[i].setText("")
+                self.laser_energy_input[i].setText("")
+                self.energy_mean_input[i].setText("")
+                self.energy_std_input[i].setText("")
+                
+                #pre-ablation parameters
+                self.pre_temperature_input[i].setText("")
+                self.pre_pressure_input[i].setText("")
+                self.pre_gas_input[i].setCurrentText("")
+                self.pre_frequency_input[i].setText("")
+                self.pre_number_pulses_input[i].setText("")
+                
+                #ablation parameters
+                self.temperature_input[i].setText("")
+                self.pressure_input[i].setText("")
+                self.gas_input[i].setCurrentText("")
+                self.frequency_input[i].setText("")
+                self.number_pulses_input[i].setText("")
+
+
+
+
+                 #make the children arrays for iterating and printing 
+                 #I have to iterate over each of the children of the item to get the text of each one
+                #and then control where its decendents go
+                item_children = []
+                for i in range(int(item.childCount())):
+
+                   
+
+                    item_children.append(item.child(i).text(0))
+
+
+
+                    #each session has its own set of targets, so that is the farthest up the 
+                    #chain it make sense to input stuff to form 
+                    #for now just putting it in the first target (see how they want to handle target matching)
+                    
+                    #these are for if you click on an individual target 
+                    
+                    #the relevant header parameters 
+
+                    if 'Growth ID' in str(item.child(i).text(0)):
+                        self.growth_id_input.setText(str(item.child(i).child(0).text(0)))
+
+                    if 'User Name' in str(item.child(i).text(0)):
+                        self.name_input.setText(str(item.child(i).child(0).text(0)))    
+
+                    if 'Path' in str(item.child(i).text(0)):
+                        self.save_path_input.setText(str(item.child(i).child(0).text(0)))    
+
+
+                     #chamber parameters (also maybe called 'header' in dataFed)
+                    if 'Chamber' in str(item.child(i).text(0)):
+                        self.chamber_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+                    if 'Substrate_1' in str(item.child(i).text(0)):
+                        self.substrate_1_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+                    if 'Substrate_2' in str(item.child(i).text(0)):
+                        self.substrate_2_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+                    if 'Substrate_3' in str(item.child(i).text(0)):
+                        self.substrate_3_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+                    if 'Substrate_4' in str(item.child(i).text(0)):
+                        self.substrate_4_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())    
+
+
+                    if 'Base Pressure' in str(item.child(i).text(0)):
+                        self.base_pressure_input.setText(str(item.child(i).child(0).text(0)))
+
+                    if 'Cool Down Atmosphere' in str(item.child(i).text(0)):
+                        self.cool_down_gas.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+                    
+                    #notes section at bottom of form
+                    if "Notes" in str(item.child(i).text(0)):
+                        self.notes_input.appendPlainText(str(item.child(i).child(0).text(0)))
+
+                      #Target Material
+                    #the re.split is because there is a header and sometime user name field 
+             #to iterate over before getting to the targets 
+                    if 'Target Material' in str(item.child(i).text(0)):
+                        self.target_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+
+                    #lens parameters 
+
+                    if 'Aperture' in str(item.child(i).text(0)):
+                        self.aperture_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                    if 'Focus' in str(item.child(i).text(0)):
+                        self.focus_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                    if "Attenuator" in str(item.child(i).text(0)):
+                        self.attenuator_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                    if "Target Height" in str(item.child(i).text(0)):
+                        self.target_height_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                        #laser parameters 
+
+                    if 'Laser Voltage' in str(item.child(i).text(0)):
+                        self.laser_voltage_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                    if 'Laser Energy' in str(item.child(i).text(0)):
+                        self.laser_energy_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                    if "Measured Energy Mean" in str(item.child(i).text(0)):
+                        self.energy_mean_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                    if "Measured Energy Std" in str(item.child(i).text(0)):
+                        self.energy_std_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        
+                        
+                        
+               #pre-ablation parameters 
+                    
+                    if 'Pre-Temperature' in str(item.child(i).text(0)) or "Pre-Ablation-Temperature" in str(item.child(i).text(0)):
+                        self.pre_temperature_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        
+                    if 'Pre-Pressure' in str(item.child(i).text(0)) or "Pre-Ablation-Pressure" in str(item.child(i).text(0)):
+                        self.pre_pressure_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                            
+                    if "Pre-Gas" in str(item.child(i).text(0)) or "Pre-Ablation-Gas" in str(item.child(i).text(0)) or "Pre-Atmosphere" in str(item.child(i).text(0)) or "Pre-Ablation-Atmosphere" in str(item.child(i).text(0)):
+                        self.pre_gas_input[int(re.split("_",str(item.text(0)))[1])-1].setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+                            
+                    if "Pre-Frequency" in str(item.child(i).text(0)) or "Pre-Ablation-Frequency" in str(item.child(i).text(0)):
+                        self.pre_frequency_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                                
+                    if "Pre-Pulses" in str(item.child(i).text(0)) or "Pre-Ablation-Pulses" in str(item.child(i).text(0)):
+                        self.pre_number_pulses_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))     
+                
+                            
+                    
+                    #                       #ablation parameters 
+                    
+                    if re.search('^Temperature', str(item.child(i).text(0))) or "Ablation-Temperature" in str(item.child(i).text(0)):
+                        self.temperature_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        
+                    if re.search('^Pressure' , str(item.child(i).text(0))) or "Ablation-Pressure" in str(item.child(i).text(0)):
+                        self.pressure_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                            
+                    if re.search("^Atmosphere" , str(item.child(i).text(0))) or "Ablation-Atmosphere" in str(item.child(i).text(0)) or re.search("^Gas",str(item.child(i).text(0))) or "Ablation-Gas-Atmosphere" in str(item.child(i).text(0)):
+                        self.gas_input[int(re.split("_",str(item.text(0)))[1])-1].setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+                            
+                    if re.search("^Frequency" , str(item.child(i).text(0))) or "Ablation-Frequency" in str(item.child(i).text(0)):
+                        self.frequency_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                                
+                    if re.search("^Pulses" , str(item.child(i).text(0))) or "Ablation-Pulses" in str(item.child(i).text(0)):
+                        self.number_pulses_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))               
+
+                    #if instead, you click on a session, we need to go one step further:
+                    #to the grandchildren of the item clicked on and its value
+                    #otherwise, the logic is the same. I think I have to iterate again even though it is repetitive
+                    #because I need to pull out children in one case and grandchildren in the other. 
+                    if int(item.child(i).childCount())>0:
+                        item_grandChildren = []
+                        for j in range(int(item.child(i).childCount())):
+                            item_grandChildren.append(item.child(i).child(j).text(0))
+
+                          #  self.base_pressure_input.setText(str(re.split("_",str(item.child(i).text(0)))[1])) 
+                        #the relevant header parameters 
+
+                            if 'Growth ID' in str(item.child(i).child(j).text(0)):
+                                self.growth_id_input.setText("")
+                                self.growth_id_input.setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if 'User Name' in str(item.child(i).child(j).text(0)):
+                                self.name_input.setText(str(item.child(i).child(j).child(0).text(0)))    
+
+                            if 'Path' in str(item.child(i).child(j).text(0)):
+                                self.save_path_input.setText(str(item.child(i).child(j).child(0).text(0)))    
+
+
+                        #chamber parameters (also maybe called 'header' in dataFed)
+                            if 'Chamber' in str(item.child(i).child(j).text(0)):
+                                self.chamber_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+
+                            if 'Substrate_1' in str(item.child(i).child(j).text(0)):
+                                self.substrate_1_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+                                
+                            if 'Substrate_2' in str(item.child(i).child(j).text(0)):
+                                self.substrate_2_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+
+                            if 'Substrate_3' in str(item.child(i).child(j).text(0)):
+                                self.substrate_3_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+
+                            if 'Substrate_4' in str(item.child(i).child(j).text(0)):
+                                self.substrate_4_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())    
+
+
+                            if 'Base Pressure' in str(item.child(i).child(j).text(0)):
+                                self.base_pressure_input.setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if 'Cool Down Atmosphere' in str(item.child(i).child(j).text(0)):
+                                self.cool_down_gas.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+
+
+                             #notes section at bottom of form
+                            if "Notes" in str(item.child(i).child(j).text(0)):
+                                self.notes_input.appendPlainText(str(item.child(i).child(j).child(0).text(0)))        
+                                
+                           #Target Material
+                              #the regex is because there is a header and sometime user name field 
+             #to iterate over before getting to the targets 
+                            if 'Target Material' in str(item.child(i).child(j).text(0)):
+                                self.target_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+
+                        #lens parameters 
+
+                            if 'Aperture' in str(item.child(i).child(j).text(0)):
+                                self.aperture_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if 'Focus' in str(item.child(i).child(j).text(0)):
+                                self.focus_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if "Attenuator" in str(item.child(i).child(j).text(0)):
+                                self.attenuator_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if "Target Height" in str(item.child(i).child(j).text(0)):
+                                self.target_height_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                        #laser parameters 
+
+                            if 'Laser Voltage' in str(item.child(i).child(j).text(0)):
+                                self.laser_voltage_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if 'Laser Energy' in str(item.child(i).child(j).text(0)):
+                                self.laser_energy_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if "Measured Energy Mean" in str(item.child(i).child(j).text(0)):
+                                self.energy_mean_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                            if "Measured Energy Std" in str(item.child(i).child(j).text(0)):
+                                self.energy_std_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+#                       #pre-ablation parameters 
+                    
+                            if 'Pre-Temperature' in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Temperature" in str(item.child(i).child(j).text(0)):
+                                self.pre_temperature_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+                        
+                            if 'Pre-Pressure' in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Pressure" in str(item.child(i).child(j).text(0)):
+                                self.pre_pressure_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+                            
+                            if "Pre-Gas" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Gas" in str(item.child(i).child(j).text(0)) or "Pre-Atmosphere" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Atmosphere" in str(item.child(i).child(j).text(0)):
+                                self.pre_gas_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+                            
+                            if "Pre-Frequency" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Frequency" in str(item.child(i).child(j).text(0)):
+                                self.pre_frequency_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+                                
+                            if "Pre-Pulses" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Pulses" in str(item.child(i).child(j).text(0)):
+                                self.pre_number_pulses_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))     
+                
+                            
+                    
+                    #                       #ablation parameters 
+                    
+                            if re.search('^Temperature', str(item.child(i).child(j).text(0))) or "Ablation-Temperature" in str(item.child(i).child(j).text(0)):
+                                self.temperature_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+                        
+                            if re.search('^Pressure' , str(item.child(i).child(j).text(0))) or "Ablation-Pressure" in str(item.child(i).child(j).text(0)):
+                                self.pressure_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+                            
+                            if re.search("^Atmosphere" , str(item.child(i).child(j).text(0))) or "Ablation-Atmosphere" in str(item.child(i).child(j).text(0)) or re.search("^Gas" , str(item.child(i).child(j).text(0))) or "Ablation-Gas-Atmosphere" in str(item.child(i).child(j).text(0)):
+                                self.gas_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+                            
+                            if re.search("^Frequency" , str(item.child(i).child(j).text(0))) or "Ablation-Frequency" in str(item.child(i).child(j).text(0)):
+                                self.frequency_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+                                
+                            if re.search("^Pulses" , str(item.child(i).child(j).text(0))) or "Ablation-Pulses" in str(item.child(i).child(j).text(0)):
+                                self.number_pulses_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))     
+                            
+                        
+
 
     def create_header(self):
 
         '''
         This is a function to create header part of the form.
-
         '''
 
         header_layout = QFormLayout()
@@ -248,6 +739,27 @@ class GenerateForm(QWidget):
         return chamber_layout    
     
     
+    def create_prior(self):
+        
+        prior_layout = QFormLayout()
+       # prior_layout.addRow(QLabel("Prior Session"), self.prior_session)
+        
+        
+        return prior_layout
+    
+    def create_target(self):
+        
+        target_layout = QFormLayout()
+        target_layout.addRow(QLabel("Target"), self.target_ComboBox)
+        self.target_ComboBox.setFixedSize(100, self.window_height)
+
+        
+        return target_layout
+    
+    #MAYBE TRY TO CREATE A STACKING ITEM IN THE SAME GRID AS UP TOP AND SEE IF IT
+    #UPDATES WHEN TARGET CHANGES. THEN CAN BREAK UP stackUI
+    
+    
     def stackUI(self, create_index):
         '''
         This is a function to create stacking pages of the form.
@@ -259,7 +771,9 @@ class GenerateForm(QWidget):
         layout_target = QFormLayout()
         form_target.setLayout(layout_target)
         layout.addWidget(form_target, 0, 0)
-        layout_target.addRow(QLabel("Target:"), self.target_input[create_index])
+        layout_target.addRow(QLabel("Target Material:"), self.target_input[create_index])
+        #self.target_input[create_index].setText(str(create_index))
+        
         
         form_button = QGroupBox()
         layout_button = QFormLayout()
@@ -289,6 +803,9 @@ class GenerateForm(QWidget):
         layout_pre = QFormLayout()
         form_pre.setLayout(layout_pre)
         layout.addWidget(form_pre, 2, 0)
+        #layout_pre.setSpacing(10)
+        #layout_pre.setFixedSize(100,self.window_height)
+       
         layout_pre.addRow(QLabel("Temperature (\N{DEGREE SIGN}C)"), self.pre_temperature_input[create_index])
         layout_pre.addRow(QLabel("Pressure (mTorr)"), self.pre_pressure_input[create_index])
         layout_pre.addRow(QLabel("Atmosphere Gas"), self.pre_gas_input[create_index])
@@ -340,18 +857,24 @@ class GenerateForm(QWidget):
         '''
         This is a function to convert raw plume file to readable images.
         '''
-        print('This is button is not functional yet, please convert manually with README instruction.')
+        print('This button is not functional yet, please convert manually with README instruction.')
         self.show_message_window('This is button is not functional yet, please convert manually with README instruction.')
         
-
+    
+    
+    def metadata_to_form(self):
+        #this is a function to input the selected item in the Datafed treeview into the form  
+        
+        print("This button is not yet functional. Please try again later.")
+        self.show_message_window("This button is not yet functional. Please try again later.")
+    
+    
     def move_to_folder(self, pre):
 
         '''
         This is a function to move plumes in default folder of acquisition software to target folder.
-
         :param pre: if True, plume images will be moved to pre-ablation folder
         :type pre: bool
-
         '''
 
         self.path = self.save_path_input.text() + '/'
@@ -419,12 +942,14 @@ class GenerateForm(QWidget):
                                 "Substrate_4": self.substrate_3_ComboBox.currentText(),
                                 "Base Pressure (Torr)": self.base_pressure_input.text(),
                                 "Cool Down Atmosphere": self.cool_down_gas.currentText(),
+                                "Prior Sessions": self.prior_session.currentText(),
+                                "Target": self.target_list.currentText(),
                                 "Notes": self.notes_input.toPlainText()}
                                 }
         
 
         
-        for i in range(10):
+        for i in range(12):
             info_dict['target_'+str(i+1)] = {
                         "Target Material": self.target_input[i].text(),
 
@@ -477,4 +1002,4 @@ class GenerateForm(QWidget):
         print('Done!')
         
         self.show_message_window('Parameters saved!')
-        
+  
