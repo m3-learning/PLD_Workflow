@@ -42,6 +42,8 @@ class GenerateForm(QWidget):
         self.button_height = 28
         self.current_page = 0
         
+        
+        
         # pre-define inputs
         # header part
         self.growth_id_input = QLineEdit()
