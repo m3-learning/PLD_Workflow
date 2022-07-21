@@ -471,8 +471,12 @@ class GenerateForm(QWidget):
                 except ValueError: pass
             
         with open(self.path + '/' + self.file_name + '.json', 'w') as file:
-            json.dump(self.info_dict, file)     
-        print('Done!')
+            json.dump(self.info_dict, file)  
+            
+        with open(self.path + '/' + self.file_name + '.txt',"w") as file:
+            file.write(json.dumps(self.info_dict)) 
         
+        print('Done!')
+    
         self.show_message_window('Parameters saved!')
         
