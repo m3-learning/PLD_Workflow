@@ -942,8 +942,6 @@ class GenerateForm(QWidget):
                                 "Substrate_4": self.substrate_3_ComboBox.currentText(),
                                 "Base Pressure (Torr)": self.base_pressure_input.text(),
                                 "Cool Down Atmosphere": self.cool_down_gas.currentText(),
-                                "Prior Sessions": self.prior_session.currentText(),
-                                "Target": self.target_list.currentText(),
                                 "Notes": self.notes_input.toPlainText()}
                                 }
         
