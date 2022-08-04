@@ -261,10 +261,10 @@ class GenerateForm(QWidget):
         layout.addWidget(form_target, 0, 0)
         layout_target.addRow(QLabel("Target:"), self.target_input[create_index])
         
-        form_button = QGroupBox()
-        layout_button = QFormLayout()
-        form_button.setLayout(layout_button)
-        layout.addWidget(form_button, 0, 1)
+#         form_button = QGroupBox()
+#         layout_button = QFormLayout()
+#         form_button.setLayout(layout_button)
+#         layout.addWidget(form_button, 1, 0)
  
         form_lens = QGroupBox("Lens Parameters")
         layout_lens = QFormLayout()
@@ -288,24 +288,18 @@ class GenerateForm(QWidget):
         form_pre = QGroupBox("Pre-ablation")
         layout_pre = QFormLayout()
         form_pre.setLayout(layout_pre)
-        layout.addWidget(form_pre, 2, 0)
+        layout.addWidget(form_pre, 1, 2)
         layout_pre.addRow(QLabel("Temperature (\N{DEGREE SIGN}C)"), self.pre_temperature_input[create_index])
         layout_pre.addRow(QLabel("Pressure (mTorr)"), self.pre_pressure_input[create_index])
         layout_pre.addRow(QLabel("Atmosphere Gas"), self.pre_gas_input[create_index])
         layout_pre.addRow(QLabel("Frequency (Hz)"), self.pre_frequency_input[create_index])
         layout_pre.addRow(QLabel("Pulses"), self.pre_number_pulses_input[create_index])
-        
-        if self.version == 'plume':
-            self.button_move_pre = QPushButton(self)
-    #         self.button_folder.setFixedSize(300, self.window_height)
-            self.button_move_pre.setText("Move Videos To Pre-ablation Folder")
-            self.button_move_pre.clicked.connect(lambda: self.move_to_folder(pre=True))
-            layout.addWidget(self.button_move_pre, 3, 0)  
+
         
         form_ablation = QGroupBox("Ablation")
         layout_ablation = QFormLayout()
         form_ablation.setLayout(layout_ablation)
-        layout.addWidget(form_ablation, 2, 1)
+        layout.addWidget(form_ablation, 1, 3)
         layout_ablation.addRow(QLabel("Temperature (\N{DEGREE SIGN}C)"), self.temperature_input[create_index])
         layout_ablation.addRow(QLabel("Pressure (mTorr)"), self.pressure_input[create_index])
         layout_ablation.addRow(QLabel("Atmosphere Gas"), self.gas_input[create_index])
@@ -313,11 +307,18 @@ class GenerateForm(QWidget):
         layout_ablation.addRow(QLabel("Pulses"), self.number_pulses_input[create_index])
         
         if self.version == 'plume':
+            self.button_move_pre = QPushButton(self)
+    #         self.button_folder.setFixedSize(300, self.window_height)
+            self.button_move_pre.setText("Move Videos To Pre-ablation Folder")
+            self.button_move_pre.clicked.connect(lambda: self.move_to_folder(pre=True))
+            layout.addWidget(self.button_move_pre, 2, 2)  
+        
+        
             self.button_move = QPushButton(self)
     #         self.button_folder.setFixedSize(300, self.window_height)
             self.button_move.setText("Move Videos To Ablation Folder")
             self.button_move.clicked.connect(lambda: self.move_to_folder(pre=False))
-            layout.addWidget(self.button_move, 3, 1)  
+            layout.addWidget(self.button_move, 2, 3)  
         return layout
 
     def pack_to_hdf5_and_upload_with_popwindow(self, path, file_name, info_dict):
@@ -326,7 +327,7 @@ class GenerateForm(QWidget):
         
     def show_message_window(self, message):
         self.exPopup = message_window(message)
-        self.exPopup.setGeometry(200, 200, 600, 300)
+        self.exPopup.setGeometry(500, 500, 400, 100)
         self.exPopup.show()
     
     
