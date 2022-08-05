@@ -72,8 +72,8 @@ class GenerateForm(QWidget):
         self.name_input = QLineEdit()
         self.date_input = QLineEdit(datetime.datetime.today().strftime("%m/%d/%Y"))
         self.time_input = QLineEdit(datetime.datetime.now().strftime("%H:%M:%S"))
-#         self.save_path_input = QLineEdit(os.getcwd()) 
-        self.save_path_input = QLineEdit('C:/Image/') 
+        self.save_path_input = QLineEdit(os.getcwd()) 
+#         self.save_path_input = QLineEdit('C:/Image/') 
 
         self.custom_key = QLineEdit()
         self.custom_key.setFixedSize(80, self.window_height)
@@ -378,7 +378,7 @@ class GenerateForm(QWidget):
         self.form_notes.setLayout(self.notes_layout)
         self.notes_layout.addRow(QLabel("Notes"), self.notes_input)
         self.toplayout.addWidget(self.form_notes)
- 
+
 #     def getValue(self,treeView):
 #         item = treeView.currentItem()
 #         #    return val.data()
@@ -386,7 +386,7 @@ class GenerateForm(QWidget):
 #when an item in the tree is double clicked, import stuff to the form 
         treeView.doubleClicked.connect(self.onItemClicked)
 
-     def onItemClicked(self,treeView):
+    def onItemClicked(self,treeView):
       
         #first, define clicked on item
         item=self.prior_session.currentItem()    
