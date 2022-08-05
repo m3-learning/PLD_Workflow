@@ -13,7 +13,7 @@ import getpass
 import subprocess
 from platform import platform
 
-
+import datetime
 
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import * 
@@ -310,6 +310,16 @@ class GenerateForm(QWidget):
         self.layout.addWidget(self.prior_scans, 0, 2,4,-1) #0,2,4,-1
         self.layout.setColumnStretch(2,10)
         
+        #search box
+        self.search_form= QGroupBox("Search")
+        self.search_layout = self.create_search()
+        self.search_form.setLayout(self.search_layout)
+        self.search_input.returnPressed.connect( self.onChanged )
+#       
+        self.search_input.setFixedSize(150, self.window_height)
+        self.layout.addWidget(self.search_form, 1, 1)
+        
+
       
             ### Create and connect the combo box to switch between pages
         target_list = ["Target_1", "Target_2", "Target_3", "Target_4", "Target_5", "Target_6", 
@@ -797,6 +807,416 @@ class GenerateForm(QWidget):
     #UPDATES WHEN TARGET CHANGES. THEN CAN BREAK UP stackUI
     
     
+    def create_search(self):
+        search_layout = QFormLayout()
+        search_layout.addRow(QLabel("Search"), self.search_input)
+       # search = self.search_input.text()
+        return search_layout
+    
+   
+
+   def onChanged(self):
+        searchStr = str(self.search_input.text() ).lower()
+        searchArray = re.split(" ",searchStr)
+        
+        #looping through and recombining multiple word stuff "target material", "laser voltage", etc. 
+        # I have to loop through separately for each one because if multiple multi-word keywords get searched, then
+        # it will get messed up since searchArray will change size as things get recombined
+        #header stuff
+        if "user name" in searchStr:
+            for i in range(len(searchArray)):
+                if searchArray[i-1]=='user' and searchArray[i]=='name':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="user name"
+                    searchArray[i] = ""
+
+        if 'growth id' in searchStr:
+            for i in range(len(searchArray)):         
+                if searchArray[i-1]=='growth' and searchArray[i]=='id':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="growth id"
+                    searchArray[i] = ""
+                    
+            #chamber parameters 
+        if "laser 1a" in searchStr:
+            for i in range(len(searchArray)):       
+                if searchArray[i-1]=='laser' and searchArray[i] in '1a':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="laser 1a"
+                    searchArray[i] = ""  
+                    
+        if "laser 1c" in searchStr:
+            for i in range(len(searchArray)):       
+                if searchArray[i-1]=='laser' and searchArray[i] in '1c':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="laser 1c"
+                    searchArray[i] = ""                
+            
+        if "base pressure" in searchStr:
+            for i in range(len(searchArray)):       
+                if searchArray[i-1]=='base' and searchArray[i] in 'pressure':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="base pressure"
+                    searchArray[i] = ""
+            
+        if "cool down" in searchStr:
+            for i in range(len(searchArray)):       
+                if searchArray[i-2]=='cool' and searchArray[i-1] in 'down' and searchArray[i] not in 'atmosphere':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="cool down"
+                    searchArray[i] = ""
+                elif searchArray[i-2]=='cool' and searchArray[i-1]=='down' and searchArray[i] in 'atmosphere':
+                    searchArray[i-2:i] = [''.join(searchArray[i-2:i])]
+                    searchArray[i-2]="cool down atmosphere"
+                    searchArray[i-1] =  ""    
+             
+
+                
+                
+            #target material
+        if "target material" in searchStr:    
+            for i in range(len(searchArray)):     
+                if searchArray[i-1]=='target' and searchArray[i]=='material':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="target material"
+                    searchArray[i] = ""
+                
+            # lens parameters
+        if "target height" in searchStr:    
+            for i in range(len(searchArray)):       
+                if searchArray[i-1]=='target' and searchArray[i] in 'height':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="target height"
+                    searchArray[i] = ""
+
+                
+            #laser parameters 
+        if "laser voltage" in searchStr:
+            for i in range(len(searchArray)):      
+                if searchArray[i-1]=='laser' and searchArray[i] in 'voltage':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="laser voltage"
+                    searchArray[i] = ""
+            
+        if "laser energy" in searchStr:
+            for i in range(len(searchArray)):     
+                if searchArray[i-1]=='laser' and searchArray[i] in'energy':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="laser energy"
+                    searchArray[i] = ""
+                
+
+                
+        if "measured energy" in searchStr:
+            for i in range(len(searchArray)):
+                if searchArray[i-2] in 'measured' and searchArray[i-1] in'energy' and searchArray[i] not in 'mean' and searchArray[i] not in 'std':
+                    searchArray[i-2:i] = [''.join(searchArray[i-2:i])]
+                    searchArray[i-2]="measured energy mean"
+                    searchArray[i-1]=  ""
+                    
+                elif searchArray[i-2] in 'measured' and searchArray[i-1] in 'energy' and searchArray[i] in 'mean':
+                    searchArray[i-2:i] = [''.join(searchArray[i-2:i])]
+                    searchArray[i-2]="measured energy mean"
+                    searchArray[i-1]=  ""
+                    
+                elif searchArray[i-2] in 'measured' and searchArray[i-1] in 'energy' and searchArray[i] in 'std':
+                    searchArray[i-2:i] = [''.join(Array[i-2:i])]
+                    searchArray[i-2]="measured energy std" 
+                    searchArray[i-1] =  ""    
+        
+                        
+        if re.search("pre.*gas" , searchStr):
+            for i in range(len(searchArray)):
+              #  print(searchArray[i-2],searchArray[i-1],searchArray[i])
+                          
+                if len(searchArray)==2 and 'pre' in searchArray[i-2]: 
+                    if (searchArray[i-1] in 'gas'  and searchArray[i] not in 'atmosphere') or (searchArray[i-1] in 'atmosphere' and searchArray[i] not in 'gas')  : #this takes care of 'pre-gas', 'pre-atmosphere gas', 'pre-ablation gas atmosphere'
+                        searchArray[i-2:i-1] = [''.join(searchArray[i-2:i-1])]  # missing: 'pre ablation atmosphere gas' 'pre-ablation atmosphere gas'
+                        searchArray[i-2]="pre-gas atmosphere"
+                        searchArray[i-1] = " "
+                    
+                    
+                if len(searchArray)>2 and 'pre' in searchArray[i-2]: 
+                   # if (searchArray[i-1] in 'gas'  and searchArray[i] not in 'atmosphere') or (searchArray[i-1] in 'atmosphere' and searchArray[i] not in 'gas')  : #this takes care of 'pre-gas', 'pre-atmosphere gas', 'pre-ablation gas atmosphere'
+                    if (searchArray[i-1] in 'gas') or (searchArray[i-1] in 'atmosphere')  : #this takes care of 'pre-gas', 'pre-atmosphere gas', 'pre-ablation gas atmosphere'
+                        searchArray[i-2:i] = [''.join(searchArray[i-2:i])]  # missing: 'pre ablation atmosphere gas' 'pre-ablation atmosphere gas'
+                        searchArray[i-2]="pre-gas atmosphere"
+                        searchArray[i-1] = " "    
+                    
+
+                    
+                    
+                  #taking care of pre ablation gas (atmosphere) and pre ablation atmosphere (gas)
+                if len(searchArray)>3  and 'pre' in searchArray[i-3] and searchArray[i-2] in "ablation":
+                    if (searchArray[i-1] in 'gas' and searchArray[i] in 'atmosphere') or (searchArray[i-1] in 'atmosphere' and searchArray[i] in 'gas')  : #this takes care of 'pre-gas', 'pre-atmosphere gas', 'pre-ablation gas atmosphere'
+                       # print(searchArray[i-2],searchArray[i-1],searchArray[i])
+                        searchArray[i-3:i] = [''.join(searchArray[i-3:i])]  
+                        searchArray[i-3]="pre-gas atmosphere"
+                        searchArray[i-2] = " "
+                
+
+                    
+                    
+       #ablation 
+        if re.search("(?<!pre).*gas" , searchStr):
+            for i in range(len(searchArray)):  
+                if len(searchArray) ==2 and searchArray[i-1] in 'ablation':
+                    searchArray[i-1:i] = [''.join(searchArray[i-1:i])]
+                    searchArray[i-1]="gas atmosphere"
+                    searchArray[i] = ""
+                
+                if len(searchArray) > 2 and searchArray[i-2] in 'ablation':
+                    searchArray[i-2:i] = [''.join(searchArray[i-2:i])]
+                    searchArray[i-2]="gas atmosphere"
+                    searchArray[i-1] = ""
+
+        remove_space = [x.strip(' ') for x in searchArray]
+        search_array_delete_empty = [ele for ele in remove_space if ele.strip()]
+        
+                      
+     
+        
+        self.name_input.setText(str(search_array_delete_empty))
+        
+#         for i in searchArray:
+#             if searchArray[i] ==
+       
+
+        
+        treeView = self.prior_session
+     #   matchesArray = []
+        for index,val in enumerate(treeView.findItems("",Qt.MatchRecursive | Qt.MatchContains)):
+            val.setHidden(False) #clear search so can do so again
+            val_text = str(val.text(0)).lower()
+            val_childCount = int(val.childCount())
+            
+            
+  
+            if len(search_array_delete_empty) == 1  or val.parent() is None:
+                if search_array_delete_empty[0] in str(val.text(0)).lower():
+                    self.findMatches(val)
+                else:
+                    self.hideNonMatches(val,searchStr)
+                
+            elif (val.parent() is not None): 
+                for i in range(len(search_array_delete_empty)):
+                    if (search_array_delete_empty[i] in str(val.text(0)).lower()) and (search_array_delete_empty[i-1] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+                            
+                        self.findMatches(val)
+                    else:
+                        self.hideNonMatches(val,searchStr)
+                
+            
+            #put something here for if len(searchArray) ==2. for example "temperature 700", which should be "temperature = 700" see above
+            
+                if re.search("(?<!>|<|!)=+",searchStr): #any number of equals signs, i.e. "=" or "==" work , but not >= or <= or != 
+                    for i in range(len(search_array_delete_empty)):  
+                        if (search_array_delete_empty[i] in str(val.text(0)).lower()) and (search_array_delete_empty[i-2] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+
+                                self.findMatches(val)
+                        else:
+                            self.hideNonMatches(val,searchStr)
+
+                elif "!=" in searchStr: # not equals 
+                    for i in range(len(searchArray)):  
+                        if (search_array_delete_empty[i] not in str(val.text(0)).lower()) and (search_array_delete_empty[i-2] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+
+                                self.findMatches(val)
+                        else:
+                            self.hideNonMatches(val,searchStr)
+
+
+                elif re.search(">(?!=)" ,searchStr): #elif so skips this and goes to the setHidden stuff
+
+                    for i in range(len(search_array_delete_empty)):
+                        if str(val.text(0)).isnumeric() and (float(val.text(0)) > float(search_array_delete_empty[np.where(">" == np.array(search_array_delete_empty))[0][0]+1])) and (search_array_delete_empty[np.where(">" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+                            self.findMatches(val)
+                        else:
+                            self.hideNonMatches(val,searchStr)
+
+                elif ">=" in searchStr: #elif so skips this and goes to the setHidden stuff
+
+                    try:  #fails if val is not an number. There is a isnumeric() attribute, but it doesn't recognize 8e-5 or 0.001, for examples 
+                      if (float(val.text(0)) >= float(search_array_delete_empty[np.where(">=" == np.array(search_array_delete_empty))[0][0]+1])) and (search_array_delete_empty[np.where(">=" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+                        self.findMatches(val)
+                      else:
+                        self.hideNonMatches(val,searchStr)
+                    except:  #fails if val is not an number. There is a isnumeric() attribute, but it doesn't recognize 8e-5 or 0.001, for examples. or Dates 
+                      if (str(search_array_delete_empty[np.where(">=" == np.array(search_array_delete_empty))[0][0]-1]) == "date") and (search_array_delete_empty[np.where(">=" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()):
+                            val_date = re.split("/",val.text(0))
+                            
+                            search_date = search_array_delete_empty[np.where(">=" == np.array(search_array_delete_empty))[0][0]+1]
+                            search_date = re.split("/",search_date)
+                            if datetime.date(month = int(val_date[0]), day = int(val_date[1]), year = int(val_date[2])) >= datetime.date(month = int(search_date[0]), day = int(search_date[1]), year = int(search_date[2])):
+                                self.findMatches(val)
+                            else:
+                                self.hideNonMatches(val,searchStr)         
+
+                      elif (str(val.text(0)) >= str(search_array_delete_empty[np.where(">=" == np.array(search_array_delete_empty))[0][0]+1])) and (search_array_delete_empty[np.where(">=" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+                            self.findMatches(val)
+                      else:
+                            self.hideNonMatches(val,searchStr)         
+
+                elif re.search("<(?!=)", searchStr): #elif so skips this and goes to the setHidden stuff
+                    remove_space = [x.strip(' ') for x in search_array_delete_empty]
+                    delete_empty = [ele for ele in remove_space if ele.strip()]
+
+                    for i in range(len(search_array_delete_empty)):
+                        if str(val.text(0)).isnumeric() and (float(val.text(0)) < float(search_array_delete_empty[np.where("<" == np.array(search_array_delete_empty))[0][0]+1])) and (search_array_delete_empty[np.where("<" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+                            self.findMatches(val)
+                        else:
+                            self.hideNonMatches(val,searchStr)
+
+
+                elif "<=" in searchStr: #elif so skips this and goes to the setHidden stuff
+                    try:  #fails if val is not an number. There is a isnumeric() attribute, but it doesn't recognize 8e-5 or 0.001, for examples 
+                        if (float(val.text(0)) <= float(search_array_delete_empty[np.where("<=" == np.array(search_array_delete_empty))[0][0]+1])) and (search_array_delete_empty[np.where("<=" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+                             self.findMatches(val)
+                        else:
+                            self.hideNonMatches(val,searchStr)
+                    except:  #fails if val is not an number. There is a isnumeric() attribute, but it doesn't recognize 8e-5 or 0.001, for examples. or Dates 
+                        if (str(search_array_delete_empty[np.where("<=" == np.array(search_array_delete_empty))[0][0]-1]) == "date") and (search_array_delete_empty[np.where("<=" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()):
+                            val_date = re.split("/",val.text(0))
+                            
+                            search_date = search_array_delete_empty[np.where("<=" == np.array(search_array_delete_empty))[0][0]+1]
+                            search_date = re.split("/",search_date)
+                            if datetime.date(month = int(val_date[0]), day = int(val_date[1]), year = int(val_date[2])) <= datetime.date(month = int(search_date[0]), day = int(search_date[1]), year = int(search_date[2])):
+                                self.findMatches(val)
+                            else:
+                                self.hideNonMatches(val,searchStr)         
+
+                        elif (str(val.text(0)) <= str(search_array_delete_empty[np.where("<=" == np.array(search_array_delete_empty))[0][0]+1])) and (search_array_delete_empty[np.where("<=" == np.array(search_array_delete_empty))[0][0]-1] in str(val.parent().text(0)).lower()): # and int(val.childCount()) ==0: # int(val.parent() != None:
+                                self.findMatches(val)
+                        else:
+                                self.hideNonMatches(val,searchStr)     
+              
+                        
+    def findMatches(self,val):    
+        val.setHidden(False) #PZO
+        if int(val.childCount())>0 and int(val.child(0).childCount())==0: #val must be target material, focus, etc. 
+            for i in range(int(val.parent().childCount())):
+                val.parent().child(i).child(0).setHidden(False)     #val only has 1 child
+        try:
+            val.parent().setHidden(False) #target material
+
+            #I only want the below line if val.parent().child(0) is a value, i.e. PZO or 700
+           #if that is the case, int(val.childCount()) == 0
+            if int(val.childCount()) == 0:
+                val.parent().child(0).setHidden(False)
+        
+        except:
+                                   #val is "Datasets 
+            for i in range(int(val.childCount())): #sorting through sessions
+                val.child(i).setHidden(False)
+                for j in range(int(val.child(i).childCount())): #sorting through header, target_NUM, etc. 
+                    val.child(i).child(j).setHidden(False)
+                    for k in range(int(val.child(i).child(j).childCount())): # focus, name,pressure,etc. 
+                        val.child(i).child(j).child(k).setHidden(False)
+                        for l in range(int(val.child(i).child(j).child(k).childCount())): #PZO,11,700,etc. 
+                            val.child(i).child(j).child(k).child(l).setHidden(False) 
+
+
+        try:    
+            val.parent().parent().setHidden(False) #target_1
+           
+            
+        except:
+                                    #val is session 
+            for i in range(int(val.childCount())): #sorting through header, target_NUM, etc.
+                val.child(i).setHidden(False)
+                for j in range(int(val.child(i).childCount())): #sorting through focus,name,pressure,etc.
+                    val.child(i).child(j).setHidden(False)
+                    for k in range(int(val.child(i).child(j).childCount())): # PZO,11,700,etc. 
+                        val.child(i).child(j).child(k).setHidden(False)
+
+        try:
+            val.parent().parent().parent().setHidden(False) #session (MA_SRO_etc.)
+                                    
+        except:
+                                    #val is header, target_1, etc.
+            for i in range(int(val.childCount())): #sorting through focus,name,pressure,etc.
+                val.child(i).setHidden(False)
+                for j in range(int(val.child(i).childCount())): # PZO,11,700,etc. 
+                    val.child(i).child(j).setHidden(False)
+             #   continue
+
+        try:
+            val.parent().parent().parent().parent().setHidden(False) #Datasets
+                
+        except:
+                                    #val is "target, material, pressure,
+            val.setHidden(False)
+            if int(val.childCount())==0:
+                val.child(0).setHidden(False)
+
+        
+        
+    def hideNonMatches(self,val,searchStr):
+        try: #if this fails, val=Datasets
+            
+            if str(val.text(0)).lower() in searchStr:
+                val.setHidden(False)
+
+            elif str(val.parent().text(0)).lower() in searchStr: 
+                val.setHidden(False)
+                val.parent().sethidden(False)
+                if int(val.childCount())>0: 
+                    for i in range(int(val.childCount())):
+                        val.child(i).setHidden(True)
+                  
+
+            elif str(val.parent().parent().text(0)).lower() in searchStr:
+                val.setHidden(False)
+                val.parent().setHidden(False)
+                val.parent().parent().setHidden(False)
+               
+
+            elif str(val.parent().parent().parent().text(0)).lower() in searchStr:
+                val.setHidden(False)
+                val.parent().setHidden(False)
+                val.parent().parent().setHidden(False)
+                val.parent().parent().parent().setHidden(False)
+               
+
+            elif str(val.parent().parent().parent().parent().text(0)).lower() in searchStr:
+                val.setHidden(False)
+                val.parent().setHidden(False)
+                val.parent().parent().setHidden(False)
+                val.parent().parent().parent().setHidden(False)
+                val.parent().parent().parent().parent().setHidden(False)
+               
+            else:
+                val.setHidden(True)        
+
+            aunts = [] #
+            if val.parent().parent() is not None:
+                for i in range(int(val.parent().parent().childCount())):
+
+                    aunts.append(str(val.parent().parent().child(i).text(0)))
+                if str(aunts).lower() in searchStr:
+                    val.setHidden(False)
+
+              
+
+        except:
+                               # if str(val.text(0)).lower() not in matchesArray: 
+            val.setHidden(True)                 
+   
+                             
+                 
+            
+        
+        
+        
+    
+            
+    
+    
+    
+    
+
+
+
     def stackUI(self, create_index):
         '''
         This is a function to create stacking pages of the form.
