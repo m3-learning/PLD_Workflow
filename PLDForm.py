@@ -386,7 +386,7 @@ class GenerateForm(QWidget):
 #when an item in the tree is double clicked, import stuff to the form 
         treeView.doubleClicked.connect(self.onItemClicked)
 
-    def onItemClicked(self,treeView):
+     def onItemClicked(self,treeView):
       
         #first, define clicked on item
         item=self.prior_session.currentItem()    
@@ -395,6 +395,7 @@ class GenerateForm(QWidget):
 #       then, clear everything from previously click so it is less confusing
 #      unless the curent click doesn't do anything (i.e. it is on the top level (Datasets, etc)  or individual items
 #level (i.e. aperture or 100)
+# for top level, there are different sessions so it is unclear what to input
 #for top level, parents are none. for individual items, no grandchildren (i.e. child(0).childCount()=0) 
         
     
@@ -454,256 +455,292 @@ class GenerateForm(QWidget):
                  #make the children arrays for iterating and printing 
                  #I have to iterate over each of the children of the item to get the text of each one
                 #and then control where its decendents go
-                item_children = []
-                for i in range(int(item.childCount())):
-
-                   
-
-                    item_children.append(item.child(i).text(0))
+            item_children = []
+            for i in range(int(item.childCount())):
 
 
 
-                    #each session has its own set of targets, so that is the farthest up the 
-                    #chain it make sense to input stuff to form 
-                    #for now just putting it in the first target (see how they want to handle target matching)
-                    
-                    #these are for if you click on an individual target 
-                    
+                item_children.append(item.child(i).text(0))
+
+
+
+                #each session has its own set of targets, so that is the farthest up the 
+                #chain it make sense to input stuff to form 
+                #for now just putting it in the first target (see how they want to handle target matching)
+
+                #these are for if you click on an individual target 
+
+                #the relevant header parameters 
+
+                if 'Growth ID' in str(item.child(i).text(0)):
+                    self.growth_id_input.setText(str(item.child(i).child(0).text(0)))
+
+                elif 'User Name' in str(item.child(i).text(0)):
+                    self.name_input.setText(str(item.child(i).child(0).text(0)))    
+
+                elif 'Path' in str(item.child(i).text(0)):
+                    self.save_path_input.setText(str(item.child(i).child(0).text(0)))    
+
+
+                 #chamber parameters (also maybe called 'header' in dataFed)
+
+                elif 'Chamber' in str(item.child(i).text(0)) and "1a" in str(item.child(i).child(0).text(0)).lower():
+                    self.chamber_ComboBox.setCurrentText("Laser 1A")
+
+                elif 'Chamber' in str(item.child(i).text(0)) and "1c" in str(item.child(i).child(0).text(0)).lower():
+                    self.chamber_ComboBox.setCurrentText("Laser 1C")
+
+                                        
+                elif 'Substrate_1' in str(item.child(i).text(0)):
+                    if "srtio3" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_1_ComboBox.setCurrentText("SrTiO3")
+                    elif "none" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_1_ComboBox.setCurrentText("None") 
+
+
+                elif 'Substrate_2' in str(item.child(i).text(0)):
+                    if "srtio3" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_2_ComboBox.setCurrentText("SrTiO3")
+                    elif "none" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_2_ComboBox.setCurrentText("None")  
+
+                elif 'Substrate_3' in str(item.child(i).text(0)):
+                    if "srtio3" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_3_ComboBox.setCurrentText("SrTiO3")
+                    elif "none" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_3_ComboBox.setCurrentText("None")
+
+                elif 'Substrate_4' in str(item.child(i).text(0)):
+                    if "srtio3" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_4_ComboBox.setCurrentText("SrTiO3")
+                    elif "none" in str(item.child(i).child(0).text(0)).lower(): 
+                        self.substrate_4_ComboBox.setCurrentText("None")            
+  
+
+
+                elif 'Base Pressure' in str(item.child(i).text(0)):
+                    self.base_pressure_input.setText(str(item.child(i).child(0).text(0)))
+
+                elif 'Cool Down Atmosphere' in str(item.child(i).text(0)):
+                    self.cool_down_gas.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+
+                #notes section at bottom of form
+                elif "Notes" in str(item.child(i).text(0)):
+                    self.notes_input.appendPlainText(str(item.child(i).child(0).text(0)))
+
+                  #Target Material
+                #the re.split is because there is a header and sometime user name field 
+         #to iterate over before getting to the targets 
+                elif 'Target Material' in str(item.child(i).text(0)):
+                    self.target_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+
+                #lens parameters 
+
+                elif 'Aperture' in str(item.child(i).text(0)):
+                    self.aperture_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif 'Focus' in str(item.child(i).text(0)):
+                    self.focus_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif "Attenuator" in str(item.child(i).text(0)):
+                    self.attenuator_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif "Target Height" in str(item.child(i).text(0)):
+                    self.target_height_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                    #laser parameters 
+
+                elif 'Laser Voltage' in str(item.child(i).text(0)):
+                    self.laser_voltage_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif 'Laser Energy' in str(item.child(i).text(0)):
+                    self.laser_energy_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif "Measured Energy Mean" in str(item.child(i).text(0)):
+                    self.energy_mean_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif "Measured Energy Std" in str(item.child(i).text(0)):
+                    self.energy_std_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+
+
+           #pre-ablation parameters 
+
+                elif 'Pre-Temperature' in str(item.child(i).text(0)) or "Pre-Ablation-Temperature" in str(item.child(i).text(0)):
+                    self.pre_temperature_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif 'Pre-Pressure' in str(item.child(i).text(0)) or "Pre-Ablation-Pressure" in str(item.child(i).text(0)):
+                    self.pre_pressure_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif "Pre-Gas" in str(item.child(i).text(0)) or "Pre-Ablation-Gas" in str(item.child(i).text(0)) or "Pre-Atmosphere" in str(item.child(i).text(0)) or "Pre-Ablation-Atmosphere" in str(item.child(i).text(0)):
+                    self.pre_gas_input[int(re.split("_",str(item.text(0)))[1])-1].setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+                elif "Pre-Frequency" in str(item.child(i).text(0)) or "Pre-Ablation-Frequency" in str(item.child(i).text(0)):
+                    self.pre_frequency_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif "Pre-Pulses" in str(item.child(i).text(0)) or "Pre-Ablation-Pulses" in str(item.child(i).text(0)):
+                    self.pre_number_pulses_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))     
+
+
+
+                #                       #ablation parameters 
+
+                elif re.search('^Temperature', str(item.child(i).text(0))) or "Ablation-Temperature" in str(item.child(i).text(0)):
+                    self.temperature_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif re.search('^Pressure' , str(item.child(i).text(0))) or "Ablation-Pressure" in str(item.child(i).text(0)):
+                    self.pressure_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif re.search("^Atmosphere" , str(item.child(i).text(0))) or "Ablation-Atmosphere" in str(item.child(i).text(0)) or re.search("^Gas",str(item.child(i).text(0))) or "Ablation-Gas-Atmosphere" in str(item.child(i).text(0)):
+                    self.gas_input[int(re.split("_",str(item.text(0)))[1])-1].setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+
+                elif re.search("^Frequency" , str(item.child(i).text(0))) or "Ablation-Frequency" in str(item.child(i).text(0)):
+                    self.frequency_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+
+                elif re.search("^Pulses" , str(item.child(i).text(0))) or "Ablation-Pulses" in str(item.child(i).text(0)):
+                    self.number_pulses_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))               
+
+                #if instead, you click on a session, we need to go one step further:
+                #to the grandchildren of the item clicked on and its value
+                #otherwise, the logic is the same. I think I have to iterate again even though it is repetitive
+                #because I need to pull out children in one case and grandchildren in the other. 
+                elif int(item.child(i).childCount())>0:
+                    item_grandChildren = []
+                    for j in range(int(item.child(i).childCount())):
+                        item_grandChildren.append(item.child(i).child(j).text(0))
+
+                      #  self.base_pressure_input.setText(str(re.split("_",str(item.child(i).text(0)))[1])) 
                     #the relevant header parameters 
 
-                    if 'Growth ID' in str(item.child(i).text(0)):
-                        self.growth_id_input.setText(str(item.child(i).child(0).text(0)))
+                        if 'Growth ID' in str(item.child(i).child(j).text(0)):
+                            self.growth_id_input.setText("")
+                            self.growth_id_input.setText(str(item.child(i).child(j).child(0).text(0)))
 
-                    if 'User Name' in str(item.child(i).text(0)):
-                        self.name_input.setText(str(item.child(i).child(0).text(0)))    
+                        elif 'User Name' in str(item.child(i).child(j).text(0)):
+                            self.name_input.setText(str(item.child(i).child(j).child(0).text(0)))    
 
-                    if 'Path' in str(item.child(i).text(0)):
-                        self.save_path_input.setText(str(item.child(i).child(0).text(0)))    
-
-
-                     #chamber parameters (also maybe called 'header' in dataFed)
-                    if 'Chamber' in str(item.child(i).text(0)):
-                        self.chamber_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
-
-                    if 'Substrate_1' in str(item.child(i).text(0)):
-                        self.substrate_1_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
-
-                    if 'Substrate_2' in str(item.child(i).text(0)):
-                        self.substrate_2_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
-
-                    if 'Substrate_3' in str(item.child(i).text(0)):
-                        self.substrate_3_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
-
-                    if 'Substrate_4' in str(item.child(i).text(0)):
-                        self.substrate_4_ComboBox.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())    
+                        elif 'Path' in str(item.child(i).child(j).text(0)):
+                            self.save_path_input.setText(str(item.child(i).child(j).child(0).text(0)))    
 
 
-                    if 'Base Pressure' in str(item.child(i).text(0)):
-                        self.base_pressure_input.setText(str(item.child(i).child(0).text(0)))
+                    #chamber parameters (also maybe called 'header' in dataFed)
+                        elif 'Chamber' in str(item.child(i).child(j).text(0)) and "1a" in str(item.child(i).child(j).child(0).text(0)).lower():
+                            self.chamber_ComboBox.setCurrentText("Laser 1A")
 
-                    if 'Cool Down Atmosphere' in str(item.child(i).text(0)):
-                        self.cool_down_gas.setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
+                        elif 'Chamber' in str(item.child(i).child(j).text(0)) and "1c" in str(item.child(i).child(j).child(0).text(0)).lower():
+                            self.chamber_ComboBox.setCurrentText("Laser 1C")
+
+                                                
+                        elif 'Substrate_1' in str(item.child(i).child(j).text(0)):
+                            if "srtio3" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_1_ComboBox.setCurrentText("SrTiO3")
+                            elif "none" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_1_ComboBox.setCurrentText("None") 
+
+
+                        elif 'Substrate_2' in str(item.child(i).child(j).text(0)):
+                            if "srtio3" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_2_ComboBox.setCurrentText("SrTiO3")
+                            elif "none" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_2_ComboBox.setCurrentText("None")  
+
+                        elif 'Substrate_3' in str(item.child(i).child(j).text(0)):
+                            if "srtio3" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_3_ComboBox.setCurrentText("SrTiO3")
+                            elif "none" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_3_ComboBox.setCurrentText("None")
+
+                        elif 'Substrate_4' in str(item.child(i).child(j).text(0)):
+                            if "srtio3" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_4_ComboBox.setCurrentText("SrTiO3")
+                            elif "none" in str(item.child(i).child(j).child(0).text(0)).lower(): 
+                                self.substrate_4_ComboBox.setCurrentText("None")            
 
                     
-                    #notes section at bottom of form
-                    if "Notes" in str(item.child(i).text(0)):
-                        self.notes_input.appendPlainText(str(item.child(i).child(0).text(0)))
+                        elif 'Base Pressure' in str(item.child(i).child(j).text(0)):
+                            self.base_pressure_input.setText(str(item.child(i).child(j).child(0).text(0)))
 
-                      #Target Material
-                    #the re.split is because there is a header and sometime user name field 
-             #to iterate over before getting to the targets 
-                    if 'Target Material' in str(item.child(i).text(0)):
-                        self.target_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif 'Cool Down Atmosphere' in str(item.child(i).child(j).text(0)):
+                            self.cool_down_gas.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+
+
+                         #notes section at bottom of form
+                        elif "Notes" in str(item.child(i).child(j).text(0)):
+                            self.notes_input.appendPlainText(str(item.child(i).child(j).child(0).text(0)))        
+
+                       #Target Material
+                          #the regex is because there is a header and sometime user name field 
+         #to iterate over before getting to the targets 
+                        elif 'Target Material' in str(item.child(i).child(j).text(0)):
+                            self.target_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
 
                     #lens parameters 
 
-                    if 'Aperture' in str(item.child(i).text(0)):
-                        self.aperture_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif 'Aperture' in str(item.child(i).child(j).text(0)):
+                            self.aperture_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
-                    if 'Focus' in str(item.child(i).text(0)):
-                        self.focus_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif 'Focus' in str(item.child(i).child(j).text(0)):
+                            self.focus_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
-                    if "Attenuator" in str(item.child(i).text(0)):
-                        self.attenuator_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif "Attenuator" in str(item.child(i).child(j).text(0)):
+                            self.attenuator_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
-                    if "Target Height" in str(item.child(i).text(0)):
-                        self.target_height_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif "Target Height" in str(item.child(i).child(j).text(0)):
+                            self.target_height_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
-                        #laser parameters 
+                    #laser parameters 
 
-                    if 'Laser Voltage' in str(item.child(i).text(0)):
-                        self.laser_voltage_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif 'Laser Voltage' in str(item.child(i).child(j).text(0)):
+                            self.laser_voltage_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
-                    if 'Laser Energy' in str(item.child(i).text(0)):
-                        self.laser_energy_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif 'Laser Energy' in str(item.child(i).child(j).text(0)):
+                            self.laser_energy_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
-                    if "Measured Energy Mean" in str(item.child(i).text(0)):
-                        self.energy_mean_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
+                        elif "Measured Energy Mean" in str(item.child(i).child(j).text(0)) or re.search("Measured Energy$",str(item.child(i).child(j).text(0))):
+                            self.energy_mean_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
-                    if "Measured Energy Std" in str(item.child(i).text(0)):
-                        self.energy_std_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
-                        
-                        
-                        
-               #pre-ablation parameters 
-                    
-                    if 'Pre-Temperature' in str(item.child(i).text(0)) or "Pre-Ablation-Temperature" in str(item.child(i).text(0)):
-                        self.pre_temperature_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
-                        
-                    if 'Pre-Pressure' in str(item.child(i).text(0)) or "Pre-Ablation-Pressure" in str(item.child(i).text(0)):
-                        self.pre_pressure_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
-                            
-                    if "Pre-Gas" in str(item.child(i).text(0)) or "Pre-Ablation-Gas" in str(item.child(i).text(0)) or "Pre-Atmosphere" in str(item.child(i).text(0)) or "Pre-Ablation-Atmosphere" in str(item.child(i).text(0)):
-                        self.pre_gas_input[int(re.split("_",str(item.text(0)))[1])-1].setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
-                            
-                    if "Pre-Frequency" in str(item.child(i).text(0)) or "Pre-Ablation-Frequency" in str(item.child(i).text(0)):
-                        self.pre_frequency_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
-                                
-                    if "Pre-Pulses" in str(item.child(i).text(0)) or "Pre-Ablation-Pulses" in str(item.child(i).text(0)):
-                        self.pre_number_pulses_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))     
-                
-                            
-                    
-                    #                       #ablation parameters 
-                    
-                    if re.search('^Temperature', str(item.child(i).text(0))) or "Ablation-Temperature" in str(item.child(i).text(0)):
-                        self.temperature_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
-                        
-                    if re.search('^Pressure' , str(item.child(i).text(0))) or "Ablation-Pressure" in str(item.child(i).text(0)):
-                        self.pressure_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
-                            
-                    if re.search("^Atmosphere" , str(item.child(i).text(0))) or "Ablation-Atmosphere" in str(item.child(i).text(0)) or re.search("^Gas",str(item.child(i).text(0))) or "Ablation-Gas-Atmosphere" in str(item.child(i).text(0)):
-                        self.gas_input[int(re.split("_",str(item.text(0)))[1])-1].setCurrentText(str(item.child(i).child(0).text(0)).capitalize())
-                            
-                    if re.search("^Frequency" , str(item.child(i).text(0))) or "Ablation-Frequency" in str(item.child(i).text(0)):
-                        self.frequency_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))
-                                
-                    if re.search("^Pulses" , str(item.child(i).text(0))) or "Ablation-Pulses" in str(item.child(i).text(0)):
-                        self.number_pulses_input[int(re.split("_",str(item.text(0)))[1])-1].setText(str(item.child(i).child(0).text(0)))               
-
-                    #if instead, you click on a session, we need to go one step further:
-                    #to the grandchildren of the item clicked on and its value
-                    #otherwise, the logic is the same. I think I have to iterate again even though it is repetitive
-                    #because I need to pull out children in one case and grandchildren in the other. 
-                    if int(item.child(i).childCount())>0:
-                        item_grandChildren = []
-                        for j in range(int(item.child(i).childCount())):
-                            item_grandChildren.append(item.child(i).child(j).text(0))
-
-                          #  self.base_pressure_input.setText(str(re.split("_",str(item.child(i).text(0)))[1])) 
-                        #the relevant header parameters 
-
-                            if 'Growth ID' in str(item.child(i).child(j).text(0)):
-                                self.growth_id_input.setText("")
-                                self.growth_id_input.setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if 'User Name' in str(item.child(i).child(j).text(0)):
-                                self.name_input.setText(str(item.child(i).child(j).child(0).text(0)))    
-
-                            if 'Path' in str(item.child(i).child(j).text(0)):
-                                self.save_path_input.setText(str(item.child(i).child(j).child(0).text(0)))    
-
-
-                        #chamber parameters (also maybe called 'header' in dataFed)
-                            if 'Chamber' in str(item.child(i).child(j).text(0)):
-                                self.chamber_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
-
-                            if 'Substrate_1' in str(item.child(i).child(j).text(0)):
-                                self.substrate_1_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
-                                
-                            if 'Substrate_2' in str(item.child(i).child(j).text(0)):
-                                self.substrate_2_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
-
-                            if 'Substrate_3' in str(item.child(i).child(j).text(0)):
-                                self.substrate_3_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
-
-                            if 'Substrate_4' in str(item.child(i).child(j).text(0)):
-                                self.substrate_4_ComboBox.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())    
-
-
-                            if 'Base Pressure' in str(item.child(i).child(j).text(0)):
-                                self.base_pressure_input.setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if 'Cool Down Atmosphere' in str(item.child(i).child(j).text(0)):
-                                self.cool_down_gas.setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
-
-
-                             #notes section at bottom of form
-                            if "Notes" in str(item.child(i).child(j).text(0)):
-                                self.notes_input.appendPlainText(str(item.child(i).child(j).child(0).text(0)))        
-                                
-                           #Target Material
-                              #the regex is because there is a header and sometime user name field 
-             #to iterate over before getting to the targets 
-                            if 'Target Material' in str(item.child(i).child(j).text(0)):
-                                self.target_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-
-                        #lens parameters 
-
-                            if 'Aperture' in str(item.child(i).child(j).text(0)):
-                                self.aperture_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if 'Focus' in str(item.child(i).child(j).text(0)):
-                                self.focus_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if "Attenuator" in str(item.child(i).child(j).text(0)):
-                                self.attenuator_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if "Target Height" in str(item.child(i).child(j).text(0)):
-                                self.target_height_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-                        #laser parameters 
-
-                            if 'Laser Voltage' in str(item.child(i).child(j).text(0)):
-                                self.laser_voltage_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if 'Laser Energy' in str(item.child(i).child(j).text(0)):
-                                self.laser_energy_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if "Measured Energy Mean" in str(item.child(i).child(j).text(0)):
-                                self.energy_mean_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-
-                            if "Measured Energy Std" in str(item.child(i).child(j).text(0)):
-                                self.energy_std_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+                        elif "Measured Energy Std" in str(item.child(i).child(j).text(0)):
+                            self.energy_std_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
 
 #                       #pre-ablation parameters 
-                    
-                            if 'Pre-Temperature' in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Temperature" in str(item.child(i).child(j).text(0)):
-                                self.pre_temperature_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-                        
-                            if 'Pre-Pressure' in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Pressure" in str(item.child(i).child(j).text(0)):
-                                self.pre_pressure_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-                            
-                            if "Pre-Gas" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Gas" in str(item.child(i).child(j).text(0)) or "Pre-Atmosphere" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Atmosphere" in str(item.child(i).child(j).text(0)):
-                                self.pre_gas_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
-                            
-                            if "Pre-Frequency" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Frequency" in str(item.child(i).child(j).text(0)):
-                                self.pre_frequency_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-                                
-                            if "Pre-Pulses" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Pulses" in str(item.child(i).child(j).text(0)):
-                                self.pre_number_pulses_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))     
-                
-                            
-                    
-                    #                       #ablation parameters 
-                    
-                            if re.search('^Temperature', str(item.child(i).child(j).text(0))) or "Ablation-Temperature" in str(item.child(i).child(j).text(0)):
-                                self.temperature_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-                        
-                            if re.search('^Pressure' , str(item.child(i).child(j).text(0))) or "Ablation-Pressure" in str(item.child(i).child(j).text(0)):
-                                self.pressure_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-                            
-                            if re.search("^Atmosphere" , str(item.child(i).child(j).text(0))) or "Ablation-Atmosphere" in str(item.child(i).child(j).text(0)) or re.search("^Gas" , str(item.child(i).child(j).text(0))) or "Ablation-Gas-Atmosphere" in str(item.child(i).child(j).text(0)):
-                                self.gas_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
-                            
-                            if re.search("^Frequency" , str(item.child(i).child(j).text(0))) or "Ablation-Frequency" in str(item.child(i).child(j).text(0)):
-                                self.frequency_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
-                                
-                            if re.search("^Pulses" , str(item.child(i).child(j).text(0))) or "Ablation-Pulses" in str(item.child(i).child(j).text(0)):
-                                self.number_pulses_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))     
-                            
+
+                        elif 'Pre-Temperature' in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Temperature" in str(item.child(i).child(j).text(0)):
+                            self.pre_temperature_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                        elif 'Pre-Pressure' in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Pressure" in str(item.child(i).child(j).text(0)):
+                            self.pre_pressure_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                        elif "Pre-Gas" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Gas" in str(item.child(i).child(j).text(0)) or "Pre-Atmosphere" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Atmosphere" in str(item.child(i).child(j).text(0)):
+                            self.pre_gas_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+
+                        elif "Pre-Frequency" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Frequency" in str(item.child(i).child(j).text(0)):
+                            self.pre_frequency_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                        elif "Pre-Pulses" in str(item.child(i).child(j).text(0)) or "Pre-Ablation-Pulses" in str(item.child(i).child(j).text(0)):
+                            self.pre_number_pulses_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))     
+
+
+
+                #                       #ablation parameters 
+
+                        elif re.search('^Temperature', str(item.child(i).child(j).text(0))) or "Ablation-Temperature" in str(item.child(i).child(j).text(0)):
+                            self.temperature_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                        elif re.search('^Pressure' , str(item.child(i).child(j).text(0))) or "Ablation-Pressure" in str(item.child(i).child(j).text(0)):
+                            self.pressure_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                        elif re.search("^Atmosphere" , str(item.child(i).child(j).text(0))) or "Ablation-Atmosphere" in str(item.child(i).child(j).text(0)) or re.search("^Gas" , str(item.child(i).child(j).text(0))) or "Ablation-Gas-Atmosphere" in str(item.child(i).child(j).text(0)):
+                            self.gas_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setCurrentText(str(item.child(i).child(j).child(0).text(0)).capitalize())
+
+                        elif re.search("^Frequency" , str(item.child(i).child(j).text(0))) or "Ablation-Frequency" in str(item.child(i).child(j).text(0)):
+                            self.frequency_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))
+
+                        elif re.search("^Pulses" , str(item.child(i).child(j).text(0))) or "Ablation-Pulses" in str(item.child(i).child(j).text(0)):
+                            self.number_pulses_input[int(re.split("_",str(item.child(i).text(0)))[1])-1].setText(str(item.child(i).child(j).child(0).text(0)))     
+
                         
 
 
