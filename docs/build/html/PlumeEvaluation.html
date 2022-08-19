@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlumeEvaluation module &mdash; PLD_Workflow 0.0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="utils module" href="utils.html" />
+    <link rel="next" title="ParameterStatistics module" href="ParameterStatistics.html" />
     <link rel="prev" title="PLDForm module" href="PLDForm.html" /> 
 </head>
 
@@ -43,6 +44,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ManagePlume.html">ManagePlume module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PLDForm.html">PLDForm module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">PlumeEvaluation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ParameterStatistics.html">ParameterStatistics module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
 </ul>
 </li>
@@ -73,7 +75,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="module-PlumeEvaluation">
+  <section id="module-PlumeEvaluation">
 <span id="plumeevaluation-module"></span><h1>PlumeEvaluation module<a class="headerlink" href="#module-PlumeEvaluation" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="PlumeEvaluation.PlumeMetrics">
@@ -140,20 +142,31 @@ The processed image will be cropped horizontally start from “x_start”, and a
 </dl>
 </dd></dl>
 
-</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="PlumeEvaluation.plot_metrics_heatmap">
+<span class="sig-prename descclassname"><span class="pre">PlumeEvaluation.</span></span><span class="sig-name descname"><span class="pre">plot_metrics_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_range</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PlumeEvaluation.plot_metrics_heatmap" title="Permalink to this definition"></a></dt>
+<dd><p>This is a function to plot heatmap based calculated plume metrics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>frame_range</strong> (<em>tuple</em><em>(</em><em>int</em><em>, </em><em>int</em><em>)</em>) – to specify the heatmap start from which frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="PLDForm.html" class="btn btn-neutral float-left" title="PLDForm module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="utils.html" class="btn btn-neutral float-right" title="utils module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ParameterStatistics.html" class="btn btn-neutral float-right" title="ParameterStatistics module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Joshua Agar, Yichen Guo.</p>
+    <p>&#169; Copyright 2022, Joshua Agar, Yichen Guo, Julian Goddy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

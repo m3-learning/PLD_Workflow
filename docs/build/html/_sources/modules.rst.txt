@@ -8,4 +8,5 @@ PLD_Workflow
    ManagePlume
    PLDForm
    PlumeEvaluation
+   ParameterStatistics
    utils

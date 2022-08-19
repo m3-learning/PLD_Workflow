@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PLDForm module &mdash; PLD_Workflow 0.0.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -43,6 +44,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ManagePlume.html">ManagePlume module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">PLDForm module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PlumeEvaluation.html">PlumeEvaluation module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ParameterStatistics.html">ParameterStatistics module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
 </ul>
 </li>
@@ -73,7 +75,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="module-PLDForm">
+  <section id="module-PLDForm">
 <span id="pldform-module"></span><h1>PLDForm module<a class="headerlink" href="#module-PLDForm" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="PLDForm.GenerateForm">
@@ -86,6 +88,12 @@ with additional feature features to manage, pack, and upload recorded plumes alo
 <dd class="field-odd"><p><strong>version</strong> (<em>str</em>) – input variable used to determine user want to open which version of digital form, defaults to “parameter”</p>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="PLDForm.GenerateForm.convert_to_image">
+<span class="sig-name descname"><span class="pre">convert_to_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PLDForm.GenerateForm.convert_to_image" title="Permalink to this definition"></a></dt>
+<dd><p>This is a function to convert raw plume file to readable images.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="PLDForm.GenerateForm.create_chamber">
 <span class="sig-name descname"><span class="pre">create_chamber</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PLDForm.GenerateForm.create_chamber" title="Permalink to this definition"></a></dt>
@@ -116,10 +124,20 @@ with additional feature features to manage, pack, and upload recorded plumes alo
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="PLDForm.GenerateForm.pack_to_hdf5_and_upload_with_popwindow">
+<span class="sig-name descname"><span class="pre">pack_to_hdf5_and_upload_with_popwindow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PLDForm.GenerateForm.pack_to_hdf5_and_upload_with_popwindow" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="PLDForm.GenerateForm.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PLDForm.GenerateForm.save" title="Permalink to this definition"></a></dt>
 <dd><p>This is a function to save parameter dictionary to json file.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="PLDForm.GenerateForm.show_message_window">
+<span class="sig-name descname"><span class="pre">show_message_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PLDForm.GenerateForm.show_message_window" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="PLDForm.GenerateForm.stackUI">
@@ -135,7 +153,18 @@ with additional feature features to manage, pack, and upload recorded plumes alo
 
 </dd></dl>
 
-</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="PLDForm.message_window">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">PLDForm.</span></span><span class="sig-name descname"><span class="pre">message_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PLDForm.message_window" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="PLDForm.message_window.initUI">
+<span class="sig-name descname"><span class="pre">initUI</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PLDForm.message_window.initUI" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
 
 
            </div>
@@ -148,7 +177,7 @@ with additional feature features to manage, pack, and upload recorded plumes alo
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Joshua Agar, Yichen Guo.</p>
+    <p>&#169; Copyright 2022, Joshua Agar, Yichen Guo, Julian Goddy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
