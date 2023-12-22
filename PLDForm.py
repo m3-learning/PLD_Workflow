@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from datafed.CommandLib import API
 import operator
 import functools
+from collections import OrderedDict
+
 
 
 # save parameters 
@@ -35,6 +37,8 @@ from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import * 
 from PyQt5.QtWidgets import * 
 from PyQt5.Qt import QStandardItemModel, QStandardItem
+
+sys.path.append("/home/jgoddy2/Documents/Research_Agar/PLD_Form/PLD_Workflow/")
 from ManagePlume import remove_desktop_ini, pack_to_hdf5_and_upload, pack_to_hdf5, upload_to_datafed
 
 class message_window(QWidget):
@@ -849,7 +853,7 @@ class GenerateForm(QWidget):
    
     # function to perform the relational searching 
     # of data records
-    #NOTES: 
+    #NOTE: 
     # the first 3 or 4 letters of a quantity will work 
     #   - "Temp" is the same as "Temperature"
     # the searching ignores any units you put
@@ -861,28 +865,25 @@ class GenerateForm(QWidget):
 
     # - relational operators (>, <, >=,<=,!=,==) work
     #   - any number of equals signs will work for equality search
-    # - you can do multiple searches at ones using "and" or 'or'
-    #    - you can use '&' instead of "and" and "|" instead of "or"
-    #    - USING PARENTESES TO CONTROL WHICH SEARCHES GET EVALUATED 
-    #      FOR 'AND' AND 'OR' DOES NOT CURRENTLY WORK, BUT SHOULD SOON
-    # - YOU MUST SEPARATE EVERYTHING BY A SPACE
-    #   temp > 700 NOT temp>700     
+    # - you can do multiple searches at ones using "and" , "or", "xor"
+    #    - you can use '&' instead of "and" and "|" instead of "or" and "^" instead of "xor"
+    #    - you can use parenthesis to control order in which parts of search get evaluated 
+    # - YOU MUST SEPARATE EVERYTHING BY A SPACE , for example:  temp > 700 NOT temp>700   
+    #   THIS IS FOR LEGIBILITY AND TO AVOID CONFUSION WITH INTERPRETING PARTS OF WORDS AS THEIR OWN ENTRY  
+    # FOR EXAMPLE, 'OR' IN 'ATTENUATOR' DOES NOT MEAN "ATTENUAT" "OR"
 
     def onChanged(self):
-
         
-    
-        
-
         #create dictionary to select relational operator since a relOp b doesn't work
-        # define a different one for numbers, strings, and dates because they require 
+        # define a different dictionary for numbers, strings, and dates because they require 
         # different operators to check for equality 
-        # for numbers, perform valid float comparisons so that 0.1 + 0.2 == 0.3
+        # for numbers, perform valid float comparisons so that, for example, 0.1 + 0.2 == 0.3
         # for strings, check that the search is in the data records instead of doing an exact match
-        # this allows you to search for "1A" instead of "Laser_1A", for example
+        # this allows you to, for example, search for "1A" instead of "Laser_1A"
         # it is also especially useful for searching the "Notes," which is often 
         # a long sequence of words and you probably want to know if a keywords is in the 
-        # sequence rather than guess the exact sequence
+        # sequence rather than guess the exact sequence. This is the main reason I have created
+        # my own search rather than using datafed queries (datafed requires exact matches)
         # for dates, equality means the exact date, so search for equality, not contains
 
         ops_num = {
@@ -914,18 +915,27 @@ class GenerateForm(QWidget):
             "!=": operator.ne #or operator.abs(a-b)>1e-9,
         }
 
-        # create a dictionary for "and" and "or"
+        # create a dictionary for "and", "or" and "xor"
         # for similar reasons as the operational operators:
         # to programatically create a string that then gets evaluated
         # to determine the truth of the match for each data record
-        conj_dict = {
+        # for "xor", first search if the fields match using "or" to not eliminate matches and the evaluate the fields using "xor"
+        # for example, if the search is "temp > 700 xor pres > 100", first match where either temp or pres occur, 
+        # then evaluate whether the matched temp > 700 xor the matched pres > 100. But if the matching is done using xor, then any record that has both 
+        # a recorded temperature and a recorded pressure will evaluate to false, even if only one of the values match the search and so should evaluate 
+        # to true according to the logic of "xor"
+        # this is uncessesary for "and" and "or" since they are not exclusive 
+        conj_dict1 = {
             "and": '&',
-            "or": '|'
+            "or": '|',
+            "xor": ["|","^"]  
         } 
 
 
 
-
+        # if there is a parenthesis, (temp > 700 or pulse > 10) and chamber=1A 
+        # I need to keep track of how many searches are in the parenthesis (maybe count the conj terms)
+        # and then wrap the appropriate terms in the parenthesis, the built-in eval function will take care of the rest 
 
         # input the search as a string
         searchStr = str(self.search_input.text() ).lower()
@@ -939,22 +949,39 @@ class GenerateForm(QWidget):
             
             # for ease of matching, standardize everything. 
             #replace all instances of '&' with 'and' and '|' with 'or' 
-            # "|" is a special regex character, so use "\|" 
+            # "|" is a special regex character, so use "\|"
+            # also replace all instances of "^" with "xor" 
 
-            #NOTE: THIS CODE REQUIRES SPACES IN BEWTEEN WORDS 
-            # THIS IS FOR LEGIBILITY AND TO AVOID CONFUSION WITH INTERPRETING PARTS OF WORDS AS THEIR OWN ENTRY  
-            # FOR EXAMPLE, 'OR' IN 'ATTENUATOR = 1THIN' DOES NOT MEAN "ATTENUAT OR = 1THIN"
+
+            
             searchStr = re.sub("(?<!>|<|!) & +"," and ",searchStr)
             searchStr = re.sub("(?<!>|<|!) \| +"," or ",searchStr)
+            searchStr = re.sub("(?<!>|<|!) ^ +"," xor ",searchStr)
 
             
             # split the search string into the component searches
-            # by "and" or "or" and remove blank spaces before and after 
+            # by "and" or "or" or "xor" and remove blank spaces before and after 
 
-            searchArray = re.split('( and | or )',searchStr.strip())
+            searchArray = re.split('( and | or | xor )',searchStr.strip())
             searchArray = [item.strip() for item in searchArray]
             
             
+            # find the indices of the beginning and ending parentheses
+            beginning_parens_indices = []
+            ending_parens_indices = []
+            if "(" in searchStr:
+             
+                for index, search in enumerate(searchArray):
+                    print(index,search,("(" in search))
+
+                    if ("(") in search:
+                        beginning_parens_indices.append(index)
+                    if (")") in search:
+                        ending_parens_indices.append(index)
+                
+
+
+
             # define lists for the relational operators, quantities (Temperature, etc. ), and conjuctions (and, or)
             relOp = []
 
@@ -966,19 +993,22 @@ class GenerateForm(QWidget):
             # loop through the split searchArray and fill the above lists 
             for search in searchArray:
                 # separate the conjuctions 
-                if search != "and" and search != "or":
+                if search != "and" and search != "or" and search !="xor":
                     #identify and isolate the relational operator
                     relational_operators = [] 
-                    #this to allow any number of equals signs 
+                    #this allows any number of equals signs
                     for relational_operator in ['>','<','>=','<=','=','!=']:
                         if relational_operator in search:
                             relational_operators.append(relational_operator)
 
-                    #isolate the relational operator
+                    #isolate the relational operator 
                     if len(relational_operator) >0 : 
                         relop = sorted(relational_operators,key=len)[-1]
                         if re.search("(?<!>|<|!)=+",relop):
-                            
+                            # find all instances of any number of equal signs
+                            # but not combined with anything else, no "=" and "===" but not ">="
+                            # and replace with "==" to allow any number of equal signs and format the
+                            # result to evaluate correctly
                             search = re.sub("(?<!>|<|!)=+","==",search)
                             relop = re.sub("(?<!>|<|!)=+","==",relop)
 
@@ -1281,7 +1311,10 @@ class GenerateForm(QWidget):
                 if q < len(quantity_array)-1:
                     if quantity_unique not in conj_dict.keys():
                         conj_dict.update({quantity_unique:[]})
-                    conj_dict[quantity_unique].append(conj_list[q] ) 
+                    if conj_list[q] == "xor":
+                        conj_dict[quantity_unique].append(" ^ ") 
+                    else:
+                        conj_dict[quantity_unique].append(conj_list[q] ) 
 
             # FOR TESTING: PRINT THESE DICTIONARIES
             # print("relOp_dict:", relOp_dict)
@@ -1335,6 +1368,7 @@ class GenerateForm(QWidget):
 
 
                         # FOR TESTING, print out the child and number of grandchildren 
+                        child = val.child(childNum).text(0)
                         print("child:", val.child(childNum).text(0))
                         print("num of grandchildren:", int(val.child(childNum).childCount()))
 
@@ -1374,7 +1408,8 @@ class GenerateForm(QWidget):
                                     # make a list of the greatgrandchildren that includes the header so that it always shows
                                     # or example quantities in "Header" and "Target_1", then "Header" and "Target_2", etc. 
                                     # and then if the search is for something in the target, it will show the header as well. 
-                                     
+                                    
+                                    print("metadata_dict:",metadata_dict)
                                     concatinated_greatGrandchildren = metadata_dict['Header'] + metadata_dict[grandchild]
                                     # FOR TESTING, print out this concatinated list
                                     # print('concatinated_greatGrandchildren',concatinated_greatGrandchildren)
@@ -1383,8 +1418,22 @@ class GenerateForm(QWidget):
                                     eval_str = ""
 
                                     for i in range(len(conj_list)):
-                                        eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_list[i]} "
+                                        if conj_list[i] == "xor":
+                                            
+                                            eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]][0]} "
+                                            # not necessary since just for the end. 
+                                            #eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
+                                
+                                        else:
+                                            eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]]} "
                                     eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
+
+                                    # one problem is that the xor here matches removes terms that have both. If I search "temp = 625 xor pres = 200", it will 
+                                    # remove everything with both temp and pres, but if Ablation_Temperature==625 and Ablation_Pressure=210, it should return True. 
+
+                                    # for some reason goes through the target out of order of > 10 i.e. Target_1,Target_10,Target_11,Target_12,Target_2, etc. 
+
+                                    # I think I have to be more flexible if a target gets skipped, i.e. no Target_3 
 
                                     # FOR TESTING, print stuff out  
                                     #  make a list out of these eval_strings,
@@ -1588,7 +1637,7 @@ class GenerateForm(QWidget):
                                                                                     metadata.update({grandchild:{}})
                                                                                 metadata[grandchild].update({greatGrandchild:greatGreatGreatGrandchild.casefold()})
 
-                                                                                metadata_matches.append(ops_str[relOp[q]](str(greatGreatGreatGrandchild),number_array[q]))                                                                                                                                                                                                                                                 
+                                                                                metadata_matches.append(ops_str[relOp[q]](str(greatGreatGreatGrandchild),str(number_array[q])))                                                                                                                                                                                                                                                 
                             # if there is not a match, hide the grandchild 
                             # and record that it is not a match  in the metadata_matches dict                                    
                             else:
@@ -1687,12 +1736,17 @@ class GenerateForm(QWidget):
                                                 # the type of atmosphere has not been specified, so do an "or" search with all three 
                                                 if "Pre_Ablation_Atmosphere_Gas" in metadata[key1].keys():
                                                     try:
-                                                        if quantity_array_flattened[int(np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]+1)] == "Pre_Ablation_Atmosphere_Gas":
-                                                            metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
-                                                        else:
-                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}) "
+                                                        index_ablation_atm_gas = np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+
+                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(quantity_array_flattened):
+                                                            next_element = quantity_array_flattened[index_ablation_atm_gas[0] + 1]
+
+                                                            if next_element == "Pre_Ablation_Atmosphere_Gas":
+                                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
+                                                            else:
+                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}) "
                                                     except:
                                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
                                                 else:
@@ -1708,13 +1762,18 @@ class GenerateForm(QWidget):
                                             else:
                                                 if 'Pre_Ablation_Atmosphere_Gas' in metadata[key1].keys():
                                                     try:
-                                                        if quantity_array_flattened[int(np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]+1)] == "Pre_Ablation_Atmosphere_Gas":
-                                                            metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
-                                                        else:
-                                                            #pre_ablation-pressure is specified, so just do "Ablation_Atmosphere_Gas" separately 
-                                                            # base pressure is also in metadata, and it is matched, but do it separately
-                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
+                                                        index_pre_ablation_pressure = np.where(np.array(quantity_array_flattened) == 'Pre_Ablation_Pressure')[0]
+
+                                                        if index_pre_ablation_pressure.size > 0 and index_pre_ablation_pressure[0] + 1 < len(quantity_array_flattened):
+                                                            next_element = quantity_array_flattened[index_pre_ablation_pressure[0] + 1]
+
+                                                            if next_element == "Ablation_Pressure":
+                                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
+                                                            else:
+                                                                #pre_ablation-pressure is specified, so just do "Ablation_Atmosphere_Gas" separately 
+                                                                # base pressure is also in metadata, and it is matched, but do it separately
+                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
                                                     except:
                                                         # pre ablation atmosphere gas is matched but it must be specified before in the search string for the except to trigger. 
                                                         # Ablation_atmosphere gas must last entry of quantity_array_flattened, so cannot to [i+1]. so do it separately.                 
@@ -1724,10 +1783,15 @@ class GenerateForm(QWidget):
                                                 
                                     
                                     elif key2 == "Pre_Ablation_Atmosphere_Gas":
+                                        index_ablation_atm_gas = np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+
                                         if "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-                                        elif "Ablation_Atmosphere_Gas" in metadata[key1].keys() and quantity_array_flattened[int(np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]+1)] == "Pre_Ablation_Atmosphere_Gas":
-                                            continue
+                                        elif "Ablation_Atmosphere_Gas" in metadata[key1].keys() and index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(quantity_array_flattened):
+                                            next_element = quantity_array_flattened[index_ablation_atm_gas[0] + 1]
+
+                                            if next_element == "Pre_Ablation_Atmosphere_Gas":
+                                                continue
                                         elif "Cool_Down_Atmosphere" in relOp_dict.keys():
                                             if "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
                                                 metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Ablation_Atmosphere_Gas'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Ablation_Atmosphere_Gas'][i]}') "
@@ -1756,13 +1820,19 @@ class GenerateForm(QWidget):
                                             if ('Header' in metadata.keys() and 'Base_Pressure' in metadata['Header'].keys()):
                                                 if 'Pre_Ablation_Pressure' in metadata[key1].keys():
                                                     try:
-                                                        if quantity_array_flattened[int(np.where(np.array(quantity_array_flattened) == 'Ablation_Pressure')[0]+1)] == "Pre_Ablation_Pressure":
-                                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
-                                                        else:
-                                                            #pre_ablation-pressure and base pressure are matched, so do all separately 
-                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+                                                        index_ablation_pressure = np.where(np.array(quantity_array_flattened) == 'Ablation_Pressure')[0]
+
+                                                        
+                                                        if index_ablation_pressure.size > 0 and index_ablation_pressure[0] + 1 < len(quantity_array_flattened):
+                                                            next_element = quantity_array_flattened[index_ablation_pressure[0] + 1]
+
+                                                            if next_element == "Pre_Ablation_Pressure":                                                            
+                                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
+                                                            else:
+                                                                #pre_ablation-pressure and base pressure are matched, so do all separately 
+                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                     except:
                                                         # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
                                                         #  Ablation_pressure must last entry of quantity_array_flattened, so cannot to [i+1] so specify separately 
@@ -1778,11 +1848,16 @@ class GenerateForm(QWidget):
                                             else:
                                                 if 'Pre_Ablation_Pressure' in metadata[key1].keys():
                                                     try:
-                                                        if quantity_array_flattened[int(np.where(np.array(quantity_array_flattened) == 'Ablation_Pressure')[0]+1)] == "Pre_Ablation_Pressure":
-                                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
-                                                        else:
-                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+                                                        index_ablation_atm_gas = np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+
+                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(quantity_array_flattened):
+                                                            next_element = quantity_array_flattened[index_ablation_atm_gas[0] + 1]
+
+                                                            if next_element == "Pre_Ablation_Atmosphere_Gas":
+                                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
+                                                            else:
+                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                     except:
                                                         # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
                                                         #  Ablation_pressure must last entry of quantity_array_flattened, so cannot to [i+1] so specify separately              
@@ -1792,17 +1867,24 @@ class GenerateForm(QWidget):
             
                                          
                                     elif key2 == "Pre_Ablation_Pressure":
+
+
+                                        # find the indices of Ablation_Pressure and Pre_Ablation_Pressure in quantity_array_flattened
+                                        # because if they are not next to each other than they had to have been specified separately in the search query
+                                        index_ablation_pressure = np.where(np.array(quantity_array_flattened) == 'Ablation_Pressure')[0]
+
                                         if "Pre_Ablation_Pressure" in relOp_dict.keys():
                                             # the only way this can happen is if it is specified 
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Pre_Ablation_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Pre_Ablation_Pressure'][i]}) "
 
 
-                                        
-                                        elif "Ablation_Pressure" in metadata[key1].keys() and quantity_array_flattened[int(np.where(np.array(quantity_array_flattened) == 'Ablation_Pressure')[0]+1)] == "Pre_Ablation_Pressure":
+
+                                        elif "Ablation_Pressure" in metadata[key1].keys() and index_ablation_pressure.size > 0 and index_ablation_pressure[0]+ 1 < len(quantity_array_flattened): 
+                                            if next_element == "Pre_Ablation_Pressure":
                                             # in this case, "Pre_Ablation_Pressure" is not in relOp_dict.keys()
                                             # and Ablation_Pressure is in metadata
                                             # so pre-ablation not specified and ablation can take care of it
-                                            continue
+                                                continue
 
                                         elif "Base_Pressure" in relOp_dict.keys(): 
                                             if "Pre_Ablation_Pressure" in relOp_dict.keys():
@@ -2090,7 +2172,20 @@ class GenerateForm(QWidget):
 
                         
 
-                        #print('metadata_eval_dict',metadata_eval_dict)
+                        print('metadata_eval_dict',metadata_eval_dict) 
+
+                        # change the order of metadata_eval_dict to be in numerical order instead of string order, so 
+                        # Header, Target_1, Target_2, Target_3, Target_4, Target_5, Target_6, Target_7, Target_8, Target_9, Target_10, Target_11,Target_12
+                        # instead of 
+                        # Header, Target_1, Target_10, Target_11, Target_12, Target_2 ... 
+                        # for ease of iterating later 
+
+                        for key in metadata_eval_dict.keys():
+                            sorted_items = sorted(metadata_eval_dict[key].items(), key=lambda x: [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', x[0])])
+
+
+                            metadata_eval_dict[key] = OrderedDict(sorted_items)
+
 
                         # now actually evaluate each of these metadata_eval_strings (stored in metadata_eval_dict) 
                     
@@ -2117,7 +2212,7 @@ class GenerateForm(QWidget):
 
                             length_list = [] 
 
-                            print(metadata_eval_dict)
+                            print("metadata_eval_dict sorted", metadata_eval_dict)
 
                             metadata_eval_str2 = ""
                             key1_list = []
@@ -2174,6 +2269,8 @@ class GenerateForm(QWidget):
                                                 Metadata_eval_str_1 = Metadata_eval_str_1 + " " +conj_dict[key1][index2-1]+ " " 
                                         else:
                                             Metadata_eval_str_1 = Metadata_eval_str_1 + " " + metadata_eval_dict[key1][key2]
+
+
 
                                         if key2 == "Header":
                                             # make sure that the eval strings have a header 
@@ -2275,9 +2372,9 @@ class GenerateForm(QWidget):
 
                                     elif index2 == 9:
                                         
-                                        Metadata_eval_str_9 = Metadata_eval_str_9 + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_10 = Metadata_eval_str_10 + metadata_eval_dict[key1][key2]
                                         if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][count]+ " "
+                                            Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][count]+ " "
                                             counted = True
 
                                     elif index2 == 10:
@@ -2301,7 +2398,8 @@ class GenerateForm(QWidget):
                             # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
                             Metadata_eval_str_ = "Metadata_eval_str_"
                             deleted_stuff = False
-                            for i in range(1,13):
+                         #   Metadata_eval_str_with_parens = ""
+                            for i in [1,10,11,12,2,3,4,5,6,7,8,9]:#range(1,13):
                                 # print('label: ',f"{Metadata_eval_str_}{i}")
                                 # print("metadata_eval_str:", Metadata_eval_str_+str(i))
                                 try:
@@ -2309,10 +2407,37 @@ class GenerateForm(QWidget):
                                     # print("EVAL: ",eval(Metadata_eval_str_+str(i)))
 
                                     if len(eval(Metadata_eval_str_+str(i))) >0 :
-                                    
-                                        # print("eval",eval(eval(f"{Metadata_eval_str_}{i}")))
 
-                                        if eval(eval(f"{Metadata_eval_str_}{i}")) == False:
+                                        print(f"Metadata_eval_str_{i}"," {eval(Metadata_eval_str_+str(i))}")
+                                        # insert the opening or closing parenthesis in the appropriate index, 
+                                        # I want to wait until it becomes True/False because that is one word instead of 
+                                        # 3.(IS IT ALWAYS 3???) but now it is a string so it doesn't have indices anymore...
+                                        # I think the Metadata_eval_str is in format "700 == 700" 
+                                        # I think I have to split it and reform it anyway, but that's fine 
+
+                                        # but what if the searched term is greater than 1 word, for example
+                                        # "pre ablation pressure" (I split on relOp), then the indices will change. 
+                                        # I could reformat and then count, but idk. Note if a parenthesis is in the term when
+                                        # rewrite? Or a space/underscore in the searchStr? If specify pre or whatever
+                                        # I could decrease the index of the parenthesis that come after it, but I don't like that. 
+                                        # idk.
+                                        # # but maybe it doesn't matter 
+
+                                        Metadata_eval_array = re.split('( and | or )', eval(Metadata_eval_str_+str(i)))
+                                        print("Metadata_eval_array",Metadata_eval_array)
+
+                                        for j in range(len(Metadata_eval_array)):
+                                            if j in beginning_parens_indices:
+                                                Metadata_eval_array[j] = "(" + Metadata_eval_array[j]
+                                            if j in ending_parens_indices:
+                                                Metadata_eval_array[j] = Metadata_eval_array[j] + ")"
+
+                                        Metadata_eval_str_with_parens = " ".join([str(elem) for elem in Metadata_eval_array])    
+                                        print(eval(f"{Metadata_eval_str_}{i}"))
+                                        print("eval",eval(eval(f"{Metadata_eval_str_}{i}")))
+
+                                        #if eval(eval(f"{Metadata_eval_str_}{i}")) == False:
+                                        if eval(Metadata_eval_str_with_parens) == False: 
                                             try:
                                                 # print("eval = False")
                                                 del metadata[f'Target_{i}']
@@ -2388,7 +2513,7 @@ class GenerateForm(QWidget):
                         grandChildrenHidden.append(val.child(childNum).child(grandChildNum).isHidden())
                 
 
-                 #   print("grandchildrenHidden?:", grandChildrenHidden)
+                    print("grandchildrenHidden?:", grandChildrenHidden)
                 
                     if False not in grandChildrenHidden: #and val.isHidden() == 
                         print("Child:", val.child(childNum).text(0))
@@ -2404,7 +2529,7 @@ class GenerateForm(QWidget):
 
               #  print("childrenHidden?:", childrenHidden)
                 if False not in childrenHidden: #and val.isHidden() == 
-               #     print("VAL:", val.text(0))
+                    print("VAL:", val.text(0))
                     val.setHidden(True)
 
         
@@ -2649,4 +2774,3 @@ class GenerateForm(QWidget):
         print('Done!')
         
         self.show_message_window('Parameters saved!')
-  
