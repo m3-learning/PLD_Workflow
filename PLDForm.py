@@ -400,9 +400,6 @@ class GenerateForm(QWidget):
             stack_layout = self.stackUI(i)
             self.stack.setLayout(stack_layout)
         
-       
-        
-       
         
         #  save button - second level
         self.button_save = QPushButton(self)
@@ -433,22 +430,18 @@ class GenerateForm(QWidget):
 #         item = treeView.currentItem()
 #         #    return val.data()
 
-#when an item in the tree is double clicked, import stuff to the form 
+#       when an item in the tree is double clicked, import stuff to the form 
         treeView.doubleClicked.connect(self.onItemClicked)
 
     def onItemClicked(self,treeView):
-    def onItemClicked(self,treeView):
-      
         #first, define clicked on item
         item=self.prior_session.currentItem()    
-        
         
 #       then, clear everything from previously click so it is less confusing
 #      unless the curent click doesn't do anything (i.e. it is on the top level (Datasets, etc)  or individual items
 #level (i.e. aperture or 100)
 # for top level, there are different sessions so it is unclear what to input
 #for top level, parents are none. for individual items, no grandchildren (i.e. child(0).childCount()=0) 
-        
     
         if item.parent() != None and int(item.childCount())>0 and int(item.child(0).childCount())>0:
 
