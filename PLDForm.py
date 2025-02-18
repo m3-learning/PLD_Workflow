@@ -93,8 +93,8 @@ class GenerateForm(QWidget):
         self.name_input = QLineEdit()
         self.date_input = QLineEdit(datetime.datetime.today().strftime("%m/%d/%Y"))
         self.time_input = QLineEdit(datetime.datetime.now().strftime("%H:%M:%S"))
-#         self.save_path_input = QLineEdit(os.getcwd()) 
-        self.save_path_input = QLineEdit('C:/Image/') 
+        self.save_path_input = QLineEdit(os.getcwd()) 
+#         self.save_path_input = QLineEdit('C:/Image/') 
 
         self.custom_key = QLineEdit()
         self.custom_key.setFixedSize(80, self.window_height)
@@ -347,8 +347,11 @@ class GenerateForm(QWidget):
         self.layout.addWidget(self.prior_scans, 0, 2,4,-1) #0,2,4,-1
         self.layout.setColumnStretch(2,10)
         
+        # Ensure search_input is initialized before it's used
+        self.search_input = QLineEdit()  # This line ensures search_input exists
+    
         #search box
-        self.search_form= QGroupBox("Search")
+        self.search_form = QGroupBox("Search")
         self.search_layout = self.create_search()
         self.search_form.setLayout(self.search_layout)
         self.search_input.returnPressed.connect( self.onChanged )
@@ -397,9 +400,6 @@ class GenerateForm(QWidget):
             stack_layout = self.stackUI(i)
             self.stack.setLayout(stack_layout)
         
-       
-        
-       
         
         #  save button - second level
         self.button_save = QPushButton(self)
@@ -425,26 +425,23 @@ class GenerateForm(QWidget):
         self.form_notes.setLayout(self.notes_layout)
         self.notes_layout.addRow(QLabel("Notes"), self.notes_input)
         self.toplayout.addWidget(self.form_notes)
- 
+
 #     def getValue(self,treeView):
 #         item = treeView.currentItem()
 #         #    return val.data()
 
-#when an item in the tree is double clicked, import stuff to the form 
+#       when an item in the tree is double clicked, import stuff to the form 
         treeView.doubleClicked.connect(self.onItemClicked)
 
     def onItemClicked(self,treeView):
-      
         #first, define clicked on item
         item=self.prior_session.currentItem()    
-        
         
 #       then, clear everything from previously click so it is less confusing
 #      unless the curent click doesn't do anything (i.e. it is on the top level (Datasets, etc)  or individual items
 #level (i.e. aperture or 100)
 # for top level, there are different sessions so it is unclear what to input
 #for top level, parents are none. for individual items, no grandchildren (i.e. child(0).childCount()=0) 
-        
     
         if item.parent() != None and int(item.childCount())>0 and int(item.child(0).childCount())>0:
 
