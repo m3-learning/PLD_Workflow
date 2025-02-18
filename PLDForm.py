@@ -310,8 +310,11 @@ class GenerateForm(QWidget):
         self.layout.addWidget(self.prior_scans, 0, 2,4,-1) #0,2,4,-1
         self.layout.setColumnStretch(2,10)
         
+        # Ensure search_input is initialized before it's used
+        self.search_input = QLineEdit()  # This line ensures search_input exists
+    
         #search box
-        self.search_form= QGroupBox("Search")
+        self.search_form = QGroupBox("Search")
         self.search_layout = self.create_search()
         self.search_form.setLayout(self.search_layout)
         self.search_input.returnPressed.connect( self.onChanged )
@@ -813,9 +816,8 @@ class GenerateForm(QWidget):
        # search = self.search_input.text()
         return search_layout
     
-   
 
-   def onChanged(self):
+    def onChanged(self):
         searchStr = str(self.search_input.text() ).lower()
         searchArray = re.split(" ",searchStr)
         
