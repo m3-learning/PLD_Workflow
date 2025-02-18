@@ -145,7 +145,7 @@ def pack_to_hdf5(file_path, file_name):
     print('Done!')
 
 
-def upload_to_datafed(file_path, file_name, growth_para, dataset_id='c/391937642'):
+def upload_to_datafed(file_path, file_name, growth_para, dataset_id='c/391937642', wait=True):
 
     '''
     This function will upload a hdf5 file to DataFed server with specified "dataset_id"
@@ -176,7 +176,7 @@ def upload_to_datafed(file_path, file_name, growth_para, dataset_id='c/391937642
     rec_id = dc_resp[0].data[0].id
     put_resp = df_api.dataPut(rec_id, # record id
                               file_path+'/'+file_name+'.h5', # path to file
-                              wait=True  # Waitcas until transfer completes.
+                              wait=wait  # Waitcas until transfer completes.
                               )
     out = put_resp
     print('Done!')
