@@ -863,7 +863,7 @@ class GenerateForm(QWidget):
     #   - but you can pick any number to search, so "Temp > -1000"
     #   - for example, will select all temperatures
 
-    # - relational operators (>, <, >=,<=,!=,==) work
+    # - # - relational operators (>, <, >=,<=,!=,==) work
     #   - any number of equals signs will work for equality search
     # - you can do multiple searches at ones using "and" , "or", "xor"
     #    - you can use '&' instead of "and" and "|" instead of "or" and "^" instead of "xor"
@@ -872,12 +872,12 @@ class GenerateForm(QWidget):
     #   THIS IS FOR LEGIBILITY AND TO AVOID CONFUSION WITH INTERPRETING PARTS OF WORDS AS THEIR OWN ENTRY  
     # FOR EXAMPLE, 'OR' IN 'ATTENUATOR' DOES NOT MEAN "ATTENUAT" "OR"
 
-    def onChanged(self):
-        
+    def onChanged(self): 
+
         #create dictionary to select relational operator since a relOp b doesn't work
         # define a different dictionary for numbers, strings, and dates because they require 
         # different operators to check for equality 
-        # for numbers, perform valid float comparisons so that, for example, 0.1 + 0.2 == 0.3
+        # for numbers, perform valid float comparisons so that 0.1 + 0.2 == 0.3 for example
         # for strings, check that the search is in the data records instead of doing an exact match
         # this allows you to, for example, search for "1A" instead of "Laser_1A"
         # it is also especially useful for searching the "Notes," which is often 
@@ -915,7 +915,7 @@ class GenerateForm(QWidget):
             "!=": operator.ne #or operator.abs(a-b)>1e-9,
         }
 
-        # create a dictionary for "and", "or" and "xor"
+         # create a dictionary for "and", "or" and "xor"
         # for similar reasons as the operational operators:
         # to programatically create a string that then gets evaluated
         # to determine the truth of the match for each data record
@@ -928,14 +928,10 @@ class GenerateForm(QWidget):
         conj_dict1 = {
             "and": '&',
             "or": '|',
-            "xor": ["|","^"]  
+            "xor": ["|","^"]
         } 
 
 
-
-        # if there is a parenthesis, (temp > 700 or pulse > 10) and chamber=1A 
-        # I need to keep track of how many searches are in the parenthesis (maybe count the conj terms)
-        # and then wrap the appropriate terms in the parenthesis, the built-in eval function will take care of the rest 
 
         # input the search as a string
         searchStr = str(self.search_input.text() ).lower()
@@ -966,19 +962,26 @@ class GenerateForm(QWidget):
             searchArray = [item.strip() for item in searchArray]
             
             
+
+            # if there is a parenthesis, (temp > 700 or pulse > 10) and chamber=1A 
+            # keep track of how many searches are in the parenthesis (maybe count the conj terms)
+            # and then wrap the appropriate terms in the parenthesis.
+            # the built-in eval function will take care of the rest 
+                
+            
+            
             # find the indices of the beginning and ending parentheses
+
             beginning_parens_indices = []
             ending_parens_indices = []
-            if "(" in searchStr:
-             
-                for index, search in enumerate(searchArray):
-                    print(index,search,("(" in search))
+            for index, search in enumerate(searchArray):
+                #print(index,search,("(" in search))
 
-                    if ("(") in search:
-                        beginning_parens_indices.append(index)
-                    if (")") in search:
-                        ending_parens_indices.append(index)
-                
+                if ("(") in search:
+                    beginning_parens_indices.append(index)
+                if (")") in search:
+                    ending_parens_indices.append(index)
+            
 
 
 
@@ -1042,7 +1045,7 @@ class GenerateForm(QWidget):
            
 
             for quantity in quantity_list:
-                print("quantity:",quantity)
+                #print("quantity:",quantity)
                 #Chamber
             
                 if 'cham' in quantity:    
@@ -1110,17 +1113,17 @@ class GenerateForm(QWidget):
                 
                 #temperature
                 elif 'temp' in quantity: #.lower():
-                    print("temp in quantity")
+                   # print("temp in quantity")
                     string_value_array.append(False) 
                 
                     if 'pre' in quantity:
-                        print("pre in quantity")
+                      #  print("pre in quantity")
                         quantity_array.append(["Pre_Ablation_Temperature"])
                     elif 'abl' in quantity:
-                        print("abl in quantity")
+                     #   print("abl in quantity")
                         quantity_array.append(["Ablation_Temperature"])
                     else:
-                        print("neither pre nor abl in quantity")
+                      #  print("neither pre nor abl in quantity")
                         quantity_array.append(["Ablation_Temperature","Pre_Ablation_Temperature"])
                 #Pressure
                 elif 'pres' in quantity:
@@ -1152,16 +1155,16 @@ class GenerateForm(QWidget):
                 #Pulses
                 elif 'pul' in quantity: 
                     string_value_array.append(False)
-                    print("pul in quantity") 
+                    #print("pul in quantity") 
             
                     if 'pre' in quantity:
-                        print("pre in quantity")
+                       # print("pre in quantity")
                         quantity_array.append(["Pre_Ablation_Pulses"])
                     elif 'abl' in quantity:
-                        print("abl in quantity")
+                       # print("abl in quantity")
                         quantity_array.append(["Ablation_Pulses"])
                     else:
-                        print("neither pre nor abl in quantity")
+                       # print("neither pre nor abl in quantity")
                         quantity_array.append(["Ablation_Pulses","Pre_Ablation_Pulses"])
 
                 #Laser Voltage and Laser Energy
@@ -1261,11 +1264,11 @@ class GenerateForm(QWidget):
                 elif quantity_array[i] == ["Date"]:
                     number_array.append(datetime.datetime.strptime(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):].strip(),"%m/%d/%Y").date())
                 else:
-                    print("number_array is numeric")
+                    #print("number_array is numeric")
                     try:
                         number_array.append(float(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):]))
                     except:
-                        print('cannot convert to float; assuming b/c units')
+                        #print('cannot convert to float; assuming b/c units')
                         for j in range(len(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):])):
                             try:
                             # print(i)
@@ -1285,20 +1288,28 @@ class GenerateForm(QWidget):
         
             #convert these lists into dictionaries
             for q in range(len(quantity_array)):
-                # if you search or the term multiple times 
-                # for example temp > 600 or temp < 800 that
-                # if the key already exists, make a list with both values 
-                # so for example example, 
+                # if one of the quantities in quantity_array is a list,
+                # pick the shortest element to be the dictionary key
+                # for simplicity 
+                
+                
+                # if you search for the term multiple times 
+                # for example temp > 600 or temp < 800 so that
+                # the key already exists, make a list with both values 
+                # so for example, 
                 # number_dict = {'Ablation_Temperature': [600,800] }
                 # relOp_dict = {'Ablation_Temperature':['>','<']}
                 # conj_dict = {'Ablation_Temperature':or}
                 #
                 # then later, loop over the value list to build the 
                 # metadata_eval_str 
-
+                
                 # if one of the quantities above is a list,
-                # pick the shortest element to be the dictionary key
-                # for simplicity 
+                # for example temp gets converted to ["Pre_Ablation_Temperature","Ablation_Temperature"]
+                # pick the shortest element ("Ablation Temperature" in this example) to be the dictionary key
+                # for simplicity. This has been implemented in the example above about the key already existing
+
+               
                 quantity_unique = sorted(quantity_array[q],key=len)[0]
                 if quantity_unique not in relOp_dict.keys():
                     relOp_dict.update({quantity_unique:[]})
@@ -1356,297 +1367,295 @@ class GenerateForm(QWidget):
                 
                 # loop over the children, these are the individual data records
                 for childNum in range(int(val.childCount())):
-                        # unhide the child
-                        val.child(childNum).setHidden(False)
-                        # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
-                        metadata = {}
-                        #metadata = []
-                        q_array = [] 
-                        metadata_matches = []
-                        metadata_dict = {}
-                        eval_strings = [] 
+                    # unhide the child
+                    val.child(childNum).setHidden(False)
+                    # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
+                    metadata = {}
+                    #metadata = []
+                    q_array = [] 
+                    metadata_matches = []
+                    metadata_dict = {}
+                    eval_strings = [] 
 
 
-                        # FOR TESTING, print out the child and number of grandchildren 
-                        child = val.child(childNum).text(0)
-                        print("child:", val.child(childNum).text(0))
-                        print("num of grandchildren:", int(val.child(childNum).childCount()))
+                    # FOR TESTING, print out the child and number of grandchildren 
+                    child = val.child(childNum).text(0)
+                    # print("child:", val.child(childNum).text(0))
+                    # print("num of grandchildren:", int(val.child(childNum).childCount()))
 
-                        # loop over the grandchildren ("Header","Target_1",etc. )
-                        for grandchildNum in range(int(val.child(childNum).childCount())):
-                            #FOR TESTING: print out the number of the grandchild
-                            print("grandchildNum:" ,grandchildNum)
+                    # loop over the grandchildren ("Header","Target_1",etc. )
+                    for grandchildNum in range(int(val.child(childNum).childCount())):
+                        #FOR TESTING: print out the number of the grandchild
+                        #print("grandchildNum:" ,grandchildNum)
 
-                            #define and unhide the grandchild
-                            grandchild = val.child(childNum).child(grandchildNum).text(0)
-                            val.child(childNum).child(grandchildNum).setHidden(False)
-                            greatGrandchild_list = []
-                        
-
-                            #someone probably won't search for a grandchild, so loop over the great-grandchildren, 
-                            # i.e. "User_Name", Ablation-Temperature", etc.
-
-                            for greatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).childCount())):
-                                #these great-grandchildren are what someone would probably search, if it is in the quantity_array,
-                                #then loop over the great-great-grandchildren. 
-                                # But first, define and unhide it
-                                val.child(childNum).child(grandchildNum).child(greatGrandchildNum).setHidden(False)
-
-                                greatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0)
-                               # print("great Grandchild:", val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
-                                greatGrandchild_list.append(greatGrandchild)
-                            # add the list of great grandchildren to the metadata_dict and FOR TESTING, print it out
-                            metadata_dict[grandchild] = greatGrandchild_list 
-
-                            # print("*"*25)
-                            # print('metadata_dict',metadata_dict)
-
-                            # if there is no metadata, hide the child (the data record), since this is a metadata search
-                            if 'no metadata found' in metadata_dict.keys():
-                                val.child(childNum).setHidden(True)
-                            else:
-                                    # make a list of the greatgrandchildren that includes the header so that it always shows
-                                    # or example quantities in "Header" and "Target_1", then "Header" and "Target_2", etc. 
-                                    # and then if the search is for something in the target, it will show the header as well. 
-                                    
-                                    print("metadata_dict:",metadata_dict)
-                                    concatinated_greatGrandchildren = metadata_dict['Header'] + metadata_dict[grandchild]
-                                    # FOR TESTING, print out this concatinated list
-                                    # print('concatinated_greatGrandchildren',concatinated_greatGrandchildren)
-
-                                    # create a string to evaluate to determine if the searched quantity is in the quantities from DataFed 
-                                    eval_str = ""
-
-                                    for i in range(len(conj_list)):
-                                        if conj_list[i] == "xor":
-                                            
-                                            eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]][0]} "
-                                            # not necessary since just for the end. 
-                                            #eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
-                                
-                                        else:
-                                            eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]]} "
-                                    eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
-
-                                    # one problem is that the xor here matches removes terms that have both. If I search "temp = 625 xor pres = 200", it will 
-                                    # remove everything with both temp and pres, but if Ablation_Temperature==625 and Ablation_Pressure=210, it should return True. 
-
-                                    # for some reason goes through the target out of order of > 10 i.e. Target_1,Target_10,Target_11,Target_12,Target_2, etc. 
-
-                                    # I think I have to be more flexible if a target gets skipped, i.e. no Target_3 
-
-                                    # FOR TESTING, print stuff out  
-                                    #  make a list out of these eval_strings,
-                                    # print(eval_str)
-                                    # print("*"*20)
-                                    # print(concatinated_greatGrandchildren)
-
-                                    # print(eval(eval_str))
-                                    eval_strings.append(eval(eval_str))
+                        #define and unhide the grandchild
+                        grandchild = val.child(childNum).child(grandchildNum).text(0)
+                        val.child(childNum).child(grandchildNum).setHidden(False)
+                        greatGrandchild_list = []
                     
-                    
-                        # print("eval_strings",eval_strings) 
 
-                        # loop over the grandchildren again, this time to ensure that the eval_str is True, so there is a match 
-                        for grandchildNuM in range(1,int(val.child(childNum).childCount())):
+                        #someone probably won't search for a grandchild, so loop over the great-grandchildren, 
+                        # i.e. "User_Name", Ablation_Temperature", etc.
+
+                        for greatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).childCount())):
+                            #these great-grandchildren are what someone would probably search, if it is in the quantity_array,
+                            #then loop over the great-great-grandchildren. 
+                            # But first, define and unhide it
+                            val.child(childNum).child(grandchildNum).child(greatGrandchildNum).setHidden(False)
+
+                            greatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0)
+                            # print("great Grandchild:", val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
+                            greatGrandchild_list.append(greatGrandchild)
+                        # add the list of great grandchildren to the metadata_dict and FOR TESTING, print it out
+                        metadata_dict[grandchild] = greatGrandchild_list 
+
+                        # print("*"*25)
+                        # print('metadata_dict',metadata_dict)
+
+                        # if there is no metadata, hide the child (the data record), since this is a metadata search
+                        if 'no metadata found' in metadata_dict.keys():
+                            val.child(childNum).setHidden(True)
+                        else:
+                                # make a list of the greatgrandchildren that includes the header so that it always shows
+                                # or example quantities in "Header" and "Target_1", then "Header" and "Target_2", etc. 
+                                # and then if the search is for something in the target, it will show the header as well. 
                                 
-                            if len(eval_strings) > 0 and eval_strings[grandchildNuM] == True: 
-                                for grandchildNum in np.unique([0,grandchildNuM]):
-                                    # define the grandchild 
-                                    grandchild = val.child(childNum).child(grandchildNum).text(0)
+                               # print("metadata_dict:",metadata_dict)
+                                concatinated_greatGrandchildren = metadata_dict['Header'] + metadata_dict[grandchild]
+                                # FOR TESTING, print out this concatinated list
+                                # print('concatinated_greatGrandchildren',concatinated_greatGrandchildren)
 
-                                    print("grandChildNum:" ,grandchildNum)
-                                    print('grandchilD',grandchild)      
+                                # create a string to evaluate to determine if the searched quantity is in the quantities from DataFed 
+                                eval_str = ""
 
-
-                                    # want: metadata: ['Header','Target_1','Header','Target_2','Header','Target_3']
-
-                                    # metadata_matches: ['False','True','False','True','False','False']
-                                    # so append the header to the targets 
-                                    if grandchild == "Header":
-                                        concatinated_greatGrandchildren = metadata_dict['Header']
+                                for i in range(len(conj_list)):
+                                    if conj_list[i] == "xor":
+                                        
+                                        eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]][0]} "
+                                        # not necessary since just for the end. 
+                                        #eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
+                            
                                     else:
-                                        # FOR TESTING: print out some header and target info 
-                                        # print("metadata_dict:",metadata_dict)
-                                        # print("types:")
-                                        # print(type(metadata_dict['Header']))
-                                        # print(metadata_dict['Header'])
-                                        # print(type(metadata_dict[grandchild]))
-                                        # print(metadata_dict[grandchild])
+                                        eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]]} "
+                                eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
 
-                                        concatinated_greatGrandchildren = metadata_dict['Header'] + metadata_dict[grandchild]
-                                    # print out this new concatinated_greatGrandchildren list, which has matches. 
-                                    print("concatinated_greatGrandchildren in new loop", concatinated_greatGrandchildren)
+                            
+                                # for some reason goes through the target out of order of > 10 i.e. Target_1,Target_10,Target_11,Target_12,Target_2, etc. 
 
-                                    # since there are matches, continue to the Greatgrandchildren ("Chamber", "Ablation_Temperature", etc. )
-                                    for greatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).childCount())):
-                                        #define the greatGrandchild
-                                        greatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0)
-                                        # FOR TESTING, print uot the greatGrandchild
-                                        # print("greatGrandchildNum",greatGrandchildNum)
-                                        # print("quantity_array:",quantity_array)
-                                        # print("greatGranchild",greatGrandchild)
-                                        
-                                        #if this greatGrandchild is the match, proceed trying to match it  
-                                        if greatGrandchild in functools.reduce(operator.iconcat,quantity_array,[]):
-                                            # for each greatGrandchild that has a match, loop over the search and find the match
-                                            for concatinated_greatGrandchild in concatinated_greatGrandchildren:
-                                                for q in range(len(quantity_array)):
-                                                    # print("q not matched:",q)
-                                                    # print('quantity_array not matched',quantity_array[q])
-                                                    
-                                                    # if there is a match, save this iteration index and proceed with the match
-                                                    if greatGrandchild == concatinated_greatGrandchild and concatinated_greatGrandchild in quantity_array[q]:
-                                                        print("concatinated_greatGrandchild:",concatinated_greatGrandchild)
-                                                        print('q:',q)
-                                                        q_array.append(q)
+                                # I think I have to be more flexible if a target gets skipped, i.e. no Target_3 
 
-                                
-                                        
-                                                        if greatGrandchild == concatinated_greatGrandchild:
-                                                            # FOR TESTING: print out some stuff 
-                                                            print("greatgrandchild",greatGrandchild)
-                                                            print("greatgrandchildnum",greatGrandchildNum)
+                                # FOR TESTING, print stuff out  
+                                #  make a list out of these eval_strings,
+                                # print(eval_str)
+                                # print("*"*20)
+                                # print(concatinated_greatGrandchildren)
+
+                                # print(eval(eval_str))
+                                eval_strings.append(eval(eval_str))
+                
+                
+                    # print("eval_strings",eval_strings) 
+
+                    # loop over the grandchildren again, this time to ensure that the eval_str is True, so there is a match 
+                    for grandchildNuM in range(1,int(val.child(childNum).childCount())):
+                            
+                        if len(eval_strings) > 0 and eval_strings[grandchildNuM] == True: 
+                            for grandchildNum in np.unique([0,grandchildNuM]):
+                                # define the grandchild 
+                                grandchild = val.child(childNum).child(grandchildNum).text(0)
+
+                                # print("grandChildNum:" ,grandchildNum)
+                                # print('grandchilD',grandchild)      
+
+
+                                # want: metadata: ['Header','Target_1','Header','Target_2','Header','Target_3']
+
+                                # metadata_matches: ['False','True','False','True','False','False']
+                                # so append the header to the targets 
+                                if grandchild == "Header":
+                                    concatinated_greatGrandchildren = metadata_dict['Header']
+                                else:
+                                    # FOR TESTING: print out some header and target info 
+                                    # print("metadata_dict:",metadata_dict)
+                                    # print("types:")
+                                    # print(type(metadata_dict['Header']))
+                                    # print(metadata_dict['Header'])
+                                    # print(type(metadata_dict[grandchild]))
+                                    # print(metadata_dict[grandchild])
+
+                                    concatinated_greatGrandchildren = metadata_dict['Header'] + metadata_dict[grandchild]
+                                # print out this new concatinated_greatGrandchildren list, which has matches. 
+                                #print("concatinated_greatGrandchildren in new loop", concatinated_greatGrandchildren)
+
+                                # since there are matches, continue to the Greatgrandchildren ("Chamber", "Ablation_Temperature", etc. )
+                                for greatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).childCount())):
+                                    #define the greatGrandchild
+                                    greatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0)
+                                    # FOR TESTING, print uot the greatGrandchild
+                                    # print("greatGrandchildNum",greatGrandchildNum)
+                                    # print("quantity_array:",quantity_array)
+                                    # print("greatGranchild",greatGrandchild)
+                                    
+                                    #if this greatGrandchild is the match, proceed trying to match it  
+                                    if greatGrandchild in functools.reduce(operator.iconcat,quantity_array,[]):
+                                        # for each greatGrandchild that has a match, loop over the search and find the match
+                                        for concatinated_greatGrandchild in concatinated_greatGrandchildren:
+                                            for q in range(len(quantity_array)):
+                                                # print("q not matched:",q)
+                                                # print('quantity_array not matched',quantity_array[q])
+                                                
+                                                # if there is a match, save this iteration index and proceed with the match
+                                                if greatGrandchild == concatinated_greatGrandchild and concatinated_greatGrandchild in quantity_array[q]:
+                                                    # print("concatinated_greatGrandchild:",concatinated_greatGrandchild)
+                                                    # print('q:',q)
+                                                    q_array.append(q)
+
+                            
+                                    
+                                                    if greatGrandchild == concatinated_greatGrandchild:
+                                                        # FOR TESTING: print out some stuff 
+                                                        # print("greatgrandchild",greatGrandchild)
+                                                        # print("greatgrandchildnum",greatGrandchildNum)
+                                                        
+                                                        #since this is a match, proceed to the greatgreatGrandchildren ("Oxygen","Laser_1C","Value", etc. )
+
+                                                        for greatGreatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).childCount())):
+                                                            # unhide the greatgreatGrandchild 
+                                                            val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).setHidden(False)
                                                             
-                                                            #since this is a match, proceed to the greatgreatGrandchildren ("Oxygen","Laser_1C","Value", etc. )
+                                                            #if there are no great-great-great-grandchildren, the metadata has no units 
+                                                            if int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).childCount()) ==0: 
+                                                                    
+                                                                #units = False
+                                                                # first, check if the greatgreatGrandchild is a number by trying to convert it to a float 
+                                                                try:
+                                                                    #but first, define the greatGrandchild
+                                                                    greatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0)
 
-                                                            for greatGreatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).childCount())):
-                                                                # unhide the greatgreatGrandchild 
-                                                                val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).setHidden(False)
-                                                                
-                                                                #if there are no great-great-great-grandchildren, the metadata has no units 
-                                                                if int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).childCount()) ==0: 
+
+                                                                    # for testing, print out some stuff 
+                                                                    # print("no units")
+
+                                                                    # print("Relop:",ops_str[relOp[q]])
+                                                                    # print("great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
+                                                                    # print("number array",number_array)
+                                                                    # print("number:",number_array[q])
+
                                                                         
-                                                                    #units = False
-                                                                    # first, check if the greatgreatGrandchild is a number by trying to convert it to a float 
-                                                                    try:
-                                                                        #but first, define the greatGrandchild
-                                                                        greatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0)
+                                                                    #make sure greatGreatGrandchild is a float, use this to trigger the "except" if not
+                                                                    float(greatGreatGrandchild)
+
+                                                                    # since this is the match, append True or False to the metadata_matches dictionary and 
+                                                                    # the number to the metadata dictionary 
+                                                                    metadata_matches.append(ops_num[relOp[q]](float(greatGreatGrandchild),number_array[q]))
+
+                                                                    if grandchild not in metadata.keys():
+                                                                        metadata.update({grandchild:{}})
+                                                                    #     print(f"adding grandchild {grandchild} to metadata")
+                                                                    #print("adding the inner dict")
+                                                                    metadata[grandchild].update({greatGrandchild:float(greatGreatGrandchild)})
 
 
-                                                                        # for testing, print out some stuff 
-                                                                        # print("no units")
-
-                                                                        # print("Relop:",ops_str[relOp[q]])
-                                                                        # print("great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
-                                                                        # print("number array",number_array)
-                                                                        # print("number:",number_array[q])
-
-                                                                            
-                                                                        #make sure greatGreatGrandchild is a float, use this to trigger the "except" if not
-                                                                        float(greatGreatGrandchild)
-
-                                                                        # since this is the match, append True or False to the metadata_matches dictionary and 
-                                                                        # the number to the metadata dictionary 
-                                                                        metadata_matches.append(ops_num[relOp[q]](float(greatGreatGrandchild),number_array[q]))
+                                                                except:
+                                                                    # in the except, the float conversion has failed, so the greatgreatGrandchild is not numeric 
+                                                                    # one reason is that it is a date, so check that 
+                                                                    if greatGrandchild == "Date": 
+                                                                        metadata_matches.append(ops_date[relOp[q]](datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date(),number_array[q]))
 
                                                                         if grandchild not in metadata.keys():
                                                                             metadata.update({grandchild:{}})
-                                                                        #     print(f"adding grandchild {grandchild} to metadata")
-                                                                        #print("adding the inner dict")
-                                                                        metadata[grandchild].update({greatGrandchild:float(greatGreatGrandchild)})
 
+                                                                        metadata[grandchild].update({greatGrandchild: datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date()})
 
-                                                                    except:
-                                                                        # in the except, the float conversion has failed, so the greatgreatGrandchild is not numeric 
-                                                                        # one reason is that it is a date, so check that 
-                                                                        if greatGrandchild == "Date": 
-                                                                            metadata_matches.append(ops_date[relOp[q]](datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date(),number_array[q]))
+                                                                        # print("date:",datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date())
+                                                                # otherwise it is a string  
+                                                                    else:
 
-                                                                            if grandchild not in metadata.keys():
-                                                                                metadata.update({grandchild:{}})
-
-                                                                            metadata[grandchild].update({greatGrandchild: datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date()})
-
-                                                                            # print("date:",datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date())
-                                                                    # otherwise it is a string  
-                                                                        else:
-
-                                                                            greatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0).casefold()
-                                                                            
-                                                                            metadata_matches.append(ops_str[relOp[q]](greatGreatGrandchild,str(number_array[q])))
-
-                                                                            if grandchild not in metadata.keys():
-                                                                                metadata.update({grandchild:{}})
-                                                                            #      print(f"adding grandchild {grandchild} to metadata 2")
-                                                                            # print("adding the inner dict 2")
-
-                                                                            metadata[grandchild].update({greatGrandchild:greatGreatGrandchild.casefold()})
-                                                                else:
-                                                                    #there is a great-great-great-grandchild, so the metadata has units 
-                                                                    #units = True
-                                                                    
-                                                                    # loop over the greatGreatGreatGrandchildren, where is where the numbers are 
-                                                                    for greatGreatGreatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).childCount())):
-                                                                        # unhide the greatGreatGreatGrandchildren 
-                                                                        val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).setHidden(False)
-
+                                                                        greatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0).casefold()
                                                                         
-                                                                        # print("great-great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0))
-                                                                        # print("number_array",number_array)
+                                                                        metadata_matches.append(ops_str[relOp[q]](greatGreatGrandchild,str(number_array[q])))
 
-                                                                        # ensure that the greatGreatGrandchild is "Value", to more efficiently get to the number. 
-                                                                        # It would be pointless to search to for unit, since everything with this quantity has the same unit, so we can just skip over that 
-                                                                        if val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0) == "Value":
-                                                                            # check if it is actually a number by trying to convert to a float. If it is somehow not, convert to a caseless string. 
-                                                                            # either way, append to the metadata and metadata_matches dictionaries. 
-                                                                            # and FOR TESTING print out a bunch of stuff along the way
+                                                                        if grandchild not in metadata.keys():
+                                                                            metadata.update({grandchild:{}})
+                                                                        #      print(f"adding grandchild {grandchild} to metadata 2")
+                                                                        # print("adding the inner dict 2")
 
+                                                                        metadata[grandchild].update({greatGrandchild:greatGreatGrandchild.casefold()})
+                                                            else:
+                                                                #there is a great-great-great-grandchild, so the metadata has units 
+                                                                #units = True
+                                                                
+                                                                # loop over the greatGreatGreatGrandchildren, where is where the numbers are 
+                                                                for greatGreatGreatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).childCount())):
+                                                                    # unhide the greatGreatGreatGrandchildren 
+                                                                    val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).setHidden(False)
 
-                                                                            try:
-                                                                                greatGreatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0)
-                                                                                # print("Relop:",ops_num[relOp[q]])
-                                                                                # print('number:', number_array[q])
+                                                                    
+                                                                    # print("great-great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0))
+                                                                    # print("number_array",number_array)
 
-                                                                                
-                                                                                metadata_matches.append(ops_num[relOp[q]](float(greatGreatGreatGrandchild),number_array[q]))
-
-                                                                                
-                                                                                # print("val:",val.text(0))
-                                                                                # print("val hidden?",val.isHidden())
-                                                                                # # val.child(childNum).setHidden(True)
-                                                                                # print("child:",val.child(childNum).text(0))
-                                                                                # print("child hidden?",val.child(childNum).isHidden())
-                                                                                # #val.child(childNum).child(grandchildNum).setHidden(True)
-                                                                                # print("grandchild:",val.child(childNum).child(grandchildNum).text(0))
-                                                                                # print("grandchild hidden?",val.child(childNum).child(grandchildNum).isHidden())
-
-                                                                                # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).setHidden(True)
-                                                                                # print("great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
-                                                                                # print("great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).isHidden())
-                                                                                # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).setHidden(True)
-                                                                                # print("great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
-                                                                                # print("great-great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).isHidden())
-                                                                                # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).setHidden(True)
-                                                                                # print("great-great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0))
-                                                                                # print("great-great-great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).isHidden())
-
-                                                                                if grandchild not in metadata.keys():
-                                                                                    print("creating new metadata key:", grandchild)
-                                                                                    metadata.update({grandchild:{}})
-                                                                                
-                                                                                metadata[grandchild].update( {greatGrandchild:float(greatGreatGreatGrandchild)})
+                                                                    # ensure that the greatGreatGrandchild is "Value", to more efficiently get to the number. 
+                                                                    # It would be pointless to search to for unit, since everything with this quantity has the same unit, so we can just skip over that 
+                                                                    if val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0) == "Value":
+                                                                        # check if it is actually a number by trying to convert to a float. If it is somehow not, convert to a caseless string. 
+                                                                        # either way, append to the metadata and metadata_matches dictionaries. 
+                                                                        # and FOR TESTING print out a bunch of stuff along the way
 
 
+                                                                        try:
+                                                                            greatGreatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0)
+                                                                            # print("Relop:",ops_num[relOp[q]])
+                                                                            # print('number:', number_array[q])
 
-                                                                            except:
-                                                                                print("could not convert value with unit to a float. Proceeding assuming a string")
-                                                                                #metadata.append(grandchild)
-                                                                                if grandchild not in metadata.keys():
-                                                                                    print("Creating a new metadata key:", grandchild)
-                                                                                    metadata.update({grandchild:{}})
-                                                                                metadata[grandchild].update({greatGrandchild:greatGreatGreatGrandchild.casefold()})
+                                                                            
+                                                                            metadata_matches.append(ops_num[relOp[q]](float(greatGreatGreatGrandchild),number_array[q]))
 
-                                                                                metadata_matches.append(ops_str[relOp[q]](str(greatGreatGreatGrandchild),str(number_array[q])))                                                                                                                                                                                                                                                 
-                            # if there is not a match, hide the grandchild 
-                            # and record that it is not a match  in the metadata_matches dict                                    
-                            else:
-                                val.child(childNum).child(grandchildNum).setHidden(True)
+                                                                            
+                                                                            # print("val:",val.text(0))
+                                                                            # print("val hidden?",val.isHidden())
+                                                                            # # val.child(childNum).setHidden(True)
+                                                                            # print("child:",val.child(childNum).text(0))
+                                                                            # print("child hidden?",val.child(childNum).isHidden())
+                                                                            # #val.child(childNum).child(grandchildNum).setHidden(True)
+                                                                            # print("grandchild:",val.child(childNum).child(grandchildNum).text(0))
+                                                                            # print("grandchild hidden?",val.child(childNum).child(grandchildNum).isHidden())
+
+                                                                            # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).setHidden(True)
+                                                                            # print("great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
+                                                                            # print("great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).isHidden())
+                                                                            # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).setHidden(True)
+                                                                            # print("great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
+                                                                            # print("great-great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).isHidden())
+                                                                            # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).setHidden(True)
+                                                                            # print("great-great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0))
+                                                                            # print("great-great-great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).isHidden())
+
+                                                                            if grandchild not in metadata.keys():
+                                                                               # print("creating new metadata key:", grandchild)
+                                                                                metadata.update({grandchild:{}})
+                                                                            
+                                                                            metadata[grandchild].update( {greatGrandchild:float(greatGreatGreatGrandchild)})
+
+
+
+                                                                        except:
+                                                                           # print("could not convert value with unit to a float. Proceeding assuming a string")
+                                                                            #metadata.append(grandchild)
+                                                                            if grandchild not in metadata.keys():
+                                                                               # print("Creating a new metadata key:", grandchild)
+                                                                                metadata.update({grandchild:{}})
+                                                                            metadata[grandchild].update({greatGrandchild:greatGreatGreatGrandchild.casefold()})
+
+                                                                            metadata_matches.append(ops_str[relOp[q]](str(greatGreatGreatGrandchild),str(number_array[q])))                                                                                                                                                                                                                                                 
+                                # if there is not a match, hide the grandchild 
+                                # and record that it is not a match  in the metadata_matches dict                                    
+                        else: # I unindented this on Dec 16, 2024
+                            val.child(childNum).child(grandchildNum).setHidden(True)
+                            metadata_matches.append(False)
+                            
+                            if val.child(childNum).child(grandchildNum).text(0) != "Header":
+
                                 metadata_matches.append(False)
-                                
-                                if val.child(childNum).child(grandchildNum).text(0) != "Header":
-
-                                    metadata_matches.append(False)
 
 
                         #FOR TESTING print out the metadata and metadata_matches dictionaries
@@ -1835,7 +1844,7 @@ class GenerateForm(QWidget):
                                                                 metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                     except:
                                                         # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
-                                                        #  Ablation_pressure must last entry of quantity_array_flattened, so cannot to [i+1] so specify separately 
+                                                        #  Ablation_pressure must last entry of quantity_array_flattened, so cannot do [i+1] so specify separately 
                                                         metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
 
                                                 else:
@@ -1932,7 +1941,7 @@ class GenerateForm(QWidget):
      
                                             else:
                                                 #this means that none were specified or present in the metadata, so do substrate_1 separately 
-                                                print("substrate_1 only in metadata")
+                                               # print("substrate_1 only in metadata")
                                                 metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') "
 
                                         else:
@@ -2048,18 +2057,18 @@ class GenerateForm(QWidget):
                           
                                     elif "Pre_" in key2:
                                         key2_2 = key2[4:]
-                                        print("key2",key2)
-                                        print(metadata[key1][key2])
-                                        print(type(metadata[key1][key2]))
-                                        print("key2_2",key2_2)
+                                        # print("key2",key2)
+                                        # print(metadata[key1][key2])
+                                        # print(type(metadata[key1][key2]))
+                                        # print("key2_2",key2_2)
                                       
                                         
                                         if key2_2 in metadata[key1].keys() and type(metadata[key1][key2_2]) == list:
-                                                print("T1")
-                                                print(metadata[key1][key2])
+                                               # print("T1")
+                                                #print(metadata[key1][key2])
                                                 metadata[key1][key2_2] = metadata[key1][key2_2][0]
                                         if type(metadata[key1][key2]) == list:
-                                                print(metadata[key1][key2_2])
+                                                #print(metadata[key1][key2_2])
                                                 metadata[key1][key2] = metadata[key1][key2][0]
                                         if  key2 not in relOp_dict.keys():
                                             #so Ablation_Pulses is in relOp_dict but not Pre-Ablation_Pulses, for example
@@ -2119,8 +2128,8 @@ class GenerateForm(QWidget):
 
                                     
                                     if len(metadata_eval_str) > 0:
-                                        if 'Pressure' in key2 and metadata_eval_str.count("or") == 2:
-                                            print("Y")
+                                        #if 'Pressure' in key2 and metadata_eval_str.count("or") == 2:
+                                            #print("Y")
                                         
 
                                         if key2 == key2_2:
@@ -2130,7 +2139,7 @@ class GenerateForm(QWidget):
                                                 metadata_eval_dict["Cool_Down_Atmosphere"].update({key1:metadata_eval_str})
                                             
                                             elif 'Pressure' in key2 and "Base_Pressure" in relOp_dict.keys() and "Ablation_Pressure" not in relOp_dict.keys() and "Pre_Ablation_Pressure" not in relOp_dict.keys(): #metadata_eval_str.count("or") == 2:
-                                                print("Y")
+                                               # print("Y")
                                                 if "Base_Pressure" not in metadata_eval_dict.keys():
                                                     metadata_eval_dict.update({"Base_Pressure":{}})
                                                 metadata_eval_dict["Base_Pressure"].update({key1:metadata_eval_str})
@@ -2172,7 +2181,7 @@ class GenerateForm(QWidget):
 
                         
 
-                        print('metadata_eval_dict',metadata_eval_dict) 
+                        # print('metadata_eval_dict',metadata_eval_dict) 
 
                         # change the order of metadata_eval_dict to be in numerical order instead of string order, so 
                         # Header, Target_1, Target_2, Target_3, Target_4, Target_5, Target_6, Target_7, Target_8, Target_9, Target_10, Target_11,Target_12
@@ -2212,13 +2221,13 @@ class GenerateForm(QWidget):
 
                             length_list = [] 
 
-                            print("metadata_eval_dict sorted", metadata_eval_dict)
+                            #print("metadata_eval_dict sorted", metadata_eval_dict)
 
                             metadata_eval_str2 = ""
                             key1_list = []
                             # loop over search and the metadata to find matches 
                             for index1, key1 in enumerate(relOp_dict.keys()):
-                                print("key1",key1)
+                               # print("key1",key1)
                                 if key1 not in metadata_eval_dict.keys():
                                     # if this metadata only has some of the quantities required to match
                                     # but not all of them, set the eval to False 
@@ -2399,7 +2408,7 @@ class GenerateForm(QWidget):
                             Metadata_eval_str_ = "Metadata_eval_str_"
                             deleted_stuff = False
                          #   Metadata_eval_str_with_parens = ""
-                            for i in [1,10,11,12,2,3,4,5,6,7,8,9]:#range(1,13):
+                            for i in range(1,13):
                                 # print('label: ',f"{Metadata_eval_str_}{i}")
                                 # print("metadata_eval_str:", Metadata_eval_str_+str(i))
                                 try:
@@ -2408,7 +2417,7 @@ class GenerateForm(QWidget):
 
                                     if len(eval(Metadata_eval_str_+str(i))) >0 :
 
-                                        print(f"Metadata_eval_str_{i}"," {eval(Metadata_eval_str_+str(i))}")
+                                        
                                         # insert the opening or closing parenthesis in the appropriate index, 
                                         # I want to wait until it becomes True/False because that is one word instead of 
                                         # 3.(IS IT ALWAYS 3???) but now it is a string so it doesn't have indices anymore...
@@ -2424,7 +2433,6 @@ class GenerateForm(QWidget):
                                         # # but maybe it doesn't matter 
 
                                         Metadata_eval_array = re.split('( and | or )', eval(Metadata_eval_str_+str(i)))
-                                        print("Metadata_eval_array",Metadata_eval_array)
 
                                         for j in range(len(Metadata_eval_array)):
                                             if j in beginning_parens_indices:
@@ -2433,8 +2441,8 @@ class GenerateForm(QWidget):
                                                 Metadata_eval_array[j] = Metadata_eval_array[j] + ")"
 
                                         Metadata_eval_str_with_parens = " ".join([str(elem) for elem in Metadata_eval_array])    
-                                        print(eval(f"{Metadata_eval_str_}{i}"))
-                                        print("eval",eval(eval(f"{Metadata_eval_str_}{i}")))
+                                    
+                                        # print("eval",eval(eval(f"{Metadata_eval_str_}{i}")))
 
                                         #if eval(eval(f"{Metadata_eval_str_}{i}")) == False:
                                         if eval(Metadata_eval_str_with_parens) == False: 
@@ -2443,7 +2451,7 @@ class GenerateForm(QWidget):
                                                 del metadata[f'Target_{i}']
                                                 deleted_stuff = True
                                             except:
-                                                print("could not delete key")
+                                               # print("could not delete key")
                                                 if 'Target_1' not in metadata.keys():
                                                     try: 
                                                      #   print("deleting header")
@@ -2485,9 +2493,9 @@ class GenerateForm(QWidget):
 
                         # hide the grandchildren not in the pruned metadata dictionary 
                         for grandchildNum in range(int(val.child(childNum).childCount())):
-                            print("grandchildNum:" ,grandchildNum)
+                            #print("grandchildNum:" ,grandchildNum)
                             grandchild = val.child(childNum).child(grandchildNum).text(0)
-                            print("grandchild:",grandchild)
+                            #print("grandchild:",grandchild)
 
                         
                             if grandchild not in metadata.keys():
@@ -2513,10 +2521,10 @@ class GenerateForm(QWidget):
                         grandChildrenHidden.append(val.child(childNum).child(grandChildNum).isHidden())
                 
 
-                    print("grandchildrenHidden?:", grandChildrenHidden)
+                   # print("grandchildrenHidden?:", grandChildrenHidden)
                 
                     if False not in grandChildrenHidden: #and val.isHidden() == 
-                        print("Child:", val.child(childNum).text(0))
+                       # print("Child:", val.child(childNum).text(0))
                         val.child(childNum).setHidden(True)
             
                 
@@ -2529,7 +2537,7 @@ class GenerateForm(QWidget):
 
               #  print("childrenHidden?:", childrenHidden)
                 if False not in childrenHidden: #and val.isHidden() == 
-                    print("VAL:", val.text(0))
+                   # print("VAL:", val.text(0))
                     val.setHidden(True)
 
         
