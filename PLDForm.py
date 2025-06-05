@@ -229,7 +229,7 @@ class GenerateForm(QWidget):
 
 
                                 except Exception as err:
-                                    label.addChild(QTreeWidgetItem([f"{type(err).__name__} was raised: {err}"]))
+                                    value.addChild(QTreeWidgetItem([f"{type(err).__name__} was raised: {err}"]))
                                    
                 except: # if no metaData
                     session.addChild(QTreeWidgetItem(['no metadata found']))
@@ -1337,13 +1337,19 @@ class GenerateForm(QWidget):
 
         #hide the non-matching records
 
+        # val = collection
+        # child = record
+        # grandchild = section -> section_unique
+        # great_grandchild = DataFed_parameter
+        # great_great_grandchild = DataFed_value
+        
         # get the tree of records from DataFed that are in the form 
         treeView = self.prior_session
 
         # if the searchstr is empty, i.e. nothing has been searched, unhide everything to reset
         if len(searchStr.strip()) == 0:
-            for val in treeView.findItems("", Qt.MatchRecursive | Qt.MatchContains):
-                val.setHidden(False)
+            for collection in treeView.findItems("", Qt.MatchRecursive | Qt.MatchContains):
+                collection.setHidden(False)
 
         # otherwise, do the matching 
         else:
@@ -1358,14 +1364,14 @@ class GenerateForm(QWidget):
             # so if great-grandchild is in parameter and number relOp great-great-great grandchild 
             #unhide  
 
-            for val in treeView.findItems("", Qt.MatchContains): 
+            for collection in treeView.findItems("", Qt.MatchContains): 
                 # unhide the top level 
-                val.setHidden(False)
+                collection.setHidden(False)
                 
                 # loop over the children, these are the individual data records
-                for childNum in range(int(val.childCount())):
+                for record_index in range(int(collection.childCount())):
                     # unhide the child
-                    val.child(childNum).setHidden(False)
+                    collection.child(record_index).setHidden(False)
                     # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
                     metadata = {}
                     #metadata = []
@@ -1376,51 +1382,53 @@ class GenerateForm(QWidget):
 
 
                     # FOR TESTING, print out the child and number of grandchildren 
-                    child = val.child(childNum).text(0)
-                    # print("child:", val.child(childNum).text(0))
-                    # print("num of grandchildren:", int(val.child(childNum).childCount()))
+                    #child = collection.child(record_index).text(0)
+                    # print("child:", collection.child(childNum).text(0))
+                    # print("num of grandchildren:", int(collection.child(childNum).childCount()))
 
                     # loop over the grandchildren ("Header","Target_1",etc. )
-                    for grandchildNum in range(int(val.child(childNum).childCount())):
-                        #FOR TESTING: print out the number of the grandchild
-                        #print("grandchildNum:" ,grandchildNum)
+                    # I call these 'sections' but that's probably not the best name 
+                    for section_index in range(int(collection.child(record_index).childCount())):
+                        #FOR TESTING: print out the number of the section
+                        #print("section_index:" ,section_index)
 
-                        #define and unhide the grandchild
-                        grandchild = val.child(childNum).child(grandchildNum).text(0)
-                        val.child(childNum).child(grandchildNum).setHidden(False)
-                        greatGrandchild_list = []
+                        #define and unhide the section
+                        section = collection.child(record_index).child(section_index).text(0)
+                        collection.child(record_index).child(section_index).setHidden(False)
+                        # create a list for the parameters
+                        DataFed_parameter_list = []
                     
 
-                        #someone probably won't search for a grandchild, so loop over the great-grandchildren, 
+                        #someone probably won't search for a section, so loop over the parameters, 
                         # i.e. "User_Name", Ablation_Temperature", etc.
 
-                        for greatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).childCount())):
+                        for Datafed_parameter_index in range(int(collection.child(record_index).child(section_index).childCount())):
                             #these great-grandchildren are what someone would probably search, if it is in the parameter_array,
                             #then loop over the great-great-grandchildren. 
                             # But first, define and unhide it
-                            val.child(childNum).child(grandchildNum).child(greatGrandchildNum).setHidden(False)
+                            collection.child(record_index).child(section_index).child(Datafed_parameter_index).setHidden(False)
 
-                            greatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0)
-                            # print("great Grandchild:", val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
-                            greatGrandchild_list.append(greatGrandchild)
+                            DataFed_parameter = collection.child(record_index).child(section_index).child(Datafed_parameter_index).text(0)
+                            # print("great Grandchild:", collection.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
+                            DataFed_parameter_list.append(DataFed_parameter)
                         # add the list of great grandchildren to the metadata_dict and FOR TESTING, print it out
-                        metadata_dict[grandchild] = greatGrandchild_list 
+                        metadata_dict[section] = DataFed_parameter_list 
 
                         # print("*"*25)
                         # print('metadata_dict',metadata_dict)
 
                         # if there is no metadata, hide the child (the data record), since this is a metadata search
                         if 'no metadata found' in metadata_dict.keys():
-                            val.child(childNum).setHidden(True)
+                            collection.child(record_index).setHidden(True)
                         else:
                                 # make a list of the greatgrandchildren that includes the header so that it always shows
                                 # or example parameters in "Header" and "Target_1", then "Header" and "Target_2", etc. 
                                 # and then if the search is for something in the target, it will show the header as well. 
                                 
                                # print("metadata_dict:",metadata_dict)
-                                concatinated_greatGrandchildren = metadata_dict['Header'] + metadata_dict[grandchild]
+                                concatinated_DataFed_parameters = metadata_dict['Header'] + metadata_dict[section]
                                 # FOR TESTING, print out this concatinated list
-                                # print('concatinated_greatGrandchildren',concatinated_greatGrandchildren)
+                                # print('concatinated_DataFed_parameters',concatinated_DataFed_parameters)
 
                                 # create a string to evaluate to determine if the searched parameter is in the parameters from DataFed 
                                 eval_str = ""
@@ -1428,13 +1436,13 @@ class GenerateForm(QWidget):
                                 for i in range(len(conj_list)):
                                     if conj_list[i] == "xor":
                                         
-                                        eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]][0]} "
+                                        eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_DataFed_parameters)) {conj_dict1[conj_list[i]][0]} "
                                         # not necessary since just for the end. 
-                                        #eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_greatGrandchildren))"
+                                        #eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_DataFed_parameters))"
                             
                                     else:
-                                        eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]]} "
-                                eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_greatGrandchildren))"
+                                        eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_DataFed_parameters)) {conj_dict1[conj_list[i]]} "
+                                eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_DataFed_parameters))"
 
                             
                                 # for some reason goes through the target out of order of > 10 i.e. Target_1,Target_10,Target_11,Target_12,Target_2, etc. 
@@ -1445,7 +1453,7 @@ class GenerateForm(QWidget):
                                 #  make a list out of these eval_strings,
                                 # print(eval_str)
                                 # print("*"*20)
-                                # print(concatinated_greatGrandchildren)
+                                # print(concatinated_DataFed_parameters)
 
                                 # print(eval(eval_str))
                                 eval_strings.append(eval(eval_str))
@@ -1453,24 +1461,24 @@ class GenerateForm(QWidget):
                 
                     # print("eval_strings",eval_strings) 
 
-                    # loop over the grandchildren again, this time to ensure that the eval_str is True, so there is a match 
-                    for grandchildNuM in range(1,int(val.child(childNum).childCount())):
+                    # loop over the sections again, this time to ensure that the eval_str is True, so there is a match 
+                    for section_idx in range(1,int(collection.child(record_index).childCount())):
                             
-                        if len(eval_strings) > 0 and eval_strings[grandchildNuM] == True: 
-                            for grandchildNum in np.unique([0,grandchildNuM]):
-                                # define the grandchild 
-                                grandchild = val.child(childNum).child(grandchildNum).text(0)
+                        if len(eval_strings) > 0 and eval_strings[section_idx] == True: 
+                            for section_idx_unique in np.unique([0,section_idx]):
+                                # define the unique section 
+                                section_unique = collection.child(record_index).child(section_idx_unique).text(0)
 
-                                # print("grandChildNum:" ,grandchildNum)
-                                # print('grandchilD',grandchild)      
+                                # print("section_idx_unique:" ,section_idx_unique)
+                                # print('section_unique',section_unique)      
 
 
                                 # want: metadata: ['Header','Target_1','Header','Target_2','Header','Target_3']
 
                                 # metadata_matches: ['False','True','False','True','False','False']
                                 # so append the header to the targets 
-                                if grandchild == "Header":
-                                    concatinated_greatGrandchildren = metadata_dict['Header']
+                                if section_unique == "Header":
+                                    concatinated_DataFed_parameters = metadata_dict['Header']
                                 else:
                                     # FOR TESTING: print out some header and target info 
                                     # print("metadata_dict:",metadata_dict)
@@ -1480,177 +1488,159 @@ class GenerateForm(QWidget):
                                     # print(type(metadata_dict[grandchild]))
                                     # print(metadata_dict[grandchild])
 
-                                    concatinated_greatGrandchildren = metadata_dict['Header'] + metadata_dict[grandchild]
-                                # print out this new concatinated_greatGrandchildren list, which has matches. 
-                                #print("concatinated_greatGrandchildren in new loop", concatinated_greatGrandchildren)
+                                    concatinated_DataFed_parameters = metadata_dict['Header'] + metadata_dict[section_idx_unique]
+                                # print out this new concatinated_DataFed_parameters list, which has matches. 
+                                #print("concatinated_DataFed_parameters in new loop", concatinated_DataFed_parameters)
 
-                                # since there are matches, continue to the Greatgrandchildren ("Chamber", "Ablation_Temperature", etc. )
-                                for greatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).childCount())):
-                                    #define the greatGrandchild
-                                    greatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0)
-                                    # FOR TESTING, print uot the greatGrandchild
-                                    # print("greatGrandchildNum",greatGrandchildNum)
+                                # since there are matches, continue to the DataFed parameters ("Chamber", "Ablation_Temperature", etc. )
+                                for DataFed_parameter_idx in range(int(collection.child(record_index).child(section_idx_unique).childCount())):
+                                    #define the DataFed_parameter
+                                    DataFed_parameter = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).text(0)
+                                    # FOR TESTING, print uot the DataFed parameter
+                                    # print("DataFed_parameter_idx",DataFed_parameter_idx)
                                     # print("parameter_array:",parameter_array)
-                                    # print("greatGranchild",greatGrandchild)
+                                    # print("DataFed_parameter",DataFed_parameter)
                                     
                                     #if this greatGrandchild is the match, proceed trying to match it  
-                                    if greatGrandchild in functools.reduce(operator.iconcat,parameter_array,[]):
+                                    if DataFed_parameter in functools.reduce(operator.iconcat,parameter_array,[]):
                                         # for each greatGrandchild that has a match, loop over the search and find the match
-                                        for concatinated_greatGrandchild in concatinated_greatGrandchildren:
+                                        for concatinated_DataFed_parameter in concatinated_DataFed_parameters:
                                             for parameter_index in range(len(parameter_array)):
                                                 # print("parameter_index not matched:",parameter_index)
                                                 # print('parameter_array not matched',parameter_array[parameter_index])
                                                 
                                                 # if there is a match, save this iteration index and proceed with the match
-                                                if greatGrandchild == concatinated_greatGrandchild and concatinated_greatGrandchild in parameter_array[parameter_index]:
-                                                    # print("concatinated_greatGrandchild:",concatinated_greatGrandchild)
+                                                if DataFed_parameter == concatinated_DataFed_parameter and concatinated_DataFed_parameter in parameter_array[parameter_index]:
+                                                    # print("concatinated_DataFed_parameter:",concatinated_DataFed_parameter)
                                                     # print('parameter_index:',parameter_index)
                                                     parameter_indices.append(parameter_index)
 
                             
                                     
-                                                    if greatGrandchild == concatinated_greatGrandchild:
+                                                    if DataFed_parameter == concatinated_DataFed_parameter:
                                                         # FOR TESTING: print out some stuff 
-                                                        # print("greatgrandchild",greatGrandchild)
-                                                        # print("greatgrandchildnum",greatGrandchildNum)
+                                                        # print("DataFed_parameter",DataFed_parameter)
+                                                        # print("DataFed_parameter_idx",DataFed_parameter_idx)
                                                         
-                                                        #since this is a match, proceed to the greatgreatGrandchildren ("Oxygen","Laser_1C","Value", etc. )
+                                                        #since this is a match, proceed to the values in DataFed ("Oxygen","Laser_1C","Value", etc. )
 
-                                                        for greatGreatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).childCount())):
+                                                        for DataFed_value_index in range(int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).childCount())):
                                                             # unhide the greatgreatGrandchild 
-                                                            val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).setHidden(False)
+                                                            collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).setHidden(False)
                                                             
                                                             #if there are no great-great-great-grandchildren, the metadata has no units 
-                                                            if int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).childCount()) ==0: 
+                                                            if int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).childCount()) ==0: 
                                                                     
                                                                 #units = False
                                                                 # first, check if the greatgreatGrandchild is a number by trying to convert it to a float 
                                                                 try:
                                                                     #but first, define the greatGrandchild
-                                                                    greatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0)
+                                                                    DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).text(0)
 
 
                                                                     # for testing, print out some stuff 
                                                                     # print("no units")
 
                                                                     # print("Relop:",ops_str[relOp[parameter_index]])
-                                                                    # print("great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
+                                                                    # print("great-great-grandchild:",collection.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
                                                                     # print("number array",number_array)
                                                                     # print("number:",number_array[parameter_index])
 
                                                                         
-                                                                    #make sure greatGreatGrandchild is a float, use this to trigger the "except" if not
-                                                                    float(greatGreatGrandchild)
+                                                                    #make sure DataFed_value is a float, use this to trigger the "except" if not
+                                                                    float(DataFed_value)
 
                                                                     # since this is the match, append True or False to the metadata_matches dictionary and 
                                                                     # the number to the metadata dictionary 
-                                                                    metadata_matches.append(ops_num[relOp[parameter_index]](float(greatGreatGrandchild),number_array[parameter_index]))
+                                                                    metadata_matches.append(ops_num[relOp[parameter_index]](float(DataFed_value),number_array[parameter_index]))
 
-                                                                    if grandchild not in metadata.keys():
-                                                                        metadata.update({grandchild:{}})
-                                                                    #     print(f"adding grandchild {grandchild} to metadata")
+                                                                    if section_unique not in metadata.keys():
+                                                                        metadata.update({section_unique:{}})
+                                                                    #     print(f"adding section {section_unique} to metadata")
                                                                     #print("adding the inner dict")
-                                                                    metadata[grandchild].update({greatGrandchild:float(greatGreatGrandchild)})
+                                                                    metadata[section_unique].update({DataFed_parameter:float(DataFed_value)})
 
 
                                                                 except:
                                                                     # in the except, the float conversion has failed, so the greatgreatGrandchild is not numeric 
                                                                     # one reason is that it is a date, so check that 
-                                                                    if greatGrandchild == "Date": 
-                                                                        metadata_matches.append(ops_date[relOp[parameter_index]](datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date(),number_array[parameter_index]))
+                                                                    if DataFed_parameter == "Date": 
+                                                                        metadata_matches.append(ops_date[relOp[parameter_index]](datetime.datetime.strptime(DataFed_value,"%m/%d/%Y").date(),number_array[parameter_index]))
 
-                                                                        if grandchild not in metadata.keys():
-                                                                            metadata.update({grandchild:{}})
+                                                                        if section_unique not in metadata.keys():
+                                                                            metadata.update({section_unique:{}})
 
-                                                                        metadata[grandchild].update({greatGrandchild: datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date()})
+                                                                        metadata[section_unique].update({DataFed_parameter: datetime.datetime.strptime(DataFed_value,"%m/%d/%Y").date()})
 
-                                                                        # print("date:",datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date())
+                                                                        # print("date:",datetime.datetime.strptime(DataFed_value,"%m/%d/%Y").date())
                                                                 # otherwise it is a string  
                                                                     else:
 
-                                                                        greatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0).casefold()
+                                                                        DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).text(0).casefold()
                                                                         
-                                                                        metadata_matches.append(ops_str[relOp[parameter_index]](greatGreatGrandchild,str(number_array[parameter_index])))
+                                                                        metadata_matches.append(ops_str[relOp[parameter_index]](DataFed_value,str(number_array[parameter_index])))
 
-                                                                        if grandchild not in metadata.keys():
-                                                                            metadata.update({grandchild:{}})
+                                                                        if section_unique not in metadata.keys():
+                                                                            metadata.update({DataFed_value_index:{}})
                                                                         #      print(f"adding grandchild {grandchild} to metadata 2")
                                                                         # print("adding the inner dict 2")
 
-                                                                        metadata[grandchild].update({greatGrandchild:greatGreatGrandchild.casefold()})
+                                                                        metadata[DataFed_value_index].update({DataFed_parameter:DataFed_value.casefold()})
                                                             else:
                                                                 #there is a great-great-great-grandchild, so the metadata has units 
                                                                 #units = True
                                                                 
-                                                                # loop over the greatGreatGreatGrandchildren, where is where the numbers are 
-                                                                for greatGreatGreatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).childCount())):
-                                                                    # unhide the greatGreatGreatGrandchildren 
-                                                                    val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).setHidden(False)
+                                                                # loop over the values, where is where the numbers are 
+                                                                for DataFed_value_index in range(int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).childCount())):
+                                                                    # unhide the values 
+                                                                    collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_value_index).setHidden(False)
 
                                                                     
-                                                                    # print("great-great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0))
+                                                                    # print("DataFed_value:",collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_value_index).text(0))
                                                                     # print("number_array",number_array)
 
                                                                     # ensure that the greatGreatGrandchild is "Value", to more efficiently get to the number. 
                                                                     # It would be pointless to search to for unit, since everything with this parameter has the same unit, so we can just skip over that 
-                                                                    if val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0) == "Value":
+                                                                    if collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).text(0) == "Value":
                                                                         # check if it is actually a number by trying to convert to a float. If it is somehow not, convert to a caseless string. 
                                                                         # either way, append to the metadata and metadata_matches dictionaries. 
                                                                         # and FOR TESTING print out a bunch of stuff along the way
 
 
                                                                         try:
-                                                                            greatGreatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0)
+                                                                            DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_value_index).text(0)
                                                                             # print("Relop:",ops_num[relOp[parameter_index]])
                                                                             # print('number:', number_array[parameter_index])
 
                                                                             
-                                                                            metadata_matches.append(ops_num[relOp[parameter_index]](float(greatGreatGreatGrandchild),number_array[parameter_index]))
+                                                                            metadata_matches.append(ops_num[relOp[parameter_index]](float(DataFed_value_index),number_array[parameter_index]))
 
                                                                             
-                                                                            # print("val:",val.text(0))
-                                                                            # print("val hidden?",val.isHidden())
-                                                                            # # val.child(childNum).setHidden(True)
-                                                                            # print("child:",val.child(childNum).text(0))
-                                                                            # print("child hidden?",val.child(childNum).isHidden())
-                                                                            # #val.child(childNum).child(grandchildNum).setHidden(True)
-                                                                            # print("grandchild:",val.child(childNum).child(grandchildNum).text(0))
-                                                                            # print("grandchild hidden?",val.child(childNum).child(grandchildNum).isHidden())
-
-                                                                            # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).setHidden(True)
-                                                                            # print("great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
-                                                                            # print("great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).isHidden())
-                                                                            # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).setHidden(True)
-                                                                            # print("great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
-                                                                            # print("great-great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).isHidden())
-                                                                            # #val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).setHidden(True)
-                                                                            # print("great-great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0))
-                                                                            # print("great-great-great-grandchild hidden?",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).isHidden())
-
-                                                                            if grandchild not in metadata.keys():
+                                                                            
+                                                                            if section_unique not in metadata.keys():
                                                                                # print("creating new metadata key:", grandchild)
-                                                                                metadata.update({grandchild:{}})
+                                                                                metadata.update({section_unique:{}})
                                                                             
-                                                                            metadata[grandchild].update( {greatGrandchild:float(greatGreatGreatGrandchild)})
+                                                                            metadata[section_unique].update( {DataFed_parameter:float(DataFed_value)})
 
 
 
                                                                         except:
                                                                            # print("could not convert value with unit to a float. Proceeding assuming a string")
                                                                             #metadata.append(grandchild)
-                                                                            if grandchild not in metadata.keys():
-                                                                               # print("Creating a new metadata key:", grandchild)
-                                                                                metadata.update({grandchild:{}})
-                                                                            metadata[grandchild].update({greatGrandchild:greatGreatGreatGrandchild.casefold()})
+                                                                            if section_unique not in metadata.keys():
+                                                                               # print("Creating a new metadata key:", section_unique)
+                                                                                metadata.update({section_unique:{}})
+                                                                            metadata[section_unique].update({DataFed_parameter:DataFed_value.casefold()})
 
-                                                                            metadata_matches.append(ops_str[relOp[parameter_index]](str(greatGreatGreatGrandchild),str(number_array[parameter_index])))                                                                                                                                                                                                                                                 
+                                                                            metadata_matches.append(ops_str[relOp[parameter_index]](str(DataFed_value),str(number_array[parameter_index])))                                                                                                                                                                                                                                                 
                                 # if there is not a match, hide the grandchild 
                                 # and record that it is not a match  in the metadata_matches dict                                    
                         else: # I unindented this on Dec 16, 2024
-                            val.child(childNum).child(grandchildNum).setHidden(True)
+                            collection.child(record_index).child(section_idx).setHidden(True)
                             metadata_matches.append(False)
                             
-                            if val.child(childNum).child(grandchildNum).text(0) != "Header":
+                            if collection.child(record_index).child(section_idx).text(0) != "Header":
 
                                 metadata_matches.append(False)
 
@@ -2489,53 +2479,53 @@ class GenerateForm(QWidget):
                        # print('metadata',metadata)
 
                         # hide the grandchildren not in the pruned metadata dictionary 
-                        for grandchildNum in range(int(val.child(childNum).childCount())):
+                        for section_index in range(int(collection.child(record_index).childCount())):
                             #print("grandchildNum:" ,grandchildNum)
-                            grandchild = val.child(childNum).child(grandchildNum).text(0)
+                            section = collection.child(record_index).child(section_index).text(0)
                             #print("grandchild:",grandchild)
 
                         
-                            if grandchild not in metadata.keys():
+                            if section not in metadata.keys():
                                 
-                                val.child(childNum).child(grandchildNum).setHidden(True)
+                                collection.child(record_index).child(section_index).setHidden(True)
                             else:
                                 #Show Header if search for something in Target, i.e. temperature? 
-                                val.child(childNum).child(0).setHidden(False) #assume Header is the first one
+                                collection.child(record_index).child(0).setHidden(False) #assume Header is the first one
 
                                         
-                #print("vaL:", val.text(0))
+                #print("vaL:", collection.text(0))
 
                 # the rest of the function is to hide the records that don't match 
-                for childNum in range(int(val.childCount())):
+                for record_index in range(int(collection.childCount())):
                     
-                  #  print("child:",val.child(childNum).text(0))
-                    grandChildrenHidden = []
+                  #  print("record:",collection.child(record_index).text(0))
+                    sectionHidden = []
 
-                    for grandChildNum in range(int(val.child(childNum).childCount())):
-                        # print("grandchild:", val.child(childNum).child(grandChildNum).text(0))
-                        # print("val.grandchild hidden?",val.child(childNum).child(grandChildNum).isHidden())
+                    for section_index in range(int(collection.child(record_index).childCount())):
+                        # print("section:", collection.child(record_index).child(section_index).text(0))
+                        # print("collection.grandchild hidden?",collection.child(record_index).child(section_index).isHidden())
 
-                        grandChildrenHidden.append(val.child(childNum).child(grandChildNum).isHidden())
+                        sectionHidden.append(collection.child(record_index).child(section_index).isHidden())
                 
 
-                   # print("grandchildrenHidden?:", grandChildrenHidden)
+                   # print("sectionHidden?:", sectionHidden)
                 
-                    if False not in grandChildrenHidden: #and val.isHidden() == 
-                       # print("Child:", val.child(childNum).text(0))
-                        val.child(childNum).setHidden(True)
+                    if False not in sectionHidden: #and collection.isHidden() == 
+                       # print("Child:", collection.child(childNum).text(0))
+                        collection.child(record_index).setHidden(True)
             
                 
-                childrenHidden = []
-                for childNum in range(int(val.childCount())):
+                recordHidden = []
+                for record_index in range(int(collection.childCount())):
 
-                    # print("childnum", childNum)
-                    # print("val.child hidden?",val.child(childNum).isHidden())
-                    childrenHidden.append(val.child(childNum).isHidden())
+                    # print("record_index", record_index)
+                    # print("collection.child hidden?",collection.child(record_index).isHidden())
+                    recordHidden.append(collection.child(record_index).isHidden())
 
-              #  print("childrenHidden?:", childrenHidden)
-                if False not in childrenHidden: #and val.isHidden() == 
-                   # print("VAL:", val.text(0))
-                    val.setHidden(True)
+              #  print("recordHidden?:", recordHidden)
+                if False not in recordHidden: #and collection.isHidden() == 
+                   # print("VAL:", collection.text(0))
+                    collection.setHidden(True)
 
         
 
