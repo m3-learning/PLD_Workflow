@@ -851,7 +851,7 @@ class GenerateForm(QWidget):
     # function to perform the relational searching 
     # of data records
     #NOTE: 
-    # the first 3 or 4 letters of a quantity will work 
+    # the first 3 or 4 letters of a parameter will work 
     #   - "Temp" is the same as "Temperature"
     # the searching ignores any units you put
     #  - "700 °C" is the same as "700"
@@ -985,7 +985,7 @@ class GenerateForm(QWidget):
             # define lists for the relational operators, quantities (Temperature, etc. ), and conjuctions (and, or)
             relOp = []
 
-            quantity_list = []
+            parameter_list = []
             conj_list = []
             search_array_without_conj = []
 
@@ -1020,13 +1020,13 @@ class GenerateForm(QWidget):
                         relOp.append("")
 
 
-                    quantity_list.append(search[0:search.find(relOp[-1])])
+                    parameter_list.append(search[0:search.find(relOp[-1])])
                 else:
                     conj_list.append(search)
 
             # FOR TESTING: print out these arrays 
             # print("search_array_without_conj",search_array_without_conj)
-            # print("quantity_list",quantity_list)
+            # print("parameter_list",parameter_list)
             # print('relOp:',relOp)
             # print("conj_list",conj_list)
 
@@ -1035,204 +1035,204 @@ class GenerateForm(QWidget):
             # this allows the user to not type the full keyword, for example "temp" instead of "Ablation_Temperature" and "Pre_Ablation_Temperature"
             # the string_value_array is because I handle strings and numbers differently, to ignore units. 
 
-            quantity_array = []
+            parameter_array = []
     
             string_value_array = []
             
            
 
-            for quantity in quantity_list:
-                #print("quantity:",quantity)
+            for parameter in parameter_list:
+                #print("parameter:",parameter)
                 #Chamber
             
-                if 'cham' in quantity:    
-                    quantity_array.append(["Chamber"])
+                if 'cham' in parameter:    
+                    parameter_array.append(["Chamber"])
                     string_value_array.append(True) 
 
                 #Cool_Down_Atmosphere, Ablation_Atmosphere_Gas, Pre_Ablation_Atmosphere_Gas
-                elif 'atm' in quantity or 'gas' in quantity:
+                elif 'atm' in parameter or 'gas' in parameter:
                     string_value_array.append(True) 
-                    if 'coo' in quantity or 'dow' in quantity:
-                        quantity_array.append(["Cool_Down_Atmosphere"])
-                    elif 'pre' in quantity:
-                        quantity_array.append(["Pre_Ablation_Atmosphere_Gas"])
-                    elif "abl" in quantity:
-                        quantity_array.append(["Ablation_Atmosphere_Gas"])
+                    if 'coo' in parameter or 'dow' in parameter:
+                        parameter_array.append(["Cool_Down_Atmosphere"])
+                    elif 'pre' in parameter:
+                        parameter_array.append(["Pre_Ablation_Atmosphere_Gas"])
+                    elif "abl" in parameter:
+                        parameter_array.append(["Ablation_Atmosphere_Gas"])
                     else:
-                        quantity_array.append(["Cool_Down_Atmosphere","Ablation_Atmosphere_Gas", "Pre_Ablation_Atmosphere_Gas"])
+                        parameter_array.append(["Cool_Down_Atmosphere","Ablation_Atmosphere_Gas", "Pre_Ablation_Atmosphere_Gas"])
 
                 #Date
-                elif 'dat' in quantity:
+                elif 'dat' in parameter:
                     string_value_array.append(True) 
-                    quantity_array.append(["Date"])
+                    parameter_array.append(["Date"])
 
                 #Time
-                elif 'tim' in quantity:
+                elif 'tim' in parameter:
                     string_value_array.append(True) 
-                    quantity_array.append(["Time"])  
+                    parameter_array.append(["Time"])  
 
                 #Growth_ID
-                elif 'grow' in quantity or 'id' in quantity:   
+                elif 'grow' in parameter or 'id' in parameter:   
                     string_value_array.append(True) 
-                    quantity_array.append(["Growth_ID"])   
+                    parameter_array.append(["Growth_ID"])   
 
                 #Notes
-                elif 'note' in quantity: 
+                elif 'note' in parameter: 
                     string_value_array.append(True) 
-                    quantity_array.append(["Notes"])
+                    parameter_array.append(["Notes"])
 
                 #Path
-                elif 'path' in quantity: 
+                elif 'path' in parameter: 
                     string_value_array.append(True) 
-                    quantity_array.append(["Path"])   
+                    parameter_array.append(["Path"])   
 
                 #substrate (could be Substrate_1...Substrate_4 )
-                elif 'subs' in quantity:
+                elif 'subs' in parameter:
                     string_value_array.append(True) 
-                    if '1' in quantity:     
-                        quantity_array.append(["Substrate_1"])
-                    elif '2' in quantity:     
-                        quantity_array.append(["Substrate_2"])
-                    elif '3' in quantity:     
-                        quantity_array.append(["Substrate_3"]) 
-                    elif '4' in quantity:     
-                        quantity_array.append(["Substrate_4"]) 
+                    if '1' in parameter:     
+                        parameter_array.append(["Substrate_1"])
+                    elif '2' in parameter:     
+                        parameter_array.append(["Substrate_2"])
+                    elif '3' in parameter:     
+                        parameter_array.append(["Substrate_3"]) 
+                    elif '4' in parameter:     
+                        parameter_array.append(["Substrate_4"]) 
                     else:
-                        quantity_array.append(["Substrate_1","Substrate_2","Substrate_3","Substrate_4"])
+                        parameter_array.append(["Substrate_1","Substrate_2","Substrate_3","Substrate_4"])
 
                 #User_Name
-                elif 'user' in quantity or 'name' in quantity:
+                elif 'user' in parameter or 'name' in parameter:
                     string_value_array.append(True) 
-                    quantity_array.append(["User_Name"])  
+                    parameter_array.append(["User_Name"])  
                     
 
                 #The quantities with ablation and pre-ablation 
                 
                 #temperature
-                elif 'temp' in quantity: #.lower():
-                   # print("temp in quantity")
+                elif 'temp' in parameter: #.lower():
+                   # print("temp in parameter")
                     string_value_array.append(False) 
                 
-                    if 'pre' in quantity:
-                      #  print("pre in quantity")
-                        quantity_array.append(["Pre_Ablation_Temperature"])
-                    elif 'abl' in quantity:
-                     #   print("abl in quantity")
-                        quantity_array.append(["Ablation_Temperature"])
+                    if 'pre' in parameter:
+                      #  print("pre in parameter")
+                        parameter_array.append(["Pre_Ablation_Temperature"])
+                    elif 'abl' in parameter:
+                     #   print("abl in parameter")
+                        parameter_array.append(["Ablation_Temperature"])
                     else:
-                      #  print("neither pre nor abl in quantity")
-                        quantity_array.append(["Ablation_Temperature","Pre_Ablation_Temperature"])
+                      #  print("neither pre nor abl in parameter")
+                        parameter_array.append(["Ablation_Temperature","Pre_Ablation_Temperature"])
                 #Pressure
-                elif 'pres' in quantity:
+                elif 'pres' in parameter:
                     string_value_array.append(False) 
 
                     #pressure is more complicated b/c "pre" is in "pressure"
-                    quantity_without_pressure = quantity.replace('pres','')
-                    if 'pre' in quantity_without_pressure:
-                        quantity_array.append(["Pre_Ablation_Pressure"])
-                    elif 'abl' in quantity_without_pressure:
-                        quantity_array.append(["Ablation_Pressure"])
+                    parameter_without_pressure = parameter.replace('pres','')
+                    if 'pre' in parameter_without_pressure:
+                        parameter_array.append(["Pre_Ablation_Pressure"])
+                    elif 'abl' in parameter_without_pressure:
+                        parameter_array.append(["Ablation_Pressure"])
 
-                    elif "bas" in quantity_without_pressure:
-                        quantity_array.append(["Base_Pressure"])
+                    elif "bas" in parameter_without_pressure:
+                        parameter_array.append(["Base_Pressure"])
                     else:
-                        quantity_array.append(["Base_Pressure","Ablation_Pressure","Pre_Ablation_Pressure"])
+                        parameter_array.append(["Base_Pressure","Ablation_Pressure","Pre_Ablation_Pressure"])
                 #Frequency
-                elif 'freq' in quantity:
+                elif 'freq' in parameter:
                     string_value_array.append(False) 
             
-                    if 'pre' in quantity:
-                        quantity_array.append(["Pre_Ablation_Frequency"])
-                    elif 'abl' in quantity:
-                        quantity_array.append(["Ablation_Frequency"])
+                    if 'pre' in parameter:
+                        parameter_array.append(["Pre_Ablation_Frequency"])
+                    elif 'abl' in parameter:
+                        parameter_array.append(["Ablation_Frequency"])
                     
                     else:
-                        quantity_array.append(["Ablation_Frequency","Pre_Ablation_Frequency"])
+                        parameter_array.append(["Ablation_Frequency","Pre_Ablation_Frequency"])
 
                 #Pulses
-                elif 'pul' in quantity: 
+                elif 'pul' in parameter: 
                     string_value_array.append(False)
-                    #print("pul in quantity") 
+                    #print("pul in parameter") 
             
-                    if 'pre' in quantity:
-                       # print("pre in quantity")
-                        quantity_array.append(["Pre_Ablation_Pulses"])
-                    elif 'abl' in quantity:
-                       # print("abl in quantity")
-                        quantity_array.append(["Ablation_Pulses"])
+                    if 'pre' in parameter:
+                       # print("pre in parameter")
+                        parameter_array.append(["Pre_Ablation_Pulses"])
+                    elif 'abl' in parameter:
+                       # print("abl in parameter")
+                        parameter_array.append(["Ablation_Pulses"])
                     else:
-                       # print("neither pre nor abl in quantity")
-                        quantity_array.append(["Ablation_Pulses","Pre_Ablation_Pulses"])
+                       # print("neither pre nor abl in parameter")
+                        parameter_array.append(["Ablation_Pulses","Pre_Ablation_Pulses"])
 
                 #Laser Voltage and Laser Energy
-                elif 'las' in quantity:
+                elif 'las' in parameter:
                     string_value_array.append(False) 
             
-                    if 'volt' in quantity:
-                        quantity_array.append(["Laser_Voltage"])
-                    elif 'ener' in quantity:
-                        quantity_array.append(["Laser_Energy"])
+                    if 'volt' in parameter:
+                        parameter_array.append(["Laser_Voltage"])
+                    elif 'ener' in parameter:
+                        parameter_array.append(["Laser_Energy"])
                     else:
-                        quantity_array.append(["Laser_Energy","Laser_Voltage"])
+                        parameter_array.append(["Laser_Energy","Laser_Voltage"])
 
                 #Measured Energy Std and Measured Energy Mean
-                elif 'ene' in quantity:
+                elif 'ene' in parameter:
                     string_value_array.append(False) 
                 
-                    if 'std' in quantity:
-                        quantity_array.append(["Measured_Energy_Std"])
-                    elif 'mea' in quantity:
-                        quantity_array.append(["Measured_Energy_Mean"])
+                    if 'std' in parameter:
+                        parameter_array.append(["Measured_Energy_Std"])
+                    elif 'mea' in parameter:
+                        parameter_array.append(["Measured_Energy_Mean"])
                     else:
-                        quantity_array.append(["Measured_Energy_Mean","Measured_Energy_Std"]) 
+                        parameter_array.append(["Measured_Energy_Mean","Measured_Energy_Std"]) 
                 #Aperture
-                elif 'aper' in quantity:
+                elif 'aper' in parameter:
                     string_value_array.append(False) 
             
-                    quantity_array.append(["Aperture"])
+                    parameter_array.append(["Aperture"])
 
                 #Attenuator
-                elif 'att' in quantity:
+                elif 'att' in parameter:
                     # string_value_array.append(False) 
                     #some of these values are strings, like "1thin"
                     # but some could be numbers in mm, so decide if it is a string later
             
-                    quantity_array.append(["Attenuator"])
+                    parameter_array.append(["Attenuator"])
 
                 #Focus
-                elif 'foc' in quantity:
+                elif 'foc' in parameter:
                     string_value_array.append(False) 
                 
-                    quantity_array.append(["Focus"])
+                    parameter_array.append(["Focus"])
 
                 #Target height and Target material
-                elif 'tar' in quantity:
+                elif 'tar' in parameter:
 
-                    if 'hei' in quantity: 
+                    if 'hei' in parameter: 
                         string_value_array.append(False) 
    
-                        quantity_array.append(["Target_Height"])
-                    elif 'mat' in quantity: 
+                        parameter_array.append(["Target_Height"])
+                    elif 'mat' in parameter: 
                         string_value_array.append(True) 
 
-                        quantity_array.append(["Target_Material"])
+                        parameter_array.append(["Target_Material"])
                     else:
                         #if 
-                        quantity_array.append(["Target_Height","Target_Material"])
+                        parameter_array.append(["Target_Height","Target_Material"])
 
 
                 #now isolate the number from the unit 
             #FOR TESTING: PRINT THE QUANTITY_ARRAY
-           # print("quantity_array:",quantity_array)
+           # print("parameter_array:",parameter_array)
             
             #number 
 
             number_array= []
 
-            for i in range(len(quantity_array)): 
+            for i in range(len(parameter_array)): 
                 # "Target_Height" values are numbers, but "Target_Material" values are strings
-                # use the value after this quantity to determine which one to use
-                if quantity_array[i] == ["Target_Height","Target_Material"]:
+                # use the value after this parameter to determine which one to use
+                if parameter_array[i] == ["Target_Height","Target_Material"]:
                     try:
                         float(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):])
                         string_value_array.insert(i,False)
@@ -1240,7 +1240,7 @@ class GenerateForm(QWidget):
                         string_value_array.insert(i,True)
                 
                 # do the same thing for "Attenuator," since some are strings, for example, "1thin" but some could be floats 
-                elif quantity_array[i] == ['Attenuator']:
+                elif parameter_array[i] == ['Attenuator']:
                     try:
                         float(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):])
                         string_value_array.insert(i,False)
@@ -1255,10 +1255,10 @@ class GenerateForm(QWidget):
                 # ignore units if it is a number
                 # use .casefold() to allow it to match caselessly if it is a string
 
-                if string_value_array[i] == True and quantity_array[i] != ['Date']:
+                if string_value_array[i] == True and parameter_array[i] != ['Date']:
                     number_array.append(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):].strip().replace(" ","_").casefold())
 
-                elif quantity_array[i] == ["Date"]:
+                elif parameter_array[i] == ["Date"]:
                     number_array.append(datetime.datetime.strptime(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):].strip(),"%m/%d/%Y").date())
                 else:
                     #print("number_array is numeric")
@@ -1278,14 +1278,14 @@ class GenerateForm(QWidget):
             # FOR TESTING: print out the array of numbers                 
             # print("NUMBER_array:",number_array)
             
-            #make some dictionaries, to match stuff based on quantity 
+            #make some dictionaries, to match stuff based on parameter 
             relOp_dict = {}
             conj_dict = {}
             number_dict ={}
         
             #convert these lists into dictionaries
-            for q in range(len(quantity_array)):
-                # if one of the quantities in quantity_array is a list,
+            for parameter_index in range(len(parameter_array)):
+                # if one of the quantities in parameter_array is a list,
                 # pick the shortest element to be the dictionary key
                 # for simplicity 
                 
@@ -1307,32 +1307,32 @@ class GenerateForm(QWidget):
                 # for simplicity. This has been implemented in the example above about the key already existing
 
                
-                quantity_unique = sorted(quantity_array[q],key=len)[0]
-                if quantity_unique not in relOp_dict.keys():
-                    relOp_dict.update({quantity_unique:[]})
-                    number_dict.update({quantity_unique:[]})
+                parameter_unique = sorted(parameter_array[parameter_index],key=len)[0]
+                if parameter_unique not in relOp_dict.keys():
+                    relOp_dict.update({parameter_unique:[]})
+                    number_dict.update({parameter_unique:[]})
 
 
-                relOp_dict[quantity_unique].append(relOp[q])
-                number_dict[quantity_unique].append( number_array[q])
+                relOp_dict[parameter_unique].append(relOp[parameter_index])
+                number_dict[parameter_unique].append( number_array[parameter_index])
 
-                if q < len(quantity_array)-1:
-                    if quantity_unique not in conj_dict.keys():
-                        conj_dict.update({quantity_unique:[]})
-                    if conj_list[q] == "xor":
-                        conj_dict[quantity_unique].append(" ^ ") 
+                if parameter_index < len(parameter_array)-1:
+                    if parameter_unique not in conj_dict.keys():
+                        conj_dict.update({parameter_unique:[]})
+                    if conj_list[parameter_index] == "xor":
+                        conj_dict[parameter_unique].append(" ^ ") 
                     else:
-                        conj_dict[quantity_unique].append(conj_list[q] ) 
+                        conj_dict[parameter_unique].append(conj_list[parameter_index] ) 
 
             # FOR TESTING: PRINT THESE DICTIONARIES
             # print("relOp_dict:", relOp_dict)
             # print("number_dict", number_dict)
             # print("conj_dict",conj_dict)
 
-            #define a flattened quantity_array, to loop over each value instead of the nested lists
-            quantity_array_flattened = functools.reduce(operator.iconcat,quantity_array,[])
+            #define a flattened parameter_array, to loop over each value instead of the nested lists
+            parameter_array_flattened = functools.reduce(operator.iconcat,parameter_array,[])
             # FOR TESTING: PRINT OUT THIS LIST
-            # print("quantity_array_flattened",quantity_array_flattened)
+            # print("parameter_array_flattened",parameter_array_flattened)
 
 
         #hide the non-matching records
@@ -1355,7 +1355,7 @@ class GenerateForm(QWidget):
             # the great-great grandchild is 'Value' or "Oxygen"
             # if the great-great grandchild is "Value", then there are units
             # and in this example great-great-great grandchild is 700 
-            # so if great-grandchild is in quantity and number relOp great-great-great grandchild 
+            # so if great-grandchild is in parameter and number relOp great-great-great grandchild 
             #unhide  
 
             for val in treeView.findItems("", Qt.MatchContains): 
@@ -1369,7 +1369,7 @@ class GenerateForm(QWidget):
                     # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
                     metadata = {}
                     #metadata = []
-                    q_array = [] 
+                    parameter_indices = [] 
                     metadata_matches = []
                     metadata_dict = {}
                     eval_strings = [] 
@@ -1395,7 +1395,7 @@ class GenerateForm(QWidget):
                         # i.e. "User_Name", Ablation_Temperature", etc.
 
                         for greatGrandchildNum in range(int(val.child(childNum).child(grandchildNum).childCount())):
-                            #these great-grandchildren are what someone would probably search, if it is in the quantity_array,
+                            #these great-grandchildren are what someone would probably search, if it is in the parameter_array,
                             #then loop over the great-great-grandchildren. 
                             # But first, define and unhide it
                             val.child(childNum).child(grandchildNum).child(greatGrandchildNum).setHidden(False)
@@ -1414,7 +1414,7 @@ class GenerateForm(QWidget):
                             val.child(childNum).setHidden(True)
                         else:
                                 # make a list of the greatgrandchildren that includes the header so that it always shows
-                                # or example quantities in "Header" and "Target_1", then "Header" and "Target_2", etc. 
+                                # or example parameters in "Header" and "Target_1", then "Header" and "Target_2", etc. 
                                 # and then if the search is for something in the target, it will show the header as well. 
                                 
                                # print("metadata_dict:",metadata_dict)
@@ -1422,19 +1422,19 @@ class GenerateForm(QWidget):
                                 # FOR TESTING, print out this concatinated list
                                 # print('concatinated_greatGrandchildren',concatinated_greatGrandchildren)
 
-                                # create a string to evaluate to determine if the searched quantity is in the quantities from DataFed 
+                                # create a string to evaluate to determine if the searched parameter is in the parameters from DataFed 
                                 eval_str = ""
 
                                 for i in range(len(conj_list)):
                                     if conj_list[i] == "xor":
                                         
-                                        eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]][0]} "
+                                        eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]][0]} "
                                         # not necessary since just for the end. 
-                                        #eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
+                                        #eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_greatGrandchildren))"
                             
                                     else:
-                                        eval_str = eval_str + f"bool(set({quantity_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]]} "
-                                eval_str = eval_str + f"bool(set({quantity_array[-1]}) & set(concatinated_greatGrandchildren))"
+                                        eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_greatGrandchildren)) {conj_dict1[conj_list[i]]} "
+                                eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_greatGrandchildren))"
 
                             
                                 # for some reason goes through the target out of order of > 10 i.e. Target_1,Target_10,Target_11,Target_12,Target_2, etc. 
@@ -1490,22 +1490,22 @@ class GenerateForm(QWidget):
                                     greatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0)
                                     # FOR TESTING, print uot the greatGrandchild
                                     # print("greatGrandchildNum",greatGrandchildNum)
-                                    # print("quantity_array:",quantity_array)
+                                    # print("parameter_array:",parameter_array)
                                     # print("greatGranchild",greatGrandchild)
                                     
                                     #if this greatGrandchild is the match, proceed trying to match it  
-                                    if greatGrandchild in functools.reduce(operator.iconcat,quantity_array,[]):
+                                    if greatGrandchild in functools.reduce(operator.iconcat,parameter_array,[]):
                                         # for each greatGrandchild that has a match, loop over the search and find the match
                                         for concatinated_greatGrandchild in concatinated_greatGrandchildren:
-                                            for q in range(len(quantity_array)):
-                                                # print("q not matched:",q)
-                                                # print('quantity_array not matched',quantity_array[q])
+                                            for parameter_index in range(len(parameter_array)):
+                                                # print("parameter_index not matched:",parameter_index)
+                                                # print('parameter_array not matched',parameter_array[parameter_index])
                                                 
                                                 # if there is a match, save this iteration index and proceed with the match
-                                                if greatGrandchild == concatinated_greatGrandchild and concatinated_greatGrandchild in quantity_array[q]:
+                                                if greatGrandchild == concatinated_greatGrandchild and concatinated_greatGrandchild in parameter_array[parameter_index]:
                                                     # print("concatinated_greatGrandchild:",concatinated_greatGrandchild)
-                                                    # print('q:',q)
-                                                    q_array.append(q)
+                                                    # print('parameter_index:',parameter_index)
+                                                    parameter_indices.append(parameter_index)
 
                             
                                     
@@ -1533,10 +1533,10 @@ class GenerateForm(QWidget):
                                                                     # for testing, print out some stuff 
                                                                     # print("no units")
 
-                                                                    # print("Relop:",ops_str[relOp[q]])
+                                                                    # print("Relop:",ops_str[relOp[parameter_index]])
                                                                     # print("great-great-grandchild:",val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
                                                                     # print("number array",number_array)
-                                                                    # print("number:",number_array[q])
+                                                                    # print("number:",number_array[parameter_index])
 
                                                                         
                                                                     #make sure greatGreatGrandchild is a float, use this to trigger the "except" if not
@@ -1544,7 +1544,7 @@ class GenerateForm(QWidget):
 
                                                                     # since this is the match, append True or False to the metadata_matches dictionary and 
                                                                     # the number to the metadata dictionary 
-                                                                    metadata_matches.append(ops_num[relOp[q]](float(greatGreatGrandchild),number_array[q]))
+                                                                    metadata_matches.append(ops_num[relOp[parameter_index]](float(greatGreatGrandchild),number_array[parameter_index]))
 
                                                                     if grandchild not in metadata.keys():
                                                                         metadata.update({grandchild:{}})
@@ -1557,7 +1557,7 @@ class GenerateForm(QWidget):
                                                                     # in the except, the float conversion has failed, so the greatgreatGrandchild is not numeric 
                                                                     # one reason is that it is a date, so check that 
                                                                     if greatGrandchild == "Date": 
-                                                                        metadata_matches.append(ops_date[relOp[q]](datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date(),number_array[q]))
+                                                                        metadata_matches.append(ops_date[relOp[parameter_index]](datetime.datetime.strptime(greatGreatGrandchild,"%m/%d/%Y").date(),number_array[parameter_index]))
 
                                                                         if grandchild not in metadata.keys():
                                                                             metadata.update({grandchild:{}})
@@ -1570,7 +1570,7 @@ class GenerateForm(QWidget):
 
                                                                         greatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0).casefold()
                                                                         
-                                                                        metadata_matches.append(ops_str[relOp[q]](greatGreatGrandchild,str(number_array[q])))
+                                                                        metadata_matches.append(ops_str[relOp[parameter_index]](greatGreatGrandchild,str(number_array[parameter_index])))
 
                                                                         if grandchild not in metadata.keys():
                                                                             metadata.update({grandchild:{}})
@@ -1592,7 +1592,7 @@ class GenerateForm(QWidget):
                                                                     # print("number_array",number_array)
 
                                                                     # ensure that the greatGreatGrandchild is "Value", to more efficiently get to the number. 
-                                                                    # It would be pointless to search to for unit, since everything with this quantity has the same unit, so we can just skip over that 
+                                                                    # It would be pointless to search to for unit, since everything with this parameter has the same unit, so we can just skip over that 
                                                                     if val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0) == "Value":
                                                                         # check if it is actually a number by trying to convert to a float. If it is somehow not, convert to a caseless string. 
                                                                         # either way, append to the metadata and metadata_matches dictionaries. 
@@ -1601,11 +1601,11 @@ class GenerateForm(QWidget):
 
                                                                         try:
                                                                             greatGreatGreatGrandchild = val.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).child(greatGreatGreatGrandchildNum).text(0)
-                                                                            # print("Relop:",ops_num[relOp[q]])
-                                                                            # print('number:', number_array[q])
+                                                                            # print("Relop:",ops_num[relOp[parameter_index]])
+                                                                            # print('number:', number_array[parameter_index])
 
                                                                             
-                                                                            metadata_matches.append(ops_num[relOp[q]](float(greatGreatGreatGrandchild),number_array[q]))
+                                                                            metadata_matches.append(ops_num[relOp[parameter_index]](float(greatGreatGreatGrandchild),number_array[parameter_index]))
 
                                                                             
                                                                             # print("val:",val.text(0))
@@ -1643,7 +1643,7 @@ class GenerateForm(QWidget):
                                                                                 metadata.update({grandchild:{}})
                                                                             metadata[grandchild].update({greatGrandchild:greatGreatGreatGrandchild.casefold()})
 
-                                                                            metadata_matches.append(ops_str[relOp[q]](str(greatGreatGreatGrandchild),str(number_array[q])))                                                                                                                                                                                                                                                 
+                                                                            metadata_matches.append(ops_str[relOp[parameter_index]](str(greatGreatGreatGrandchild),str(number_array[parameter_index])))                                                                                                                                                                                                                                                 
                                 # if there is not a match, hide the grandchild 
                                 # and record that it is not a match  in the metadata_matches dict                                    
                         else: # I unindented this on Dec 16, 2024
@@ -1660,7 +1660,7 @@ class GenerateForm(QWidget):
                        # print('metadata:',metadata)
                         # print('metadata_matches',metadata_matches)
 
-                        # create a dictionary connect each match with the quantity and construct strings that can be evaluated
+                        # create a dictionary connect each match with the parameter and construct strings that can be evaluated
                         # to determine whether the match is True or False 
 
                         metadata_eval_dict = {}
@@ -1685,7 +1685,7 @@ class GenerateForm(QWidget):
 
                                 # the below keys are more complicated because there multiple 
                                 # quantities that could be matched, so pick the shorted one to match
-                                # with the searched quantity 
+                                # with the searched parameter 
 
                                 if key2 not in number_dict.keys():
                                     if key2 == "Ablation_Atmosphere_Gas" and "Ablation_Atmosphere_Gas" not in relOp_dict.keys(): #FINISH THE NEXT ELIF AND ADD ONE TO MATCH PRESSURE 
@@ -1709,7 +1709,7 @@ class GenerateForm(QWidget):
                                     elif key2 == "Laser_Voltage":
                                         key2_1 = "Laser_Energy"
 
-                                    # this one is for if the pre-ablation quantity has been searched ("Pre-")
+                                    # this one is for if the pre-ablation parameter has been searched ("Pre-")
 
                                     elif key2[4:] in number_dict.keys():
                                         key2_1 = key2[4:]
@@ -1725,7 +1725,7 @@ class GenerateForm(QWidget):
                                 for i in range(len(number_dict[key2_1])):
                                     key2_2 = key2
                                     if key2 == 'Cool_Down_Atmosphere':
-                                        if 'Ablation_Atmosphere_Gas' not in quantity_array_flattened or 'Pre_Ablation_Atmosphere_Gas' not in quantity_array_flattened:
+                                        if 'Ablation_Atmosphere_Gas' not in parameter_array_flattened or 'Pre_Ablation_Atmosphere_Gas' not in parameter_array_flattened:
                                             # in this 'if' statement, 'cool_down_atmosphere' has been specified, so do it separately
                                             #continue
                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
@@ -1742,10 +1742,10 @@ class GenerateForm(QWidget):
                                                 # the type of atmosphere has not been specified, so do an "or" search with all three 
                                                 if "Pre_Ablation_Atmosphere_Gas" in metadata[key1].keys():
                                                     try:
-                                                        index_ablation_atm_gas = np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+                                                        index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
 
-                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(quantity_array_flattened):
-                                                            next_element = quantity_array_flattened[index_ablation_atm_gas[0] + 1]
+                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
+                                                            next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
 
                                                             if next_element == "Pre_Ablation_Atmosphere_Gas":
                                                                 metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
@@ -1768,10 +1768,10 @@ class GenerateForm(QWidget):
                                             else:
                                                 if 'Pre_Ablation_Atmosphere_Gas' in metadata[key1].keys():
                                                     try:
-                                                        index_pre_ablation_pressure = np.where(np.array(quantity_array_flattened) == 'Pre_Ablation_Pressure')[0]
+                                                        index_pre_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Pre_Ablation_Pressure')[0]
 
-                                                        if index_pre_ablation_pressure.size > 0 and index_pre_ablation_pressure[0] + 1 < len(quantity_array_flattened):
-                                                            next_element = quantity_array_flattened[index_pre_ablation_pressure[0] + 1]
+                                                        if index_pre_ablation_pressure.size > 0 and index_pre_ablation_pressure[0] + 1 < len(parameter_array_flattened):
+                                                            next_element = parameter_array_flattened[index_pre_ablation_pressure[0] + 1]
 
                                                             if next_element == "Ablation_Pressure":
                                                                 metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
@@ -1782,19 +1782,19 @@ class GenerateForm(QWidget):
                                                                 metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
                                                     except:
                                                         # pre ablation atmosphere gas is matched but it must be specified before in the search string for the except to trigger. 
-                                                        # Ablation_atmosphere gas must last entry of quantity_array_flattened, so cannot to [i+1]. so do it separately.                 
+                                                        # Ablation_atmosphere gas must last entry of parameter_array_flattened, so cannot to [i+1]. so do it separately.                 
                                                         metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
                                                 else:
                                                     metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
                                                 
                                     
                                     elif key2 == "Pre_Ablation_Atmosphere_Gas":
-                                        index_ablation_atm_gas = np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+                                        index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
 
                                         if "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-                                        elif "Ablation_Atmosphere_Gas" in metadata[key1].keys() and index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(quantity_array_flattened):
-                                            next_element = quantity_array_flattened[index_ablation_atm_gas[0] + 1]
+                                        elif "Ablation_Atmosphere_Gas" in metadata[key1].keys() and index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
+                                            next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
 
                                             if next_element == "Pre_Ablation_Atmosphere_Gas":
                                                 continue
@@ -1809,7 +1809,7 @@ class GenerateForm(QWidget):
 
 
                                     elif key2 == "Base_Pressure":
-                                        if 'Ablation_Pressure' not in quantity_array_flattened or 'Pre_Ablation_Pressure' not in quantity_array_flattened:
+                                        if 'Ablation_Pressure' not in parameter_array_flattened or 'Pre_Ablation_Pressure' not in parameter_array_flattened:
 
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
 
@@ -1826,11 +1826,11 @@ class GenerateForm(QWidget):
                                             if ('Header' in metadata.keys() and 'Base_Pressure' in metadata['Header'].keys()):
                                                 if 'Pre_Ablation_Pressure' in metadata[key1].keys():
                                                     try:
-                                                        index_ablation_pressure = np.where(np.array(quantity_array_flattened) == 'Ablation_Pressure')[0]
+                                                        index_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Ablation_Pressure')[0]
 
                                                         
-                                                        if index_ablation_pressure.size > 0 and index_ablation_pressure[0] + 1 < len(quantity_array_flattened):
-                                                            next_element = quantity_array_flattened[index_ablation_pressure[0] + 1]
+                                                        if index_ablation_pressure.size > 0 and index_ablation_pressure[0] + 1 < len(parameter_array_flattened):
+                                                            next_element = parameter_array_flattened[index_ablation_pressure[0] + 1]
 
                                                             if next_element == "Pre_Ablation_Pressure":                                                            
                                                                 metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
@@ -1841,7 +1841,7 @@ class GenerateForm(QWidget):
                                                                 metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                     except:
                                                         # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
-                                                        #  Ablation_pressure must last entry of quantity_array_flattened, so cannot do [i+1] so specify separately 
+                                                        #  Ablation_pressure must last entry of parameter_array_flattened, so cannot do [i+1] so specify separately 
                                                         metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
 
                                                 else:
@@ -1854,10 +1854,10 @@ class GenerateForm(QWidget):
                                             else:
                                                 if 'Pre_Ablation_Pressure' in metadata[key1].keys():
                                                     try:
-                                                        index_ablation_atm_gas = np.where(np.array(quantity_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+                                                        index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
 
-                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(quantity_array_flattened):
-                                                            next_element = quantity_array_flattened[index_ablation_atm_gas[0] + 1]
+                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
+                                                            next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
 
                                                             if next_element == "Pre_Ablation_Atmosphere_Gas":
                                                                 metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
@@ -1866,7 +1866,7 @@ class GenerateForm(QWidget):
                                                                 metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                     except:
                                                         # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
-                                                        #  Ablation_pressure must last entry of quantity_array_flattened, so cannot to [i+1] so specify separately              
+                                                        #  Ablation_pressure must last entry of parameter_array_flattened, so cannot to [i+1] so specify separately              
                                                         metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                 else:
                                                     metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
@@ -1875,9 +1875,9 @@ class GenerateForm(QWidget):
                                     elif key2 == "Pre_Ablation_Pressure":
 
 
-                                        # find the indices of Ablation_Pressure and Pre_Ablation_Pressure in quantity_array_flattened
+                                        # find the indices of Ablation_Pressure and Pre_Ablation_Pressure in parameter_array_flattened
                                         # because if they are not next to each other than they had to have been specified separately in the search query
-                                        index_ablation_pressure = np.where(np.array(quantity_array_flattened) == 'Ablation_Pressure')[0]
+                                        index_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Ablation_Pressure')[0]
 
                                         if "Pre_Ablation_Pressure" in relOp_dict.keys():
                                             # the only way this can happen is if it is specified 
@@ -1885,7 +1885,7 @@ class GenerateForm(QWidget):
 
 
 
-                                        elif "Ablation_Pressure" in metadata[key1].keys() and index_ablation_pressure.size > 0 and index_ablation_pressure[0]+ 1 < len(quantity_array_flattened): 
+                                        elif "Ablation_Pressure" in metadata[key1].keys() and index_ablation_pressure.size > 0 and index_ablation_pressure[0]+ 1 < len(parameter_array_flattened): 
                                             if next_element == "Pre_Ablation_Pressure":
                                             # in this case, "Pre_Ablation_Pressure" is not in relOp_dict.keys()
                                             # and Ablation_Pressure is in metadata
@@ -1917,7 +1917,7 @@ class GenerateForm(QWidget):
                                         #print("key2 == substrate_1")
                                         
                                         
-                                        if 'Substrate_1' in quantity_array_flattened and 'Substrate_2' in quantity_array_flattened and 'Substrate_3' in quantity_array_flattened and 'Substrate_4' in quantity_array_flattened:
+                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
                                         # either all or none were specified
                                             if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
                                                 # this means that none were specified, so do an "or" search with however many are present in the metadata 
@@ -1944,7 +1944,7 @@ class GenerateForm(QWidget):
                                         else:
                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2]}') "
                                     elif key2 == "Substrate_2":
-                                        if 'Substrate_1' in quantity_array_flattened and 'Substrate_2' in quantity_array_flattened and 'Substrate_3' in quantity_array_flattened and 'Substrate_4' in quantity_array_flattened:
+                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
                                         
                                             if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
                                                 continue
@@ -1956,7 +1956,7 @@ class GenerateForm(QWidget):
 
 
                                     elif key2 == "Substrate_3":
-                                        if 'Substrate_1' in quantity_array_flattened and 'Substrate_2' in quantity_array_flattened and 'Substrate_3' in quantity_array_flattened and 'Substrate_4' in quantity_array_flattened:
+                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
                                         
                                             if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
                                                 continue
@@ -1967,7 +1967,7 @@ class GenerateForm(QWidget):
                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
 
                                     elif key2 == "Substrate_4":
-                                        if 'Substrate_1' in quantity_array_flattened and 'Substrate_2' in quantity_array_flattened and 'Substrate_3' in quantity_array_flattened and 'Substrate_4' in quantity_array_flattened:
+                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
                                         
                                             if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
                                                 continue
