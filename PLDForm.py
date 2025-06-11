@@ -870,7 +870,7 @@ class GenerateForm(QWidget):
     # FOR EXAMPLE, 'OR' IN 'ATTENUATOR' DOES NOT MEAN "ATTENUAT" "OR"
 
     def onChanged(self): 
-
+        #TODO: rename number to value? 
         #create dictionary to select relational operator since a relOp b doesn't work
         # define a different dictionary for numbers, strings, and dates because they require 
         # different operators to check for equality 
