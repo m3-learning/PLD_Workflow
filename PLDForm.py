@@ -871,6 +871,7 @@ class GenerateForm(QWidget):
 
     def onChanged(self): 
         #TODO: rename number to value? 
+        
         #create dictionary to select relational operator since a relOp b doesn't work
         # define a different dictionary for numbers, strings, and dates because they require 
         # different operators to check for equality 
@@ -1488,7 +1489,7 @@ class GenerateForm(QWidget):
                                     # print(type(metadata_dict[grandchild]))
                                     # print(metadata_dict[grandchild])
 
-                                    concatinated_DataFed_parameters = metadata_dict['Header'] + metadata_dict[section_idx_unique]
+                                    concatinated_DataFed_parameters = metadata_dict['Header'] + metadata_dict[section_unique]
                                 # print out this new concatinated_DataFed_parameters list, which has matches. 
                                 #print("concatinated_DataFed_parameters in new loop", concatinated_DataFed_parameters)
 
@@ -1581,11 +1582,11 @@ class GenerateForm(QWidget):
                                                                         metadata_matches.append(ops_str[relOp[parameter_index]](DataFed_value,str(number_array[parameter_index])))
 
                                                                         if section_unique not in metadata.keys():
-                                                                            metadata.update({DataFed_value_index:{}})
+                                                                            metadata.update({section_unique:{}})
                                                                         #      print(f"adding grandchild {grandchild} to metadata 2")
                                                                         # print("adding the inner dict 2")
 
-                                                                        metadata[DataFed_value_index].update({DataFed_parameter:DataFed_value.casefold()})
+                                                                        metadata[section_unique].update({DataFed_parameter:DataFed_value.casefold()})
                                                             else:
                                                                 #there is a great-great-great-grandchild, so the metadata has units 
                                                                 #units = True
