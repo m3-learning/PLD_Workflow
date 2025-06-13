@@ -1655,828 +1655,828 @@ class GenerateForm(QWidget):
                         # create a dictionary connect each match with the parameter and construct strings that can be evaluated
                         # to determine whether the match is True or False 
 
-                        metadata_eval_dict = {}
-                        # loop over the metadata dictionary 
-                        for key1 in metadata.keys():
+                    metadata_eval_dict = {}
+                    # loop over the metadata dictionary 
+                    for key1 in metadata.keys():
+                    
+                        metadata_eval_str = ""
+                        # FOR TESTING: print out the key 
+                        # print("key1",key1)
+                        # print(metadata[key1])
+                        # print(metadata[key1].values())
+                        # print(len(metadata[key1]))
                         
+                        # loop over the nested dictionary, and format the eval strings 
+                        for index2,key2 in enumerate(metadata[key1].keys()):
                             metadata_eval_str = ""
-                            # FOR TESTING: print out the key 
-                            # print("key1",key1)
-                            # print(metadata[key1])
-                            # print(metadata[key1].values())
-                            # print(len(metadata[key1]))
-                            
-                            # loop over the nested dictionary, and format the eval strings 
-                            for index2,key2 in enumerate(metadata[key1].keys()):
-                                metadata_eval_str = ""
 
-                               # key2_2 = key2
+                            # key2_2 = key2
 
-                                # print("key2:",key2)
-                                # print("value2",metadata[key1][key2])
+                            # print("key2:",key2)
+                            # print("value2",metadata[key1][key2])
 
-                                # the below keys are more complicated because there multiple 
-                                # quantities that could be matched, so pick the shorted one to match
-                                # with the searched parameter 
+                            # the below keys are more complicated because there multiple 
+                            # quantities that could be matched, so pick the shorted one to match
+                            # with the searched parameter 
 
-                                if key2 not in number_dict.keys():
-                                    if key2 == "Ablation_Atmosphere_Gas" and "Ablation_Atmosphere_Gas" not in relOp_dict.keys(): #FINISH THE NEXT ELIF AND ADD ONE TO MATCH PRESSURE 
-                                        key2_1 = "Cool_Down_Atmosphere"
-                                    elif key2 == "Pre_Ablation_Atmosphere_Gas":
-                                        if "Ablation_Atmosphere_Gas" in relOp_dict.keys():
-                                            key2_1 = "Ablation_Atmosphere_Gas"
-                                    
-                                    
-                                    elif key2 == "Ablation_Pressure" and "Ablation_Pressure" not in relOp_dict.keys():
-                                        key2_1 = "Base_Pressure"
-                                    
-                                    elif key2 == "Pre_Ablation_Pressure" and "Ablation_Pressure" not in relOp_dict.keys() and "Pre_Ablation_Pressure" not in relOp_dict.keys():
-                                        key2_1 = "Base_Pressure"
-                                    elif key2 == "Pre_Ablation_Pressure" and "Ablation_Pressure" in relOp_dict.keys() and "Pre_Ablation_Pressure" not in relOp_dict.keys():
-                                        key2_1 = "Ablation_Pressure"
+                            if key2 not in number_dict.keys():
+                                if key2 == "Ablation_Atmosphere_Gas" and "Ablation_Atmosphere_Gas" not in relOp_dict.keys(): #FINISH THE NEXT ELIF AND ADD ONE TO MATCH PRESSURE 
+                                    key2_1 = "Cool_Down_Atmosphere"
+                                elif key2 == "Pre_Ablation_Atmosphere_Gas":
+                                    if "Ablation_Atmosphere_Gas" in relOp_dict.keys():
+                                        key2_1 = "Ablation_Atmosphere_Gas"
+                                
+                                
+                                elif key2 == "Ablation_Pressure" and "Ablation_Pressure" not in relOp_dict.keys():
+                                    key2_1 = "Base_Pressure"
+                                
+                                elif key2 == "Pre_Ablation_Pressure" and "Ablation_Pressure" not in relOp_dict.keys() and "Pre_Ablation_Pressure" not in relOp_dict.keys():
+                                    key2_1 = "Base_Pressure"
+                                elif key2 == "Pre_Ablation_Pressure" and "Ablation_Pressure" in relOp_dict.keys() and "Pre_Ablation_Pressure" not in relOp_dict.keys():
+                                    key2_1 = "Ablation_Pressure"
 
-                                    elif key2 == "Target_Material":
-                                        key2_1 = "Target_Height"
+                                elif key2 == "Target_Material":
+                                    key2_1 = "Target_Height"
 
-                                    elif key2 == "Laser_Voltage":
-                                        key2_1 = "Laser_Energy"
+                                elif key2 == "Laser_Voltage":
+                                    key2_1 = "Laser_Energy"
 
-                                    # this one is for if the pre-ablation parameter has been searched ("Pre-")
+                                # this one is for if the pre-ablation parameter has been searched ("Pre-")
 
-                                    elif key2[4:] in number_dict.keys():
-                                        key2_1 = key2[4:]
-                                    
-                                    else:
-                                        #continue or 
-                                        key2_1 = key2
-                                      #  continue
+                                elif key2[4:] in number_dict.keys():
+                                    key2_1 = key2[4:]
+                                
                                 else:
+                                    #continue or 
                                     key2_1 = key2
+                                    #  continue
+                            else:
+                                key2_1 = key2
 
-                                # each set of quantities have to be formatted separately, so do that     
-                                for i in range(len(number_dict[key2_1])):
-                                    key2_2 = key2
-                                    if key2 == 'Cool_Down_Atmosphere':
-                                        if 'Ablation_Atmosphere_Gas' not in parameter_array_flattened or 'Pre_Ablation_Atmosphere_Gas' not in parameter_array_flattened:
-                                            # in this 'if' statement, 'cool_down_atmosphere' has been specified, so do it separately
-                                            #continue
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                                        elif "Ablation_Atmosphere_Gas" in relOp_dict.keys() or "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
-                                            # this 'if statement is another way to confirm that 'Cool_Down_Atmosphere' has been specified, so do it separately
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
+                            # each set of quantities have to be formatted separately, so do that     
+                            for i in range(len(number_dict[key2_1])):
+                                key2_2 = key2
+                                if key2 == 'Cool_Down_Atmosphere':
+                                    if 'Ablation_Atmosphere_Gas' not in parameter_array_flattened or 'Pre_Ablation_Atmosphere_Gas' not in parameter_array_flattened:
+                                        # in this 'if' statement, 'cool_down_atmosphere' has been specified, so do it separately
+                                        #continue
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
+                                    elif "Ablation_Atmosphere_Gas" in relOp_dict.keys() or "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
+                                        # this 'if statement is another way to confirm that 'Cool_Down_Atmosphere' has been specified, so do it separately
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
 
-                                    elif key2 == "Ablation_Atmosphere_Gas":
-                                        if "Ablation_Atmosphere_Gas" in relOp_dict.keys():
-                                            # "Ablation_Atmosphere_Gas" has been specified, so do it separately 
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                                        else:
-                                            if ("Header" in metadata.keys()) and ('Cool_Down_Atmosphere' in metadata['Header'].keys()):
-                                                # the type of atmosphere has not been specified, so do an "or" search with all three 
-                                                if "Pre_Ablation_Atmosphere_Gas" in metadata[key1].keys():
-                                                    try:
-                                                        index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+                                elif key2 == "Ablation_Atmosphere_Gas":
+                                    if "Ablation_Atmosphere_Gas" in relOp_dict.keys():
+                                        # "Ablation_Atmosphere_Gas" has been specified, so do it separately 
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
+                                    else:
+                                        if ("Header" in metadata.keys()) and ('Cool_Down_Atmosphere' in metadata['Header'].keys()):
+                                            # the type of atmosphere has not been specified, so do an "or" search with all three 
+                                            if "Pre_Ablation_Atmosphere_Gas" in metadata[key1].keys():
+                                                try:
+                                                    index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
 
-                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
-                                                            next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
+                                                    if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
+                                                        next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
 
-                                                            if next_element == "Pre_Ablation_Atmosphere_Gas":
-                                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
-                                                            else:
-                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}) "
-                                                    except:
-                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                                                else:
-                                                    if "Ablation_Atmosphere_Gas" in relOp_dict.keys():
-                                                        # "Ablation_Atmosphere_Gas" has been specified, so do it separately 
-
+                                                        if next_element == "Pre_Ablation_Atmosphere_Gas":
+                                                            metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
+                                                        else:
+                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}) "
+                                                except:
                                                         metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                                                    else:
-                                                        # "Pre_Ablation_Atmosphere_Gas" is not in the metadata, so do the "or" search without that one 
-                                                        metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
-                                                    
                                             else:
-                                                if 'Pre_Ablation_Atmosphere_Gas' in metadata[key1].keys():
-                                                    try:
-                                                        index_pre_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Pre_Ablation_Pressure')[0]
+                                                if "Ablation_Atmosphere_Gas" in relOp_dict.keys():
+                                                    # "Ablation_Atmosphere_Gas" has been specified, so do it separately 
 
-                                                        if index_pre_ablation_pressure.size > 0 and index_pre_ablation_pressure[0] + 1 < len(parameter_array_flattened):
-                                                            next_element = parameter_array_flattened[index_pre_ablation_pressure[0] + 1]
-
-                                                            if next_element == "Ablation_Pressure":
-                                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
-                                                            else:
-                                                                #pre_ablation-pressure is specified, so just do "Ablation_Atmosphere_Gas" separately 
-                                                                # base pressure is also in metadata, and it is matched, but do it separately
-                                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                                                    except:
-                                                        # pre ablation atmosphere gas is matched but it must be specified before in the search string for the except to trigger. 
-                                                        # Ablation_atmosphere gas must last entry of parameter_array_flattened, so cannot to [i+1]. so do it separately.                 
-                                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                                                else:
                                                     metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
+                                                else:
+                                                    # "Pre_Ablation_Atmosphere_Gas" is not in the metadata, so do the "or" search without that one 
+                                                    metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
                                                 
-                                    
-                                    elif key2 == "Pre_Ablation_Atmosphere_Gas":
-                                        index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
-
-                                        if "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-                                        elif "Ablation_Atmosphere_Gas" in metadata[key1].keys() and index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
-                                            next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
-
-                                            if next_element == "Pre_Ablation_Atmosphere_Gas":
-                                                continue
-                                        elif "Cool_Down_Atmosphere" in relOp_dict.keys():
-                                            if "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
-                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Ablation_Atmosphere_Gas'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Ablation_Atmosphere_Gas'][i]}') "
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
-                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
                                         else:
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Ablation_Atmosphere_Gas'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Ablation_Atmosphere_Gas'][i]}') "
-
-
-                                    elif key2 == "Base_Pressure":
-                                        if 'Ablation_Pressure' not in parameter_array_flattened or 'Pre_Ablation_Pressure' not in parameter_array_flattened:
-
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-
-                                        elif "Ablation_Pressure" in relOp_dict.keys() and "Pre_Ablation_Pressure" in relOp_dict.keys():
-                                          
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-
-                                    elif key2 == "Ablation_Pressure":
-                                        if "Ablation_Pressure" in relOp_dict.keys(): 
-                                           
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-                                        else:
-                                         
-                                            if ('Header' in metadata.keys() and 'Base_Pressure' in metadata['Header'].keys()):
-                                                if 'Pre_Ablation_Pressure' in metadata[key1].keys():
-                                                    try:
-                                                        index_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Ablation_Pressure')[0]
-
-                                                        
-                                                        if index_ablation_pressure.size > 0 and index_ablation_pressure[0] + 1 < len(parameter_array_flattened):
-                                                            next_element = parameter_array_flattened[index_ablation_pressure[0] + 1]
-
-                                                            if next_element == "Pre_Ablation_Pressure":                                                            
-                                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
-                                                            else:
-                                                                #pre_ablation-pressure and base pressure are matched, so do all separately 
-                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-                                                    except:
-                                                        # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
-                                                        #  Ablation_pressure must last entry of parameter_array_flattened, so cannot do [i+1] so specify separately 
-                                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-
-                                                else:
-                                                    if "Ablation_Pressure" in relOp_dict.keys():
-                                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-                                                    else:
-                                                        metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
-                                            
-                                            else:
-                                                if 'Pre_Ablation_Pressure' in metadata[key1].keys():
-                                                    try:
-                                                        index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
-
-                                                        if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
-                                                            next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
-
-                                                            if next_element == "Pre_Ablation_Atmosphere_Gas":
-                                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
-                                                            else:
-                                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-                                                    except:
-                                                        # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
-                                                        #  Ablation_pressure must last entry of parameter_array_flattened, so cannot to [i+1] so specify separately              
-                                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-                                                else:
-                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-            
-                                         
-                                    elif key2 == "Pre_Ablation_Pressure":
-
-
-                                        # find the indices of Ablation_Pressure and Pre_Ablation_Pressure in parameter_array_flattened
-                                        # because if they are not next to each other than they had to have been specified separately in the search query
-                                        index_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Ablation_Pressure')[0]
-
-                                        if "Pre_Ablation_Pressure" in relOp_dict.keys():
-                                            # the only way this can happen is if it is specified 
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Pre_Ablation_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Pre_Ablation_Pressure'][i]}) "
-
-
-
-                                        elif "Ablation_Pressure" in metadata[key1].keys() and index_ablation_pressure.size > 0 and index_ablation_pressure[0]+ 1 < len(parameter_array_flattened): 
-                                            if next_element == "Pre_Ablation_Pressure":
-                                            # in this case, "Pre_Ablation_Pressure" is not in relOp_dict.keys()
-                                            # and Ablation_Pressure is in metadata
-                                            # so pre-ablation not specified and ablation can take care of it
-                                                continue
-
-                                        elif "Base_Pressure" in relOp_dict.keys(): 
-                                            if "Pre_Ablation_Pressure" in relOp_dict.keys():
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Ablation_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Ablation_Pressure'][i]})) "
-                                            
-                                            else:
-                                            # in this case, type of pressure is not specified, 
-                                            # but pre ablation pressure is not in metadata but base pressure is 
-
-                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
-                                        else:
-                                            # Pre-ablation pressure is not in relOp_dict.keys()
-                                            # ablation_pressure is not in metadata[key1].keys()
-                                            # Base pressure is not in relOp_dict.keys()
-
-                                            # so Ablation_and pre_ablation are specified,
-                                            # but ablation_pressure is not in metadata 
-                                            #  
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Ablation_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Ablation_Pressure'][i]}) "
-
-                                                                        
-                                    elif key2 == "Substrate_1":
-                                        #print("key2 == substrate_1")
-                                        
-                                        
-                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
-                                        # either all or none were specified
-                                            if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
-                                                # this means that none were specified, so do an "or" search with however many are present in the metadata 
-                                                if "Substrate_4" in metadata[key1].keys():
-                                                    metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') or "
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_2']}','{number_dict[key2][i]}') or "
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_3']}','{number_dict[key2][i]}') or "
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_4']}','{number_dict[key2][i]}'))"
-                                                elif "Substrate_3" in metadata[key1].keys():
-                                                    metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') or "
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_2']}','{number_dict[key2][i]}') or "
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_3']}','{number_dict[key2][i]}')) "
-                                                elif "Substrate_2" in metadata[key1].keys():
-                                                    metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict[key2][i]}'] ({metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') or "
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ({metadata[key1]['Substrate_2']}','{number_dict[key2][i]}')) "
-                                                else:
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') "
-     
-                                            else:
-                                                #this means that none were specified or present in the metadata, so do substrate_1 separately 
-                                               # print("substrate_1 only in metadata")
-                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') "
-
-                                        else:
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2]}') "
-                                    elif key2 == "Substrate_2":
-                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
-                                        
-                                            if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
-                                                continue
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-
-                                        else:
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-
-
-                                    elif key2 == "Substrate_3":
-                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
-                                        
-                                            if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
-                                                continue
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2[i]]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-
-                                        else:
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-
-                                    elif key2 == "Substrate_4":
-                                        if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
-                                        
-                                            if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
-                                                continue
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-
-                                        else:
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
-
-                                    elif key2 == "Laser_Energy":
-                                        if "Laser_Voltage" in relOp_dict.keys():
-                                    
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
-                                        else:
-                                            if "Laser_Voltage" in metadata[key1].keys():
-                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) or "
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1]['Laser_Voltage']},{number_dict[key2][i]})) "
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
-                                    
-                                    elif key2 == "Laser_Voltage":
-                                        if key2 not in relOp_dict.keys(): 
-                                            if "Laser_Energy" in metadata[key1].keys():
-                                                continue
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Laser_Energy'][i]}'] ({metadata[key1][key2]},{number_dict['Laser_Energy'][i]}) "
-
-                                        else:
-                                        
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
-
-                                    elif key2 == "Measured_Energy_Std":
-                                        if "Measured_Energy_Mean" in relOp_dict.keys():
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
-                                        else:
-                                            if "Measured_Energy_Mean" in metadata[key1].keys():
-                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) or "
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1]['Measured_Energy_Mean']},{number_dict[key2][i]})) "
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
-                                    elif key2 == "Measured_Energy_Mean":
-                                        if key2 not in relOp_dict.keys():
-                                            if "Measured_Energy_Std" in metadata[key1].keys():
-                                                continue
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Measured_Energy_Std'][i]}'] ({metadata[key1][key2]},{number_dict['Measured_Energy_Std'][i]})) "
-                                        else:
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
-
-                                    elif key2 == "Target_Height":
-                                        if "Target_Material" in relOp_dict.keys():
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
-                                        else:
-                                            if "Target_Material" in metadata[key1].keys():
+                                            if 'Pre_Ablation_Atmosphere_Gas' in metadata[key1].keys():
                                                 try:
-                                                    #if "Target_Material" is not in relOp_dict.keys() then the type of target is not specified
-                                                    #this 'if' statement is for when both 'Target_Material' and "Target_Height" are in the metadata
-                                                    # normally, we would do an 'or' search with both, However, since "Target_Material" is a string, while "Target_Height" is a  float
-                                                    # it doesn't make sense to search for both. Thus, we select the one that matches the type of the searched value. 
-                                                    # First, check if the searched value is a number by trying to convert to a float
+                                                    index_pre_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Pre_Ablation_Pressure')[0]
 
-                                                    float(number_dict[key2][i])
+                                                    if index_pre_ablation_pressure.size > 0 and index_pre_ablation_pressure[0] + 1 < len(parameter_array_flattened):
+                                                        next_element = parameter_array_flattened[index_pre_ablation_pressure[0] + 1]
 
-                                                    metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
+                                                        if next_element == "Ablation_Pressure":
+                                                            metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
+                                                        else:
+                                                            #pre_ablation-pressure is specified, so just do "Ablation_Atmosphere_Gas" separately 
+                                                            # base pressure is also in metadata, and it is matched, but do it separately
+                                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
                                                 except:
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1]['Target_Material']}','{number_dict[key2_1][i]}') "
+                                                    # pre ablation atmosphere gas is matched but it must be specified before in the search string for the except to trigger. 
+                                                    # Ablation_atmosphere gas must last entry of parameter_array_flattened, so cannot to [i+1]. so do it separately.                 
+                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
                                             else:
-                                                # in this situation:
-                                                # the metadata key is "Target_Height"
-                                                #  Target_Material is not in relOp_dict.keys(), so it has not been specifically searched for 
-                                                #     -either only target has been specified for target_height has been specified
-                                                # Target_Material is not in metadata keys, so the metadata is for Target_Material
-                                                #     -this is a string, so use ops_str 
                                                 metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                                    
-                                    elif key2 == "Target_Material":
-                                        if key2 not in relOp_dict.keys(): 
-                                            if "Target_Height" in metadata[key1].keys():
-                                                continue
-                                            else:
-                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Target_Height'][i]}'] ('{metadata[key1][key2]}','{number_dict['Target_Height'][i]}') "
+                                            
+                                
+                                elif key2 == "Pre_Ablation_Atmosphere_Gas":
+                                    index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
+
+                                    if "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
+                                    elif "Ablation_Atmosphere_Gas" in metadata[key1].keys() and index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
+                                        next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
+
+                                        if next_element == "Pre_Ablation_Atmosphere_Gas":
+                                            continue
+                                    elif "Cool_Down_Atmosphere" in relOp_dict.keys():
+                                        if "Pre_Ablation_Atmosphere_Gas" in relOp_dict.keys():
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Ablation_Atmosphere_Gas'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Ablation_Atmosphere_Gas'][i]}') "
                                         else:
-                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
-                          
-                                    elif "Pre_" in key2:
-                                        key2_2 = key2[4:]
-                                        # print("key2",key2)
-                                        # print(metadata[key1][key2])
-                                        # print(type(metadata[key1][key2]))
-                                        # print("key2_2",key2_2)
-                                      
-                                        
-                                        if key2_2 in metadata[key1].keys() and type(metadata[key1][key2_2]) == list:
-                                               # print("T1")
-                                                #print(metadata[key1][key2])
-                                                metadata[key1][key2_2] = metadata[key1][key2_2][0]
-                                        if type(metadata[key1][key2]) == list:
-                                                #print(metadata[key1][key2_2])
-                                                metadata[key1][key2] = metadata[key1][key2][0]
-                                        if  key2 not in relOp_dict.keys():
-                                            #so Ablation_Pulses is in relOp_dict but not Pre-Ablation_Pulses, for example
-                                            # but pre-pulses is in metadata, so didn't specify 
-                                        
-                                            
-                                            if key2_2 in metadata[key1].keys(): 
-                                                try:
-                                                    metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2_2][i]}'] (float({metadata[key1][key2_2]}),{number_dict[key2[4:]][i]}) or"
-                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2[4:]][i]}))"
-                                                except:
-                                                    metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2[4:]][i]}'] ('{metadata[key1][key2[4:]]}','{number_dict[key2[4:]][i]}') or"
-                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2[4:]][i]}'] ('{metadata[key1][key2]}','{number_dict[key2[4:]][i]}'))"
-                                            else:
-                                                try:
-                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2_2][i]})"
-                                                except:
-                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_2][i]}'] ('{metadata[key1][key2]}', '{number_dict[key2_2][i]}')"
-
-
-                                        else: #key2 in relOp.keys(), so specified Pre-Ablation_Pulses, or example 
-                                            try:
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2][i]})"
-                                            except:
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}', '{number_dict[key2][i]}')"
-
-
-                                            
-
-                                        
-
+                                            metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
                                     else:
-                                        #this is for Date, Growth_ID, Time, things specified separately?, etc. 
-                                        #append to metadata_eval_str based on type
-                                        if "Pre_"+key2 in metadata[key1].keys():
-                                            try:
-                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1]['Pre_'+key2]}),{number_dict[key2][i]}) or"
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2][i]}))"
-                                            except:
-                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1]['Pre_'+key2]}','{number_dict[key2][i]}') or"
-                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}'))"    
-                                        else:
-                                            try:
-                                                if type(metadata[key1][key2]) == list:
-                                                   # if the metadata is a list, just select the first element for now                                             
-                                                    metadata[key1][key2] = metadata[key1][key2][0]
-                                                    #print("T3",metadata[key1][key2])
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Ablation_Atmosphere_Gas'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Ablation_Atmosphere_Gas'][i]}') "
 
-                                                metadata_eval_str = metadata_eval_str + f"ops_num['{relOp_dict[key2][i]}'] ({float(metadata[key1][key2])},{number_dict[key2][i]}) "
-                                            except:
-                                                if key2 == 'Date':
-                                                    #perform date comparison
-                                                    metadata_eval_str = metadata_eval_str + f" ops_date['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}')"
 
+                                elif key2 == "Base_Pressure":
+                                    if 'Ablation_Pressure' not in parameter_array_flattened or 'Pre_Ablation_Pressure' not in parameter_array_flattened:
+
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+
+                                    elif "Ablation_Pressure" in relOp_dict.keys() and "Pre_Ablation_Pressure" in relOp_dict.keys():
+                                        
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+
+                                elif key2 == "Ablation_Pressure":
+                                    if "Ablation_Pressure" in relOp_dict.keys(): 
+                                        
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+                                    else:
+                                        
+                                        if ('Header' in metadata.keys() and 'Base_Pressure' in metadata['Header'].keys()):
+                                            if 'Pre_Ablation_Pressure' in metadata[key1].keys():
+                                                try:
+                                                    index_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Ablation_Pressure')[0]
+
+                                                    
+                                                    if index_ablation_pressure.size > 0 and index_ablation_pressure[0] + 1 < len(parameter_array_flattened):
+                                                        next_element = parameter_array_flattened[index_ablation_pressure[0] + 1]
+
+                                                        if next_element == "Pre_Ablation_Pressure":                                                            
+                                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
+                                                        else:
+                                                            #pre_ablation-pressure and base pressure are matched, so do all separately 
+                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+                                                except:
+                                                    # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
+                                                    #  Ablation_pressure must last entry of parameter_array_flattened, so cannot do [i+1] so specify separately 
+                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+
+                                            else:
+                                                if "Ablation_Pressure" in relOp_dict.keys():
+                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                 else:
-                                                    metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}')"
-
-                                    
-                                    if len(metadata_eval_str) > 0:
-                                        #if 'Pressure' in key2 and metadata_eval_str.count("or") == 2:
-                                            #print("Y")
+                                                    metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
                                         
+                                        else:
+                                            if 'Pre_Ablation_Pressure' in metadata[key1].keys():
+                                                try:
+                                                    index_ablation_atm_gas = np.where(np.array(parameter_array_flattened) == 'Ablation_Atmosphere_Gas')[0]
 
-                                        if key2 == key2_2:
-                                            if "Atmosphere" in key2 and "Cool_Down_Atmosphere" in relOp_dict.keys() and "Ablation_Atmosphere_Gas" not in relOp_dict.keys() and "Pre_Ablation_Atmosphere_Gas" not in relOp_dict.keys(): #metadata_eval_str.count("or") ==2:
-                                                if "Cool_Down_Atmosphere" not in metadata_eval_dict.keys():
-                                                    metadata_eval_dict.update({"Cool_Down_Atmosphere":{}})
-                                                metadata_eval_dict["Cool_Down_Atmosphere"].update({key1:metadata_eval_str})
-                                            
-                                            elif 'Pressure' in key2 and "Base_Pressure" in relOp_dict.keys() and "Ablation_Pressure" not in relOp_dict.keys() and "Pre_Ablation_Pressure" not in relOp_dict.keys(): #metadata_eval_str.count("or") == 2:
-                                               # print("Y")
-                                                if "Base_Pressure" not in metadata_eval_dict.keys():
-                                                    metadata_eval_dict.update({"Base_Pressure":{}})
-                                                metadata_eval_dict["Base_Pressure"].update({key1:metadata_eval_str})
+                                                    if index_ablation_atm_gas.size > 0 and index_ablation_atm_gas[0] + 1 < len(parameter_array_flattened):
+                                                        next_element = parameter_array_flattened[index_ablation_atm_gas[0] + 1]
 
-                                            elif key2 == "Target_Material" and key2 not in relOp_dict.keys():
-                                                if "Target_Height" not in metadata_eval_dict.keys():
-                                                    metadata_eval_dict.update({"Target_Height":{}})
-                                                metadata_eval_dict["Target_Height"].update({key1:metadata_eval_str})
-
-
-                                            elif key2 == "Laser_Voltage" and key2 not in relOp_dict.keys():
-                                                if "Laser_Energy" not in metadata_eval_dict.keys():
-                                                    metadata_eval_dict.update({"Laser_Energy":{}})
-                                                metadata_eval_dict["Laser_Energy"].update({key1:metadata_eval_str})
-
-                                            
+                                                        if next_element == "Pre_Ablation_Atmosphere_Gas":
+                                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
+                                                        else:
+                                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+                                                except:
+                                                    # pre ablation pressure is matched but it must be before in the searchStr for the except to trigger.
+                                                    #  Ablation_pressure must last entry of parameter_array_flattened, so cannot to [i+1] so specify separately              
+                                                    metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                             else:
-                                                if key2 not in metadata_eval_dict.keys():
-                                                    metadata_eval_dict.update({key2:{}})
-
-                                                metadata_eval_dict[key2].update({key1:metadata_eval_str})
-                                        else:
-                                            if key2_2 in relOp_dict.keys():
-                                                if key2_2 not in metadata_eval_dict.keys():
-                                                    metadata_eval_dict.update({key2_2:{}})
-
-                                                metadata_eval_dict[key2_2].update({key1:metadata_eval_str})
-
-                                            if key2 in relOp_dict.keys():
-                                                if key2 not in metadata_eval_dict.keys():
-                                                    metadata_eval_dict.update({key2:{}})
-
-                                                metadata_eval_dict[key2].update({key1:metadata_eval_str})
-                                    
-                                    if i < len(number_dict[key2_1])-1 and key2_1 in conj_dict:
-                                        metadata_eval_str = metadata_eval_str + f" {conj_dict[key2_1][i-1]} "
-                                    elif i== len(number_dict[key2_1])-1:
-                                        metadata_eval_str = metadata_eval_str + ") "                                                        
-
-                        
-
-                        # print('metadata_eval_dict',metadata_eval_dict) 
-
-                        # change the order of metadata_eval_dict to be in numerical order instead of string order, so 
-                        # Header, Target_1, Target_2, Target_3, Target_4, Target_5, Target_6, Target_7, Target_8, Target_9, Target_10, Target_11,Target_12
-                        # instead of 
-                        # Header, Target_1, Target_10, Target_11, Target_12, Target_2 ... 
-                        # for ease of iterating later 
-
-                        for key in metadata_eval_dict.keys():
-                            sorted_items = sorted(metadata_eval_dict[key].items(), key=lambda x: [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', x[0])])
-
-
-                            metadata_eval_dict[key] = OrderedDict(sorted_items)
-
-
-                        # now actually evaluate each of these metadata_eval_strings (stored in metadata_eval_dict) 
-                    
-                        if (metadata_eval_dict) != {}:
-                            # initialize the eval strings. 
-                            metadata_eval_dict2 = {}
-
-                            metadata_eval_str2 = ""
-
-                            Metadata_eval_str_1 = ""
-
-                            Metadata_eval_str_2 = ""
-                            Metadata_eval_str_3 = ""
-                            Metadata_eval_str_4 = ""
-                            Metadata_eval_str_5 = ""
-                            Metadata_eval_str_6 = ""
-                            Metadata_eval_str_7 = ""
-                            Metadata_eval_str_8 = ""
-                            Metadata_eval_str_9 = ""
-                            Metadata_eval_str_10 = ""
-                            Metadata_eval_str_11 = ""
-                            Metadata_eval_str_12 = ""
-
-
-                            length_list = [] 
-
-                            #print("metadata_eval_dict sorted", metadata_eval_dict)
-
-                            metadata_eval_str2 = ""
-                            key1_list = []
-                            # loop over search and the metadata to find matches 
-                            for index1, key1 in enumerate(relOp_dict.keys()):
-                               # print("key1",key1)
-                                if key1 not in metadata_eval_dict.keys():
-                                    # if this metadata only has some of the quantities required to match
-                                    # but not all of them, set the eval to False 
-                                    if key1 in conj_dict and 'and' in conj_dict[key1]:                                           
-                                        Metadata_eval_str_1 = "False"
-                                        Metadata_eval_str_2 = "False"
-                                        Metadata_eval_str_3 = "False"
-                                        Metadata_eval_str_4 = "False"
-                                        Metadata_eval_str_5 = "False"
-                                        Metadata_eval_str_6 = "False"
-                                        Metadata_eval_str_7 = "False"
-                                        Metadata_eval_str_8 = "False"
-                                        Metadata_eval_str_9 = "False"
-                                        Metadata_eval_str_10 = "False"
-                                        Metadata_eval_str_11 = "False"
-                                        Metadata_eval_str_12 = "False"
-                                    continue
-                                # print("index1",index1)
-                                # print('value1:',metadata_eval_dict[key1])
-
-                                # print("length",len(metadata_eval_dict[key1].keys()))
-                                length_list.append(len(metadata_eval_dict[key1].keys()))
-                                counter1=0
-                                counter2=1
-                                key2_list= [] 
-                                key1_list.append(key1)
-                                count = 0
-                                counted = False
-                                # loop over however many Header, Target_i there are 
-                                for index2,key2 in enumerate(metadata_eval_dict[key1].keys()):
+                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
         
-                                    # print('index2:',index2,'key2:',key2)
-                                    # print(metadata_eval_dict[key1][key2])
-                                    # print("key1",key1)
-                                    
-                    
-                                    metadata_eval_dict2[key2] = metadata_eval_dict[key1][key2]
-                    #                print("key1",key1)
-                                    key2_list.append(key2)
-                                    if index2 == 0:
-                                        if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys())-1:
-                    
-                                            try:
-                                                Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
-                                                Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
-                                            except:
-                                                Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
-                                                Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
+                                        
+                                elif key2 == "Pre_Ablation_Pressure":
+
+
+                                    # find the indices of Ablation_Pressure and Pre_Ablation_Pressure in parameter_array_flattened
+                                    # because if they are not next to each other than they had to have been specified separately in the search query
+                                    index_ablation_pressure = np.where(np.array(parameter_array_flattened) == 'Ablation_Pressure')[0]
+
+                                    if "Pre_Ablation_Pressure" in relOp_dict.keys():
+                                        # the only way this can happen is if it is specified 
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Pre_Ablation_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Pre_Ablation_Pressure'][i]}) "
+
+
+
+                                    elif "Ablation_Pressure" in metadata[key1].keys() and index_ablation_pressure.size > 0 and index_ablation_pressure[0]+ 1 < len(parameter_array_flattened): 
+                                        if next_element == "Pre_Ablation_Pressure":
+                                        # in this case, "Pre_Ablation_Pressure" is not in relOp_dict.keys()
+                                        # and Ablation_Pressure is in metadata
+                                        # so pre-ablation not specified and ablation can take care of it
+                                            continue
+
+                                    elif "Base_Pressure" in relOp_dict.keys(): 
+                                        if "Pre_Ablation_Pressure" in relOp_dict.keys():
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Ablation_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Ablation_Pressure'][i]})) "
+                                        
                                         else:
-                                            Metadata_eval_str_1 = Metadata_eval_str_1 + " " + metadata_eval_dict[key1][key2]
+                                        # in this case, type of pressure is not specified, 
+                                        # but pre ablation pressure is not in metadata but base pressure is 
 
-
-
-                                        if key2 == "Header":
-                                            # make sure that the eval strings have a header 
-                                            Metadata_eval_str_2 = Metadata_eval_str_2 + " " + metadata_eval_dict[key1][key2]
-
-                                            Metadata_eval_str_3 = Metadata_eval_str_3 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_4 = Metadata_eval_str_4 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_5 = Metadata_eval_str_5 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_6 = Metadata_eval_str_6 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_7 = Metadata_eval_str_7 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_8 = Metadata_eval_str_8 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_9 = Metadata_eval_str_9 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_10 = Metadata_eval_str_10 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_11 = Metadata_eval_str_11 + " " + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_12 = Metadata_eval_str_12 + " " + metadata_eval_dict[key1][key2]
-
-                                            if key1 in conj_dict.keys(): 
-                                                Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][index2-1]
-
-                                                Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][index2-1]
-
-                                                
-                                         
-
-        
-                                    elif index2 == 1:
-                                        
-                                        Metadata_eval_str_2 = Metadata_eval_str_2 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): #and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-                                    
-                                    elif index2 == 2:
-                                        
-                                        Metadata_eval_str_3 = Metadata_eval_str_3 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-
-                                    elif index2 == 3:
-                                        
-                                        Metadata_eval_str_4 = Metadata_eval_str_4 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-                                    
-                                    elif index2 == 4:
-                                        
-                                        Metadata_eval_str_5 = Metadata_eval_str_5 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-
-                                    elif index2 == 5:
-                                        
-                                        Metadata_eval_str_6 = Metadata_eval_str_6 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-
-                                    elif index2 == 6:
-                                        
-                                        Metadata_eval_str_7 = Metadata_eval_str_7 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-
-                                    elif index2 == 7:
-                                        
-                                        Metadata_eval_str_8 = Metadata_eval_str_8 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][count]+ " "
-                                            counted = True  
-
-                                    elif index2 == 8:
-                                        
-                                        Metadata_eval_str_9 = Metadata_eval_str_9 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][count]+ " "
-                                            counted = True 
-
-                                    elif index2 == 9:
-                                        
-                                        Metadata_eval_str_10 = Metadata_eval_str_10 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-
-                                    elif index2 == 10:
-                                        
-                                        Metadata_eval_str_11 = Metadata_eval_str_11 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-
-                                    elif index2 == 11:
-                                        
-                                        Metadata_eval_str_12 = Metadata_eval_str_12 + metadata_eval_dict[key1][key2]
-                                        if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                            Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][count]+ " "
-                                            counted = True
-                                    
-                                if counted == True:
-                                    count+=1
-
-
-                            # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
-                            Metadata_eval_str_ = "Metadata_eval_str_"
-                            deleted_stuff = False
-                         #   Metadata_eval_str_with_parens = ""
-                            for i in range(1,13):
-                                # print('label: ',f"{Metadata_eval_str_}{i}")
-                                # print("metadata_eval_str:", Metadata_eval_str_+str(i))
-                                try:
-                                    # print("try1")
-                                    # print("EVAL: ",eval(Metadata_eval_str_+str(i)))
-
-                                    if len(eval(Metadata_eval_str_+str(i))) >0 :
-
-                                        
-                                        # insert the opening or closing parenthesis in the appropriate index, 
-                                        # I want to wait until it becomes True/False because that is one word instead of 
-                                        # 3.(IS IT ALWAYS 3???) but now it is a string so it doesn't have indices anymore...
-                                        # I think the Metadata_eval_str is in format "700 == 700" 
-                                        # I think I have to split it and reform it anyway, but that's fine 
-
-                                        # but what if the searched term is greater than 1 word, for example
-                                        # "pre ablation pressure" (I split on relOp), then the indices will change. 
-                                        # I could reformat and then count, but idk. Note if a parenthesis is in the term when
-                                        # rewrite? Or a space/underscore in the searchStr? If specify pre or whatever
-                                        # I could decrease the index of the parenthesis that come after it, but I don't like that. 
-                                        # idk.
-                                        # # but maybe it doesn't matter 
-
-                                        Metadata_eval_array = re.split('( and | or )', eval(Metadata_eval_str_+str(i)))
-
-                                        for j in range(len(Metadata_eval_array)):
-                                            if j in beginning_parens_indices:
-                                                Metadata_eval_array[j] = "(" + Metadata_eval_array[j]
-                                            if j in ending_parens_indices:
-                                                Metadata_eval_array[j] = Metadata_eval_array[j] + ")"
-
-                                        Metadata_eval_str_with_parens = " ".join([str(elem) for elem in Metadata_eval_array])    
-                                    
-                                        # print("eval",eval(eval(f"{Metadata_eval_str_}{i}")))
-
-                                        #if eval(eval(f"{Metadata_eval_str_}{i}")) == False:
-                                        if eval(Metadata_eval_str_with_parens) == False: 
-                                            try:
-                                                # print("eval = False")
-                                                del metadata[f'Target_{i}']
-                                                deleted_stuff = True
-                                            except:
-                                               # print("could not delete key")
-                                                if 'Target_1' not in metadata.keys():
-                                                    try: 
-                                                     #   print("deleting header")
-                                                        del metadata['Header'] 
-                                                        deleted_stuff = True
-                                                    except:
-                                                        pass 
-                                                       # print("could not delete header")
-                                            
-                                                continue
+                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
                                     else:
-                                            #print("length eval = 0 ")
+                                        # Pre-ablation pressure is not in relOp_dict.keys()
+                                        # ablation_pressure is not in metadata[key1].keys()
+                                        # Base pressure is not in relOp_dict.keys()
+
+                                        # so Ablation_and pre_ablation are specified,
+                                        # but ablation_pressure is not in metadata 
+                                        #  
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Ablation_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Ablation_Pressure'][i]}) "
+
+                                                                    
+                                elif key2 == "Substrate_1":
+                                    #print("key2 == substrate_1")
+                                    
+                                    
+                                    if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
+                                    # either all or none were specified
+                                        if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
+                                            # this means that none were specified, so do an "or" search with however many are present in the metadata 
+                                            if "Substrate_4" in metadata[key1].keys():
+                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') or "
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_2']}','{number_dict[key2][i]}') or "
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_3']}','{number_dict[key2][i]}') or "
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_4']}','{number_dict[key2][i]}'))"
+                                            elif "Substrate_3" in metadata[key1].keys():
+                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') or "
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_2']}','{number_dict[key2][i]}') or "
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_3']}','{number_dict[key2][i]}')) "
+                                            elif "Substrate_2" in metadata[key1].keys():
+                                                metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict[key2][i]}'] ({metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') or "
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ({metadata[key1]['Substrate_2']}','{number_dict[key2][i]}')) "
+                                            else:
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') "
+    
+                                        else:
+                                            #this means that none were specified or present in the metadata, so do substrate_1 separately 
+                                            # print("substrate_1 only in metadata")
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2][i]}') "
+
+                                    else:
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1]['Substrate_1']}','{number_dict[key2]}') "
+                                elif key2 == "Substrate_2":
+                                    if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
+                                    
+                                        if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
+                                            continue
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
+
+                                    else:
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
+
+
+                                elif key2 == "Substrate_3":
+                                    if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
+                                    
+                                        if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
+                                            continue
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2[i]]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
+
+                                    else:
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
+
+                                elif key2 == "Substrate_4":
+                                    if 'Substrate_1' in parameter_array_flattened and 'Substrate_2' in parameter_array_flattened and 'Substrate_3' in parameter_array_flattened and 'Substrate_4' in parameter_array_flattened:
+                                    
+                                        if "Substrate_1" in relOp_dict.keys() and "Substrate_2" not in relOp_dict.keys() and "Substrate_3" not in relOp_dict.keys() and "Substrate_4" not in relOp_dict.keys():
+                                            continue
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
+
+                                    else:
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}') "
+
+                                elif key2 == "Laser_Energy":
+                                    if "Laser_Voltage" in relOp_dict.keys():
+                                
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
+                                    else:
+                                        if "Laser_Voltage" in metadata[key1].keys():
+                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) or "
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1]['Laser_Voltage']},{number_dict[key2][i]})) "
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
+                                
+                                elif key2 == "Laser_Voltage":
+                                    if key2 not in relOp_dict.keys(): 
+                                        if "Laser_Energy" in metadata[key1].keys():
+                                            continue
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Laser_Energy'][i]}'] ({metadata[key1][key2]},{number_dict['Laser_Energy'][i]}) "
+
+                                    else:
+                                    
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
+
+                                elif key2 == "Measured_Energy_Std":
+                                    if "Measured_Energy_Mean" in relOp_dict.keys():
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
+                                    else:
+                                        if "Measured_Energy_Mean" in metadata[key1].keys():
+                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) or "
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1]['Measured_Energy_Mean']},{number_dict[key2][i]})) "
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
+                                elif key2 == "Measured_Energy_Mean":
+                                    if key2 not in relOp_dict.keys():
+                                        if "Measured_Energy_Std" in metadata[key1].keys():
+                                            continue
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Measured_Energy_Std'][i]}'] ({metadata[key1][key2]},{number_dict['Measured_Energy_Std'][i]})) "
+                                    else:
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
+
+                                elif key2 == "Target_Height":
+                                    if "Target_Material" in relOp_dict.keys():
+                                        metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
+                                    else:
+                                        if "Target_Material" in metadata[key1].keys():
                                             try:
-                                             #   print("trying to delete ")
-                                                del metadata[f'Target_{i}']
-                                                
+                                                #if "Target_Material" is not in relOp_dict.keys() then the type of target is not specified
+                                                #this 'if' statement is for when both 'Target_Material' and "Target_Height" are in the metadata
+                                                # normally, we would do an 'or' search with both, However, since "Target_Material" is a string, while "Target_Height" is a  float
+                                                # it doesn't make sense to search for both. Thus, we select the one that matches the type of the searched value. 
+                                                # First, check if the searched value is a number by trying to convert to a float
+
+                                                float(number_dict[key2][i])
+
+                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
                                             except:
-                                              #  print("could not delete ")
-                                                continue
-                                except:
-                                 #   print("except1")
-                                    try:
-                                  #          print("Trying to delete")
-                                            if f'Target_{i}' in metadata.keys():
-                                                del metadata[f'Target_{i}']
-                                            elif 'Target_1' not in metadata.keys():
-                                                del metadata['Header'] 
-                                            deleted_stuff = True
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1]['Target_Material']}','{number_dict[key2_1][i]}') "
+                                        else:
+                                            # in this situation:
+                                            # the metadata key is "Target_Height"
+                                            #  Target_Material is not in relOp_dict.keys(), so it has not been specifically searched for 
+                                            #     -either only target has been specified for target_height has been specified
+                                            # Target_Material is not in metadata keys, so the metadata is for Target_Material
+                                            #     -this is a string, so use ops_str 
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
+                                
+                                elif key2 == "Target_Material":
+                                    if key2 not in relOp_dict.keys(): 
+                                        if "Target_Height" in metadata[key1].keys():
+                                            continue
+                                        else:
+                                            metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Target_Height'][i]}'] ('{metadata[key1][key2]}','{number_dict['Target_Height'][i]}') "
+                                    else:
+                                        metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}') "
+                        
+                                elif "Pre_" in key2:
+                                    key2_2 = key2[4:]
+                                    # print("key2",key2)
+                                    # print(metadata[key1][key2])
+                                    # print(type(metadata[key1][key2]))
+                                    # print("key2_2",key2_2)
+                                    
+                                    
+                                    if key2_2 in metadata[key1].keys() and type(metadata[key1][key2_2]) == list:
+                                            # print("T1")
+                                            #print(metadata[key1][key2])
+                                            metadata[key1][key2_2] = metadata[key1][key2_2][0]
+                                    if type(metadata[key1][key2]) == list:
+                                            #print(metadata[key1][key2_2])
+                                            metadata[key1][key2] = metadata[key1][key2][0]
+                                    if  key2 not in relOp_dict.keys():
+                                        #so Ablation_Pulses is in relOp_dict but not Pre-Ablation_Pulses, for example
+                                        # but pre-pulses is in metadata, so didn't specify 
+                                    
+                                        
+                                        if key2_2 in metadata[key1].keys(): 
+                                            try:
+                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2_2][i]}'] (float({metadata[key1][key2_2]}),{number_dict[key2[4:]][i]}) or"
+                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2[4:]][i]}))"
+                                            except:
+                                                metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2[4:]][i]}'] ('{metadata[key1][key2[4:]]}','{number_dict[key2[4:]][i]}') or"
+                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2[4:]][i]}'] ('{metadata[key1][key2]}','{number_dict[key2[4:]][i]}'))"
+                                        else:
+                                            try:
+                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2_2][i]})"
+                                            except:
+                                                metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_2][i]}'] ('{metadata[key1][key2]}', '{number_dict[key2_2][i]}')"
+
+
+                                    else: #key2 in relOp.keys(), so specified Pre-Ablation_Pulses, or example 
+                                        try:
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2][i]})"
+                                        except:
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}', '{number_dict[key2][i]}')"
+
+
+                                        
+
+                                    
+
+                                else:
+                                    #this is for Date, Growth_ID, Time, things specified separately?, etc. 
+                                    #append to metadata_eval_str based on type
+                                    if "Pre_"+key2 in metadata[key1].keys():
+                                        try:
+                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1]['Pre_'+key2]}),{number_dict[key2][i]}) or"
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2][i]}))"
+                                        except:
+                                            metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1]['Pre_'+key2]}','{number_dict[key2][i]}') or"
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}'))"    
+                                    else:
+                                        try:
+                                            if type(metadata[key1][key2]) == list:
+                                                # if the metadata is a list, just select the first element for now                                             
+                                                metadata[key1][key2] = metadata[key1][key2][0]
+                                                #print("T3",metadata[key1][key2])
+
+                                            metadata_eval_str = metadata_eval_str + f"ops_num['{relOp_dict[key2][i]}'] ({float(metadata[key1][key2])},{number_dict[key2][i]}) "
+                                        except:
+                                            if key2 == 'Date':
+                                                #perform date comparison
+                                                metadata_eval_str = metadata_eval_str + f" ops_date['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}')"
+
+                                            else:
+                                                metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}')"
+
+                                
+                                if len(metadata_eval_str) > 0:
+                                    #if 'Pressure' in key2 and metadata_eval_str.count("or") == 2:
+                                        #print("Y")
+                                    
+
+                                    if key2 == key2_2:
+                                        if "Atmosphere" in key2 and "Cool_Down_Atmosphere" in relOp_dict.keys() and "Ablation_Atmosphere_Gas" not in relOp_dict.keys() and "Pre_Ablation_Atmosphere_Gas" not in relOp_dict.keys(): #metadata_eval_str.count("or") ==2:
+                                            if "Cool_Down_Atmosphere" not in metadata_eval_dict.keys():
+                                                metadata_eval_dict.update({"Cool_Down_Atmosphere":{}})
+                                            metadata_eval_dict["Cool_Down_Atmosphere"].update({key1:metadata_eval_str})
+                                        
+                                        elif 'Pressure' in key2 and "Base_Pressure" in relOp_dict.keys() and "Ablation_Pressure" not in relOp_dict.keys() and "Pre_Ablation_Pressure" not in relOp_dict.keys(): #metadata_eval_str.count("or") == 2:
+                                            # print("Y")
+                                            if "Base_Pressure" not in metadata_eval_dict.keys():
+                                                metadata_eval_dict.update({"Base_Pressure":{}})
+                                            metadata_eval_dict["Base_Pressure"].update({key1:metadata_eval_str})
+
+                                        elif key2 == "Target_Material" and key2 not in relOp_dict.keys():
+                                            if "Target_Height" not in metadata_eval_dict.keys():
+                                                metadata_eval_dict.update({"Target_Height":{}})
+                                            metadata_eval_dict["Target_Height"].update({key1:metadata_eval_str})
+
+
+                                        elif key2 == "Laser_Voltage" and key2 not in relOp_dict.keys():
+                                            if "Laser_Energy" not in metadata_eval_dict.keys():
+                                                metadata_eval_dict.update({"Laser_Energy":{}})
+                                            metadata_eval_dict["Laser_Energy"].update({key1:metadata_eval_str})
+
+                                        
+                                        else:
+                                            if key2 not in metadata_eval_dict.keys():
+                                                metadata_eval_dict.update({key2:{}})
+
+                                            metadata_eval_dict[key2].update({key1:metadata_eval_str})
+                                    else:
+                                        if key2_2 in relOp_dict.keys():
+                                            if key2_2 not in metadata_eval_dict.keys():
+                                                metadata_eval_dict.update({key2_2:{}})
+
+                                            metadata_eval_dict[key2_2].update({key1:metadata_eval_str})
+
+                                        if key2 in relOp_dict.keys():
+                                            if key2 not in metadata_eval_dict.keys():
+                                                metadata_eval_dict.update({key2:{}})
+
+                                            metadata_eval_dict[key2].update({key1:metadata_eval_str})
+                                
+                                if i < len(number_dict[key2_1])-1 and key2_1 in conj_dict:
+                                    metadata_eval_str = metadata_eval_str + f" {conj_dict[key2_1][i-1]} "
+                                elif i== len(number_dict[key2_1])-1:
+                                    metadata_eval_str = metadata_eval_str + ") "                                                        
+
+                    
+
+                    # print('metadata_eval_dict',metadata_eval_dict) 
+
+                    # change the order of metadata_eval_dict to be in numerical order instead of string order, so 
+                    # Header, Target_1, Target_2, Target_3, Target_4, Target_5, Target_6, Target_7, Target_8, Target_9, Target_10, Target_11,Target_12
+                    # instead of 
+                    # Header, Target_1, Target_10, Target_11, Target_12, Target_2 ... 
+                    # for ease of iterating later 
+
+                    for key in metadata_eval_dict.keys():
+                        sorted_items = sorted(metadata_eval_dict[key].items(), key=lambda x: [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', x[0])])
+
+
+                        metadata_eval_dict[key] = OrderedDict(sorted_items)
+
+
+                    # now actually evaluate each of these metadata_eval_strings (stored in metadata_eval_dict) 
+                
+                    if (metadata_eval_dict) != {}:
+                        # initialize the eval strings. 
+                        metadata_eval_dict2 = {}
+
+                        metadata_eval_str2 = ""
+
+                        Metadata_eval_str_1 = ""
+
+                        Metadata_eval_str_2 = ""
+                        Metadata_eval_str_3 = ""
+                        Metadata_eval_str_4 = ""
+                        Metadata_eval_str_5 = ""
+                        Metadata_eval_str_6 = ""
+                        Metadata_eval_str_7 = ""
+                        Metadata_eval_str_8 = ""
+                        Metadata_eval_str_9 = ""
+                        Metadata_eval_str_10 = ""
+                        Metadata_eval_str_11 = ""
+                        Metadata_eval_str_12 = ""
+
+
+                        length_list = [] 
+
+                        #print("metadata_eval_dict sorted", metadata_eval_dict)
+
+                        metadata_eval_str2 = ""
+                        key1_list = []
+                        # loop over search and the metadata to find matches 
+                        for index1, key1 in enumerate(relOp_dict.keys()):
+                            # print("key1",key1)
+                            if key1 not in metadata_eval_dict.keys():
+                                # if this metadata only has some of the quantities required to match
+                                # but not all of them, set the eval to False 
+                                if key1 in conj_dict and 'and' in conj_dict[key1]:                                           
+                                    Metadata_eval_str_1 = "False"
+                                    Metadata_eval_str_2 = "False"
+                                    Metadata_eval_str_3 = "False"
+                                    Metadata_eval_str_4 = "False"
+                                    Metadata_eval_str_5 = "False"
+                                    Metadata_eval_str_6 = "False"
+                                    Metadata_eval_str_7 = "False"
+                                    Metadata_eval_str_8 = "False"
+                                    Metadata_eval_str_9 = "False"
+                                    Metadata_eval_str_10 = "False"
+                                    Metadata_eval_str_11 = "False"
+                                    Metadata_eval_str_12 = "False"
+                                continue
+                            # print("index1",index1)
+                            # print('value1:',metadata_eval_dict[key1])
+
+                            # print("length",len(metadata_eval_dict[key1].keys()))
+                            length_list.append(len(metadata_eval_dict[key1].keys()))
+                            counter1=0
+                            counter2=1
+                            key2_list= [] 
+                            key1_list.append(key1)
+                            count = 0
+                            counted = False
+                            # loop over however many Header, Target_i there are 
+                            for index2,key2 in enumerate(metadata_eval_dict[key1].keys()):
+    
+                                # print('index2:',index2,'key2:',key2)
+                                # print(metadata_eval_dict[key1][key2])
+                                # print("key1",key1)
+                                
+                
+                                metadata_eval_dict2[key2] = metadata_eval_dict[key1][key2]
+                #                print("key1",key1)
+                                key2_list.append(key2)
+                                if index2 == 0:
+                                    if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys())-1:
+                
+                                        try:
+                                            Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
+                                            Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
+                                        except:
+                                            Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
+                                            Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
+                                    else:
+                                        Metadata_eval_str_1 = Metadata_eval_str_1 + " " + metadata_eval_dict[key1][key2]
+
+
+
+                                    if key2 == "Header":
+                                        # make sure that the eval strings have a header 
+                                        Metadata_eval_str_2 = Metadata_eval_str_2 + " " + metadata_eval_dict[key1][key2]
+
+                                        Metadata_eval_str_3 = Metadata_eval_str_3 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_4 = Metadata_eval_str_4 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_5 = Metadata_eval_str_5 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_6 = Metadata_eval_str_6 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_7 = Metadata_eval_str_7 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_8 = Metadata_eval_str_8 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_9 = Metadata_eval_str_9 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_10 = Metadata_eval_str_10 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_11 = Metadata_eval_str_11 + " " + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_12 = Metadata_eval_str_12 + " " + metadata_eval_dict[key1][key2]
+
+                                        if key1 in conj_dict.keys(): 
+                                            Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][index2-1]
+
+                                            Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][index2-1]
+
                                             
-                                    except:
-                                   #     print("Could not delete")
-                                        continue
-                                # make sure the header also gets deleted             
-                                if str(metadata.keys()) == "dict_keys(['Header'])" and deleted_stuff == True:
-                                #    print("deleting Header")
-                                    del metadata['Header'] 
+                                        
+
+    
+                                elif index2 == 1:
+                                    
+                                    Metadata_eval_str_2 = Metadata_eval_str_2 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): #and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+                                
+                                elif index2 == 2:
+                                    
+                                    Metadata_eval_str_3 = Metadata_eval_str_3 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+
+                                elif index2 == 3:
+                                    
+                                    Metadata_eval_str_4 = Metadata_eval_str_4 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+                                
+                                elif index2 == 4:
+                                    
+                                    Metadata_eval_str_5 = Metadata_eval_str_5 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+
+                                elif index2 == 5:
+                                    
+                                    Metadata_eval_str_6 = Metadata_eval_str_6 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+
+                                elif index2 == 6:
+                                    
+                                    Metadata_eval_str_7 = Metadata_eval_str_7 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+
+                                elif index2 == 7:
+                                    
+                                    Metadata_eval_str_8 = Metadata_eval_str_8 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][count]+ " "
+                                        counted = True  
+
+                                elif index2 == 8:
+                                    
+                                    Metadata_eval_str_9 = Metadata_eval_str_9 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][count]+ " "
+                                        counted = True 
+
+                                elif index2 == 9:
+                                    
+                                    Metadata_eval_str_10 = Metadata_eval_str_10 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+
+                                elif index2 == 10:
+                                    
+                                    Metadata_eval_str_11 = Metadata_eval_str_11 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+
+                                elif index2 == 11:
+                                    
+                                    Metadata_eval_str_12 = Metadata_eval_str_12 + metadata_eval_dict[key1][key2]
+                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                        Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][count]+ " "
+                                        counted = True
+                                
+                            if counted == True:
+                                count+=1
+
+
+                        # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
+                        Metadata_eval_str_ = "Metadata_eval_str_"
+                        deleted_stuff = False
+                        #   Metadata_eval_str_with_parens = ""
+                        for i in range(1,13):
+                            # print('label: ',f"{Metadata_eval_str_}{i}")
+                            # print("metadata_eval_str:", Metadata_eval_str_+str(i))
+                            try:
+                                # print("try1")
+                                # print("EVAL: ",eval(Metadata_eval_str_+str(i)))
+
+                                if len(eval(Metadata_eval_str_+str(i))) >0 :
+
+                                    
+                                    # insert the opening or closing parenthesis in the appropriate index, 
+                                    # I want to wait until it becomes True/False because that is one word instead of 
+                                    # 3.(IS IT ALWAYS 3???) but now it is a string so it doesn't have indices anymore...
+                                    # I think the Metadata_eval_str is in format "700 == 700" 
+                                    # I think I have to split it and reform it anyway, but that's fine 
+
+                                    # but what if the searched term is greater than 1 word, for example
+                                    # "pre ablation pressure" (I split on relOp), then the indices will change. 
+                                    # I could reformat and then count, but idk. Note if a parenthesis is in the term when
+                                    # rewrite? Or a space/underscore in the searchStr? If specify pre or whatever
+                                    # I could decrease the index of the parenthesis that come after it, but I don't like that. 
+                                    # idk.
+                                    # # but maybe it doesn't matter 
+
+                                    Metadata_eval_array = re.split('( and | or )', eval(Metadata_eval_str_+str(i)))
+
+                                    for j in range(len(Metadata_eval_array)):
+                                        if j in beginning_parens_indices:
+                                            Metadata_eval_array[j] = "(" + Metadata_eval_array[j]
+                                        if j in ending_parens_indices:
+                                            Metadata_eval_array[j] = Metadata_eval_array[j] + ")"
+
+                                    Metadata_eval_str_with_parens = " ".join([str(elem) for elem in Metadata_eval_array])    
+                                
+                                    # print("eval",eval(eval(f"{Metadata_eval_str_}{i}")))
+
+                                    #if eval(eval(f"{Metadata_eval_str_}{i}")) == False:
+                                    if eval(Metadata_eval_str_with_parens) == False: 
+                                        try:
+                                            # print("eval = False")
+                                            del metadata[f'Target_{i}']
+                                            deleted_stuff = True
+                                        except:
+                                            # print("could not delete key")
+                                            if 'Target_1' not in metadata.keys():
+                                                try: 
+                                                    #   print("deleting header")
+                                                    del metadata['Header'] 
+                                                    deleted_stuff = True
+                                                except:
+                                                    pass 
+                                                    # print("could not delete header")
+                                        
+                                            continue
+                                else:
+                                        #print("length eval = 0 ")
+                                        try:
+                                            #   print("trying to delete ")
+                                            del metadata[f'Target_{i}']
+                                            
+                                        except:
+                                            #  print("could not delete ")
+                                            continue
+                            except:
+                                #   print("except1")
+                                try:
+                                #          print("Trying to delete")
+                                        if f'Target_{i}' in metadata.keys():
+                                            del metadata[f'Target_{i}']
+                                        elif 'Target_1' not in metadata.keys():
+                                            del metadata['Header'] 
+                                        deleted_stuff = True
+                                        
+                                except:
+                                #     print("Could not delete")
+                                    continue
+                            # make sure the header also gets deleted             
+                            if str(metadata.keys()) == "dict_keys(['Header'])" and deleted_stuff == True:
+                            #    print("deleting Header")
+                                del metadata['Header'] 
 
                        # print('metadata',metadata)
 
