@@ -1514,6 +1514,7 @@ class GenerateForm(QWidget):
                                                 if DataFed_parameter == concatinated_DataFed_parameter and concatinated_DataFed_parameter in parameter_array[parameter_index]:
                                                     # print("concatinated_DataFed_parameter:",concatinated_DataFed_parameter)
                                                     # print('parameter_index:',parameter_index)
+                                                    # is this just np.where because of the second if statement term? 
                                                     parameter_indices.append(parameter_index)
 
                             
@@ -1592,9 +1593,9 @@ class GenerateForm(QWidget):
                                                                 #units = True
                                                                 
                                                                 # loop over the values, where is where the numbers are 
-                                                                for DataFed_value_index in range(int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).childCount())):
+                                                                for DataFed_unit_index in range(int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).childCount())):
                                                                     # unhide the values 
-                                                                    collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_value_index).setHidden(False)
+                                                                    collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_unit_index).setHidden(False)
 
                                                                     
                                                                     # print("DataFed_value:",collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_value_index).text(0))
@@ -1609,7 +1610,7 @@ class GenerateForm(QWidget):
 
 
                                                                         try:
-                                                                            DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_value_index).text(0)
+                                                                            DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_unit_index).text(0)
                                                                             # print("Relop:",ops_num[relOp[parameter_index]])
                                                                             # print('number:', number_array[parameter_index])
 
@@ -2263,7 +2264,7 @@ class GenerateForm(QWidget):
                                                 Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
                                             except:
                                                 Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
-                                                Metadata_eval_str_1 = Metadata_eval_str_1 + " " +conj_dict[key1][index2-1]+ " " 
+                                                Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
                                         else:
                                             Metadata_eval_str_1 = Metadata_eval_str_1 + " " + metadata_eval_dict[key1][key2]
 
