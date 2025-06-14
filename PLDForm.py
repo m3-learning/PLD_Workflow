@@ -1372,6 +1372,7 @@ class GenerateForm(QWidget):
                 # loop over the children, these are the individual data records
                 for record_index in range(int(collection.childCount())):
                     # unhide the child
+                    record = collection.child(record_index).text(0)
                     collection.child(record_index).setHidden(False)
                     # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
                     metadata = {}
@@ -2215,182 +2216,182 @@ class GenerateForm(QWidget):
                         metadata_eval_str2 = ""
                         key1_list = []
                         # loop over search and the metadata to find matches 
-                        for index1, key1 in enumerate(relOp_dict.keys()):
+                    for index1, key1 in enumerate(relOp_dict.keys()):
+                        # print("key1",key1)
+                        if key1 not in metadata_eval_dict.keys():
+                            # if this metadata only has some of the quantities required to match
+                            # but not all of them, set the eval to False 
+                            if key1 in conj_dict and 'and' in conj_dict[key1]:                                           
+                                Metadata_eval_str_1 = "False"
+                                Metadata_eval_str_2 = "False"
+                                Metadata_eval_str_3 = "False"
+                                Metadata_eval_str_4 = "False"
+                                Metadata_eval_str_5 = "False"
+                                Metadata_eval_str_6 = "False"
+                                Metadata_eval_str_7 = "False"
+                                Metadata_eval_str_8 = "False"
+                                Metadata_eval_str_9 = "False"
+                                Metadata_eval_str_10 = "False"
+                                Metadata_eval_str_11 = "False"
+                                Metadata_eval_str_12 = "False"
+                            continue
+                        # print("index1",index1)
+                        # print('value1:',metadata_eval_dict[key1])
+
+                        # print("length",len(metadata_eval_dict[key1].keys()))
+                        length_list.append(len(metadata_eval_dict[key1].keys()))
+                        counter1=0
+                        counter2=1
+                        key2_list= [] 
+                        key1_list.append(key1)
+                        count = 0
+                        counted = False
+                        # loop over however many Header, Target_i there are 
+                        for index2,key2 in enumerate(metadata_eval_dict[key1].keys()):
+
+                            # print('index2:',index2,'key2:',key2)
+                            # print(metadata_eval_dict[key1][key2])
                             # print("key1",key1)
-                            if key1 not in metadata_eval_dict.keys():
-                                # if this metadata only has some of the quantities required to match
-                                # but not all of them, set the eval to False 
-                                if key1 in conj_dict and 'and' in conj_dict[key1]:                                           
-                                    Metadata_eval_str_1 = "False"
-                                    Metadata_eval_str_2 = "False"
-                                    Metadata_eval_str_3 = "False"
-                                    Metadata_eval_str_4 = "False"
-                                    Metadata_eval_str_5 = "False"
-                                    Metadata_eval_str_6 = "False"
-                                    Metadata_eval_str_7 = "False"
-                                    Metadata_eval_str_8 = "False"
-                                    Metadata_eval_str_9 = "False"
-                                    Metadata_eval_str_10 = "False"
-                                    Metadata_eval_str_11 = "False"
-                                    Metadata_eval_str_12 = "False"
-                                continue
-                            # print("index1",index1)
-                            # print('value1:',metadata_eval_dict[key1])
-
-                            # print("length",len(metadata_eval_dict[key1].keys()))
-                            length_list.append(len(metadata_eval_dict[key1].keys()))
-                            counter1=0
-                            counter2=1
-                            key2_list= [] 
-                            key1_list.append(key1)
-                            count = 0
-                            counted = False
-                            # loop over however many Header, Target_i there are 
-                            for index2,key2 in enumerate(metadata_eval_dict[key1].keys()):
-    
-                                # print('index2:',index2,'key2:',key2)
-                                # print(metadata_eval_dict[key1][key2])
-                                # print("key1",key1)
-                                
-                
-                                metadata_eval_dict2[key2] = metadata_eval_dict[key1][key2]
-                #                print("key1",key1)
-                                key2_list.append(key2)
-                                if index2 == 0:
-                                    if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys())-1:
-                
-                                        try:
-                                            Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
-                                        except:
-                                            Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
-                                            Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
-                                    else:
-                                        Metadata_eval_str_1 = Metadata_eval_str_1 + " " + metadata_eval_dict[key1][key2]
+                            
+            
+                            metadata_eval_dict2[key2] = metadata_eval_dict[key1][key2]
+            #                #print("key1",key1)
+                            key2_list.append(key2)
+                            if index2 == 0:
+                                if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys())-1:
+            
+                                    try:
+                                        Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
+                                    except:
+                                        Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
+                                        Metadata_eval_str_1 = Metadata_eval_str_1 + " " + conj_dict[key1][index2-1] + " " 
+                                else:
+                                    Metadata_eval_str_1 = Metadata_eval_str_1 + " " + metadata_eval_dict[key1][key2]
 
 
 
-                                    if key2 == "Header":
-                                        # make sure that the eval strings have a header 
-                                        Metadata_eval_str_2 = Metadata_eval_str_2 + " " + metadata_eval_dict[key1][key2]
+                                if key2 == "Header":
+                                    # make sure that the eval strings have a header 
+                                    Metadata_eval_str_2 = Metadata_eval_str_2 + " " + metadata_eval_dict[key1][key2]
 
-                                        Metadata_eval_str_3 = Metadata_eval_str_3 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_4 = Metadata_eval_str_4 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_5 = Metadata_eval_str_5 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_6 = Metadata_eval_str_6 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_7 = Metadata_eval_str_7 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_8 = Metadata_eval_str_8 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_9 = Metadata_eval_str_9 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_10 = Metadata_eval_str_10 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_11 = Metadata_eval_str_11 + " " + metadata_eval_dict[key1][key2]
-                                        Metadata_eval_str_12 = Metadata_eval_str_12 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_3 = Metadata_eval_str_3 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_4 = Metadata_eval_str_4 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_5 = Metadata_eval_str_5 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_6 = Metadata_eval_str_6 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_7 = Metadata_eval_str_7 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_8 = Metadata_eval_str_8 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_9 = Metadata_eval_str_9 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_10 = Metadata_eval_str_10 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_11 = Metadata_eval_str_11 + " " + metadata_eval_dict[key1][key2]
+                                    Metadata_eval_str_12 = Metadata_eval_str_12 + " " + metadata_eval_dict[key1][key2]
 
-                                        if key1 in conj_dict.keys(): 
-                                            Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][index2-1]
+                                    if key1 in conj_dict.keys(): 
+                                        Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][index2-1]
 
-                                            Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][index2-1]
+                                        Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][index2-1]
 
-                                            
                                         
-
-    
-                                elif index2 == 1:
                                     
-                                    Metadata_eval_str_2 = Metadata_eval_str_2 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): #and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
+
+
+                            elif index2 == 1:
                                 
-                                elif index2 == 2:
-                                    
-                                    Metadata_eval_str_3 = Metadata_eval_str_3 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
-
-                                elif index2 == 3:
-                                    
-                                    Metadata_eval_str_4 = Metadata_eval_str_4 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
+                                Metadata_eval_str_2 = Metadata_eval_str_2 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): #and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+                            
+                            elif index2 == 2:
                                 
-                                elif index2 == 4:
-                                    
-                                    Metadata_eval_str_5 = Metadata_eval_str_5 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
+                                Metadata_eval_str_3 = Metadata_eval_str_3 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
 
-                                elif index2 == 5:
-                                    
-                                    Metadata_eval_str_6 = Metadata_eval_str_6 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
-
-                                elif index2 == 6:
-                                    
-                                    Metadata_eval_str_7 = Metadata_eval_str_7 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
-
-                                elif index2 == 7:
-                                    
-                                    Metadata_eval_str_8 = Metadata_eval_str_8 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][count]+ " "
-                                        counted = True  
-
-                                elif index2 == 8:
-                                    
-                                    Metadata_eval_str_9 = Metadata_eval_str_9 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][count]+ " "
-                                        counted = True 
-
-                                elif index2 == 9:
-                                    
-                                    Metadata_eval_str_10 = Metadata_eval_str_10 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
-
-                                elif index2 == 10:
-                                    
-                                    Metadata_eval_str_11 = Metadata_eval_str_11 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
-
-                                elif index2 == 11:
-                                    
-                                    Metadata_eval_str_12 = Metadata_eval_str_12 + metadata_eval_dict[key1][key2]
-                                    if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
-                                        Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][count]+ " "
-                                        counted = True
+                            elif index2 == 3:
                                 
-                            if counted == True:
-                                count+=1
+                                Metadata_eval_str_4 = Metadata_eval_str_4 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+                            
+                            elif index2 == 4:
+                                
+                                Metadata_eval_str_5 = Metadata_eval_str_5 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+
+                            elif index2 == 5:
+                                
+                                Metadata_eval_str_6 = Metadata_eval_str_6 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+
+                            elif index2 == 6:
+                                
+                                Metadata_eval_str_7 = Metadata_eval_str_7 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+
+                            elif index2 == 7:
+                                
+                                Metadata_eval_str_8 = Metadata_eval_str_8 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][count]+ " "
+                                    counted = True  
+
+                            elif index2 == 8:
+                                
+                                Metadata_eval_str_9 = Metadata_eval_str_9 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][count]+ " "
+                                    counted = True 
+
+                            elif index2 == 9:
+                                
+                                Metadata_eval_str_10 = Metadata_eval_str_10 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+
+                            elif index2 == 10:
+                                
+                                Metadata_eval_str_11 = Metadata_eval_str_11 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+
+                            elif index2 == 11:
+                                
+                                Metadata_eval_str_12 = Metadata_eval_str_12 + metadata_eval_dict[key1][key2]
+                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                    Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][count]+ " "
+                                    counted = True
+                            
+                        if counted == True:
+                            count+=1
 
 
                         # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
