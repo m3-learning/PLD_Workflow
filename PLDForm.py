@@ -1461,9 +1461,9 @@ class GenerateForm(QWidget):
                                 eval_strings.append(eval(eval_str))
                 
                 
-                    # print("eval_strings",eval_strings) 
+                     # print("eval_strings",eval_strings) 
 
-                    # loop over the sections again, this time to ensure that the eval_str is True, so there is a match 
+                     # loop over the sections again, this time to ensure that the eval_str is True, so there is a match 
                     for section_idx in range(1,int(collection.child(record_index).childCount())):
                             
                         if len(eval_strings) > 0 and eval_strings[section_idx] == True: 
@@ -2171,13 +2171,13 @@ class GenerateForm(QWidget):
 
                     
 
-                    # print('metadata_eval_dict',metadata_eval_dict) 
+                     # print('metadata_eval_dict',metadata_eval_dict) 
 
-                    # change the order of metadata_eval_dict to be in numerical order instead of string order, so 
-                    # Header, Target_1, Target_2, Target_3, Target_4, Target_5, Target_6, Target_7, Target_8, Target_9, Target_10, Target_11,Target_12
-                    # instead of 
-                    # Header, Target_1, Target_10, Target_11, Target_12, Target_2 ... 
-                    # for ease of iterating later 
+                     # change the order of metadata_eval_dict to be in numerical order instead of string order, so 
+                     # Header, Target_1, Target_2, Target_3, Target_4, Target_5, Target_6, Target_7, Target_8, Target_9, Target_10, Target_11,Target_12
+                     # instead of 
+                     # Header, Target_1, Target_10, Target_11, Target_12, Target_2 ... 
+                     # for ease of iterating later 
 
                     for key in metadata_eval_dict.keys():
                         sorted_items = sorted(metadata_eval_dict[key].items(), key=lambda x: [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', x[0])])
@@ -2394,10 +2394,12 @@ class GenerateForm(QWidget):
                             count+=1
 
 
-                        # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
+                     # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
+                    if metadata != {}: 
                         Metadata_eval_str_ = "Metadata_eval_str_"
                         deleted_stuff = False
                         #   Metadata_eval_str_with_parens = ""
+                        #print("instead of range(1,13):", len(key2_list), "for record", record)
                         for i in range(1,13):
                             # print('label: ',f"{Metadata_eval_str_}{i}")
                             # print("metadata_eval_str:", Metadata_eval_str_+str(i))
@@ -2477,16 +2479,25 @@ class GenerateForm(QWidget):
                             # make sure the header also gets deleted             
                             if str(metadata.keys()) == "dict_keys(['Header'])" and deleted_stuff == True:
                             #    print("deleting Header")
-                                del metadata['Header'] 
+                                del metadata['Header']
+                                
+                            if metadata == {}:
+                                break
 
                        # print('metadata',metadata)
 
-                    # hide the grandchildren not in the pruned metadata dictionary 
+                        # hide the grandchildren not in the pruned metadata dictionary
+                    sectionHidden = [] 
                     for section_index in range(int(collection.child(record_index).childCount())):
                         #print("grandchildNum:" ,grandchildNum)
+                        
+                        
+
                         section = collection.child(record_index).child(section_index).text(0)
                         #print("grandchild:",grandchild)
 
+                        #TODO: IF THE HEADER IS NOT IN METADATA IT ALSO GETS HIDDEN. 
+                        ## WHY DOES EVERYTHING GET HIDDEN? 
                     
                         if section not in metadata.keys():
                             
@@ -2494,41 +2505,53 @@ class GenerateForm(QWidget):
                         else:
                             #Show Header if search for something in Target, i.e. temperature? 
                             collection.child(record_index).child(0).setHidden(False) #assume Header is the first one
-
-                                        
-                #print("vaL:", collection.text(0))
-
-                # the rest of the function is to hide the records that don't match 
-                for record_index in range(int(collection.childCount())):
-                    
-                  #  print("record:",collection.child(record_index).text(0))
-                    sectionHidden = []
-
-                    for section_index in range(int(collection.child(record_index).childCount())):
-                        # print("section:", collection.child(record_index).child(section_index).text(0))
-                        # print("collection.grandchild hidden?",collection.child(record_index).child(section_index).isHidden())
-
+                            
                         sectionHidden.append(collection.child(record_index).child(section_index).isHidden())
-                
-
-                   # print("sectionHidden?:", sectionHidden)
-                
+                     
                     if False not in sectionHidden: #and collection.isHidden() == 
                        # print("Child:", collection.child(childNum).text(0))
                         collection.child(record_index).setHidden(True)
             
-                
-                recordHidden = []
-                for record_index in range(int(collection.childCount())):
 
-                    # print("record_index", record_index)
-                    # print("collection.child hidden?",collection.child(record_index).isHidden())
+                                                
+                        #print("vaL:", collection.text(0))
+
+                        # the rest of the function is to hide the records that don't match 
+                        #for record_index in range(int(collection.childCount())):
+                            
+                        #  print("record:",collection.child(record_index).text(0))
+                            #sectionHidden = []
+
+                            #for section_index in range(int(collection.child(record_index).childCount())):
+                                # print("section:", collection.child(record_index).child(section_index).text(0))
+                                # print("collection.grandchild hidden?",collection.child(record_index).child(section_index).isHidden())
+
+                                #sectionHidden.append(collection.child(record_index).child(section_index).isHidden())
+                        
+
+                        # print("sectionHidden?:", sectionHidden)
+                        
+                            #if False not in sectionHidden: #and collection.isHidden() == 
+                            # print("Child:", collection.child(childNum).text(0))
+                                #collection.child(record_index).setHidden(True)
+            
+                    recordHidden = []
                     recordHidden.append(collection.child(record_index).isHidden())
-
-              #  print("recordHidden?:", recordHidden)
                 if False not in recordHidden: #and collection.isHidden() == 
-                   # print("VAL:", collection.text(0))
+                # print("VAL:", collection.text(0))
                     collection.setHidden(True)
+                    
+            #     recordHidden = []
+            #     for record_index in range(int(collection.childCount())):
+
+            #         # print("record_index", record_index)
+            #         # print("collection.child hidden?",collection.child(record_index).isHidden())
+            #         recordHidden.append(collection.child(record_index).isHidden())
+
+            #   #  print("recordHidden?:", recordHidden)
+            #     if False not in recordHidden: #and collection.isHidden() == 
+            #        # print("VAL:", collection.text(0))
+            #         collection.setHidden(True)
 
         
 
