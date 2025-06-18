@@ -2255,7 +2255,7 @@ class GenerateForm(QWidget):
                             
             
                             metadata_eval_dict2[key2] = metadata_eval_dict[key1][key2]
-            #                #print("key1",key1)
+                            #print("key1",key1)
                             key2_list.append(key2)
                             if index2 == 0:
                                 if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys())-1:
@@ -2481,19 +2481,19 @@ class GenerateForm(QWidget):
 
                        # print('metadata',metadata)
 
-                        # hide the grandchildren not in the pruned metadata dictionary 
-                        for section_index in range(int(collection.child(record_index).childCount())):
-                            #print("grandchildNum:" ,grandchildNum)
-                            section = collection.child(record_index).child(section_index).text(0)
-                            #print("grandchild:",grandchild)
+                    # hide the grandchildren not in the pruned metadata dictionary 
+                    for section_index in range(int(collection.child(record_index).childCount())):
+                        #print("grandchildNum:" ,grandchildNum)
+                        section = collection.child(record_index).child(section_index).text(0)
+                        #print("grandchild:",grandchild)
 
-                        
-                            if section not in metadata.keys():
-                                
-                                collection.child(record_index).child(section_index).setHidden(True)
-                            else:
-                                #Show Header if search for something in Target, i.e. temperature? 
-                                collection.child(record_index).child(0).setHidden(False) #assume Header is the first one
+                    
+                        if section not in metadata.keys():
+                            
+                            collection.child(record_index).child(section_index).setHidden(True)
+                        else:
+                            #Show Header if search for something in Target, i.e. temperature? 
+                            collection.child(record_index).child(0).setHidden(False) #assume Header is the first one
 
                                         
                 #print("vaL:", collection.text(0))
