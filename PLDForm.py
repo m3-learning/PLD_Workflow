@@ -2489,7 +2489,7 @@ class GenerateForm(QWidget):
                             #    print("deleting Header")
                                 del metadata['Header']
                                 
-                            if metadata == {}:
+                            if metadata == {} or str(metadata.keys()) == "dict_keys(['Header'])":
                                 break
 
                        # print('metadata',metadata)
@@ -2501,69 +2501,26 @@ class GenerateForm(QWidget):
                         
                     else:
                         for section_index in range(int(collection.child(record_index).childCount())):
-                            #print("grandchildNum:" ,grandchildNum)
                             
-                            
-
                             section = collection.child(record_index).child(section_index).text(0)
-                            #print("grandchild:",grandchild)
-
-                            #TODO: IF THE HEADER IS NOT IN METADATA IT ALSO GETS HIDDEN. 
-                            ## WHY DOES EVERYTHING GET HIDDEN? 
                         
                             if section not in metadata.keys():
                                 
                                 collection.child(record_index).child(section_index).setHidden(True)
                             else:
-                                #Show Header if search for something in Target, i.e. temperature? 
+                                #Show Header if all search terms are in Target
                                 collection.child(record_index).child(0).setHidden(False) #assume Header is the first one
                                 
                             sectionHidden.append(collection.child(record_index).child(section_index).isHidden())
                         
-                        if False not in sectionHidden: #and collection.isHidden() == 
+                        if False not in sectionHidden: 
                         # print("Child:", collection.child(childNum).text(0))
                             collection.child(record_index).setHidden(True)
-                
 
-                                                    
-                            #print("vaL:", collection.text(0))
-
-                            # the rest of the function is to hide the records that don't match 
-                            #for record_index in range(int(collection.childCount())):
-                                
-                            #  print("record:",collection.child(record_index).text(0))
-                                #sectionHidden = []
-
-                                #for section_index in range(int(collection.child(record_index).childCount())):
-                                    # print("section:", collection.child(record_index).child(section_index).text(0))
-                                    # print("collection.grandchild hidden?",collection.child(record_index).child(section_index).isHidden())
-
-                                    #sectionHidden.append(collection.child(record_index).child(section_index).isHidden())
-                            
-
-                            # print("sectionHidden?:", sectionHidden)
-                            
-                                #if False not in sectionHidden: #and collection.isHidden() == 
-                                # print("Child:", collection.child(childNum).text(0))
-                                    #collection.child(record_index).setHidden(True)
-                
-                        #recordHidden = []
                         recordHidden.append(collection.child(record_index).isHidden())
                 if False not in recordHidden: #and collection.isHidden() == 
                 # print("VAL:", collection.text(0))
                     collection.setHidden(True)
-                    
-            #     recordHidden = []
-            #     for record_index in range(int(collection.childCount())):
-
-            #         # print("record_index", record_index)
-            #         # print("collection.child hidden?",collection.child(record_index).isHidden())
-            #         recordHidden.append(collection.child(record_index).isHidden())
-
-            #   #  print("recordHidden?:", recordHidden)
-            #     if False not in recordHidden: #and collection.isHidden() == 
-            #        # print("VAL:", collection.text(0))
-            #         collection.setHidden(True)
 
         
 
