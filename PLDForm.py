@@ -868,6 +868,8 @@ class GenerateForm(QWidget):
     # - YOU MUST SEPARATE EVERYTHING BY A SPACE , for example:  temp > 700 NOT temp>700   
     #   THIS IS FOR LEGIBILITY AND TO AVOID CONFUSION WITH INTERPRETING PARTS OF WORDS AS THEIR OWN ENTRY  
     # FOR EXAMPLE, 'OR' IN 'ATTENUATOR' DOES NOT MEAN "ATTENUAT" "OR"
+    # THIS DOES MEAN THAT IF YOU WANT TO SEARCH FOR A MULTI-WORD TERM YOU MUST USE UNDERSCORES INSTEAD OF SPACES
+    # i.e. "pre_ablation_temp" or "pre_ablation_temperature" not "pre ablation temp" or "pre ablation temperature"
 
     def onChanged(self): 
         #TODO: rename number to value? 
@@ -2417,13 +2419,7 @@ class GenerateForm(QWidget):
 
                                 if len(eval(Metadata_eval_str_+str(i))) >0 :
 
-                                    
-                                    # insert the opening or closing parenthesis in the appropriate index, 
-                                    # I want to wait until it becomes True/False because that is one word instead of 
-                                    # 3.(IS IT ALWAYS 3???) but now it is a string so it doesn't have indices anymore...
-                                    # I think the Metadata_eval_str is in format "700 == 700" 
-                                    # I think I have to split it and reform it anyway, but that's fine 
-
+                                
                                     # but what if the searched term is greater than 1 word, for example
                                     # "pre ablation pressure" (I split on relOp), then the indices will change. 
                                     # I could reformat and then count, but idk. Note if a parenthesis is in the term when
