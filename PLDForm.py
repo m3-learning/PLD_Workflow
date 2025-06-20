@@ -1368,7 +1368,9 @@ class GenerateForm(QWidget):
             for collection in treeView.findItems("", Qt.MatchContains): 
                 # unhide the top level 
                 collection.setHidden(False)
-                
+                # instantiate a list to keep track of which records
+                # do not have matches for later
+                recordHidden = []
                 # loop over the children, these are the individual data records
                 for record_index in range(int(collection.childCount())):
                     # unhide the child
@@ -2535,7 +2537,7 @@ class GenerateForm(QWidget):
                             # print("Child:", collection.child(childNum).text(0))
                                 #collection.child(record_index).setHidden(True)
             
-                    recordHidden = []
+                    #recordHidden = []
                     recordHidden.append(collection.child(record_index).isHidden())
                 if False not in recordHidden: #and collection.isHidden() == 
                 # print("VAL:", collection.text(0))
