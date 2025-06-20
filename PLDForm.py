@@ -851,18 +851,19 @@ class GenerateForm(QWidget):
     # function to perform the relational searching 
     # of data records
     #NOTE: 
-    # the first 3 or 4 letters of a parameter will work 
-    #   - "Temp" is the same as "Temperature"
-    # the searching ignores any units you put
-    #  - "700 °C" is the same as "700"
-    # - only relational searching works 
+    # - only relational searching works
+    # - relational operators (>, <, >=,<=,!=,==) work
+    #   - any number of equals signs will work for equality search
     #   - "Temp > 700" will work, but "Temp" or "700" will not
-    #   - but you can pick any number to search, so "Temp > -1000"
+    #   - but you can pick any number to search, so "Temp > 0"
     #   - for example, will select all temperatures
 
-    # - # - relational operators (>, <, >=,<=,!=,==) work
-    #   - any number of equals signs will work for equality search
-    # - you can do multiple searches at ones using "and" , "or", "xor"
+    # the first 3 or 4 letters (case insensitive) of a parameter will work 
+    #   - "temp" is the same as "Temperature"
+    # the searching ignores any units you put
+    #  - "700 °C" is the same as "700"
+    # Dates must be specified in %M/%D/%Y
+    # - you can do multiple searches at once using "and" , "or", "xor"
     #    - you can use '&' instead of "and" and "|" instead of "or" and "^" instead of "xor"
     #    - you can use parenthesis to control order in which parts of search get evaluated 
     # - YOU MUST SEPARATE EVERYTHING BY A SPACE , for example:  temp > 700 NOT temp>700   
@@ -947,9 +948,6 @@ class GenerateForm(QWidget):
             #replace all instances of '&' with 'and' and '|' with 'or' 
             # "|" is a special regex character, so use "\|"
             # also replace all instances of "^" with "xor" 
-
-
-            
             searchStr = re.sub("(?<!>|<|!) & +"," and ",searchStr)
             searchStr = re.sub("(?<!>|<|!) \| +"," or ",searchStr)
             searchStr = re.sub("(?<!>|<|!) ^ +"," xor ",searchStr)
@@ -964,9 +962,9 @@ class GenerateForm(QWidget):
             
 
             # if there is a parenthesis, (temp > 700 or pulse > 10) and chamber=1A 
-            # keep track of how many searches are in the parenthesis (maybe count the conj terms)
+            # keep track of how many searches are in the parenthesis
             # and then wrap the appropriate terms in the parenthesis.
-            # the built-in eval function will take care of the rest 
+            # The built-in eval function will take care of the rest 
                 
             
             
@@ -1287,6 +1285,8 @@ class GenerateForm(QWidget):
             number_dict ={}
         
             #convert these lists into dictionaries
+            #TODO: this can probably be combined with the loop: for i in range(len(parameter_index)) immediately above this 
+            # to avoid iterating over parameter_array multiple times 
             for parameter_index in range(len(parameter_array)):
                 # if one of the quantities in parameter_array is a list,
                 # pick the shortest element to be the dictionary key
@@ -1302,7 +1302,7 @@ class GenerateForm(QWidget):
                 # conj_dict = {'Ablation_Temperature':or}
                 #
                 # then later, loop over the value list to build the 
-                # metadata_eval_str 
+                # Metadata_eval_str 
                 
                 # if one of the quantities above is a list,
                 # for example temp gets converted to ["Pre_Ablation_Temperature","Ablation_Temperature"]
