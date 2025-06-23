@@ -1356,14 +1356,14 @@ class GenerateForm(QWidget):
 
         # otherwise, do the matching 
         else:
-            #only loop over top level items at this level 
+            #only loop over collections 
             # so that it is just "Datasets" for example, and then
-            # the child is 'HP_0613_1_Hao_Pan_06132022
-            # the grandchild is 'Header','Target_1'
-            # the great-grandchild is 'Ablation_Temperature' or "Ablation_Atmosphere_Gas" 
-            # the great-great grandchild is 'Value' or "Oxygen"
-            # if the great-great grandchild is "Value", then there are units
-            # and in this example great-great-great grandchild is 700 
+            # the record is 'HP_0613_1_Hao_Pan_06132022
+            # the section is 'Header','Target_1'
+            # the parameter is 'Ablation_Temperature' or "Ablation_Atmosphere_Gas" 
+            # the value is 'Value' or "Oxygen"
+            # if the value is "Value", then there are units
+            # and the quantity is, for example, 700 
             # so if great-grandchild is in parameter and number relOp great-great-great grandchild 
             #unhide  
 
@@ -1380,9 +1380,7 @@ class GenerateForm(QWidget):
                     collection.child(record_index).setHidden(False)
                     # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
                     metadata = {}
-                    #metadata = []
                     parameter_indices = [] 
-                    metadata_matches = []
                     metadata_dict = {}
                     eval_strings = [] 
 
@@ -1479,9 +1477,6 @@ class GenerateForm(QWidget):
                                 # print('section_unique',section_unique)      
 
 
-                                # want: metadata: ['Header','Target_1','Header','Target_2','Header','Target_3']
-
-                                # metadata_matches: ['False','True','False','True','False','False']
                                 # so append the header to the targets 
                                 if section_unique == "Header":
                                     concatinated_DataFed_parameters = metadata_dict['Header']
@@ -1557,9 +1552,6 @@ class GenerateForm(QWidget):
                                                                     #make sure DataFed_value is a float, use this to trigger the "except" if not
                                                                     float(DataFed_value)
 
-                                                                    # since this is the match, append True or False to the metadata_matches dictionary and 
-                                                                    # the number to the metadata dictionary 
-                                                                    metadata_matches.append(ops_num[relOp[parameter_index]](float(DataFed_value),number_array[parameter_index]))
 
                                                                     if section_unique not in metadata.keys():
                                                                         metadata.update({section_unique:{}})
@@ -1572,7 +1564,6 @@ class GenerateForm(QWidget):
                                                                     # in the except, the float conversion has failed, so the greatgreatGrandchild is not numeric 
                                                                     # one reason is that it is a date, so check that 
                                                                     if DataFed_parameter == "Date": 
-                                                                        metadata_matches.append(ops_date[relOp[parameter_index]](datetime.datetime.strptime(DataFed_value,"%m/%d/%Y").date(),number_array[parameter_index]))
 
                                                                         if section_unique not in metadata.keys():
                                                                             metadata.update({section_unique:{}})
@@ -1585,13 +1576,9 @@ class GenerateForm(QWidget):
 
                                                                         DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).text(0).casefold()
                                                                         
-                                                                        metadata_matches.append(ops_str[relOp[parameter_index]](DataFed_value,str(number_array[parameter_index])))
-
                                                                         if section_unique not in metadata.keys():
                                                                             metadata.update({section_unique:{}})
-                                                                        #      print(f"adding grandchild {grandchild} to metadata 2")
-                                                                        # print("adding the inner dict 2")
-
+                                                                        #      print(f"adding value {value} to metadata")
                                                                         metadata[section_unique].update({DataFed_parameter:DataFed_value.casefold()})
                                                             else:
                                                                 #there is a great-great-great-grandchild, so the metadata has units 
@@ -1610,25 +1597,21 @@ class GenerateForm(QWidget):
                                                                     # It would be pointless to search to for unit, since everything with this parameter has the same unit, so we can just skip over that 
                                                                     if collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).text(0) == "Value":
                                                                         # check if it is actually a number by trying to convert to a float. If it is somehow not, convert to a caseless string. 
-                                                                        # either way, append to the metadata and metadata_matches dictionaries. 
+                                                                        # either way, append to the metadata and dictionary. 
                                                                         # and FOR TESTING print out a bunch of stuff along the way
 
 
                                                                         try:
-                                                                            DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_unit_index).text(0)
+                                                                            DataFed_quantity = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_unit_index).text(0)
                                                                             # print("Relop:",ops_num[relOp[parameter_index]])
                                                                             # print('number:', number_array[parameter_index])
-
-                                                                            
-                                                                            metadata_matches.append(ops_num[relOp[parameter_index]](float(DataFed_value_index),number_array[parameter_index]))
-
                                                                             
                                                                             
                                                                             if section_unique not in metadata.keys():
                                                                                # print("creating new metadata key:", grandchild)
                                                                                 metadata.update({section_unique:{}})
                                                                             
-                                                                            metadata[section_unique].update( {DataFed_parameter:float(DataFed_value)})
+                                                                            metadata[section_unique].update( {DataFed_parameter:float(DataFed_quantity)})
 
 
 
@@ -1638,24 +1621,16 @@ class GenerateForm(QWidget):
                                                                             if section_unique not in metadata.keys():
                                                                                # print("Creating a new metadata key:", section_unique)
                                                                                 metadata.update({section_unique:{}})
-                                                                            metadata[section_unique].update({DataFed_parameter:DataFed_value.casefold()})
+                                                                            metadata[section_unique].update({DataFed_parameter:DataFed_quantity.casefold()})
 
-                                                                            metadata_matches.append(ops_str[relOp[parameter_index]](str(DataFed_value),str(number_array[parameter_index])))                                                                                                                                                                                                                                                 
-                                # if there is not a match, hide the grandchild 
-                                # and record that it is not a match  in the metadata_matches dict                                    
-                        else: # I unindented this on Dec 16, 2024
+                                # if there is not a match, hide the grandchild                                     
+                        else:
                             collection.child(record_index).child(section_idx).setHidden(True)
-                            metadata_matches.append(False)
-                            
-                            if collection.child(record_index).child(section_idx).text(0) != "Header":
-
-                                metadata_matches.append(False)
 
 
-                        #FOR TESTING print out the metadata and metadata_matches dictionaries
+                        #FOR TESTING print out the metadata dictionary
                         # before create the eval_strings 
                        # print('metadata:',metadata)
-                        # print('metadata_matches',metadata_matches)
 
                         # create a dictionary connect each match with the parameter and construct strings that can be evaluated
                         # to determine whether the match is True or False 
@@ -2408,6 +2383,7 @@ class GenerateForm(QWidget):
                             
                         if counted == True:
                             count+=1
+                            print("count", count)
 
 
                      # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
