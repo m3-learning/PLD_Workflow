@@ -2324,7 +2324,9 @@ class GenerateForm(QWidget):
                                     # for temp > 700 and temp < 770, len(relOp_dict[key1]) == 2
                                     # I don't want to put the conjunction but 
                                     # for temp = 625 and pres = 210, rel(relOp_dict[key1]) == 1
-                                    # I do want the conjunction, but maybe I need a -1? 
+                                    # I do want the conjunction, for the first iteration but not the second
+                                    # which is acheved because conj_dict only has the condition to the left of the conjuction
+                                    # so it never has the last condition in the query
 
 
                             elif index2 == 2:
