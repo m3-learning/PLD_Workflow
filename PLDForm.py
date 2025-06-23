@@ -2268,7 +2268,7 @@ class GenerateForm(QWidget):
                             #print("key1",key1)
                             key2_list.append(key2)
                             if index2 == 1: #Metadata_eval_str_1 in ["","False"]:
-                                if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys()): # and not isinstance(relOp_dict[key1],list):
             
                                     try:
                                         Metadata_eval_str_1 = Metadata_eval_str_1 + metadata_eval_dict[key1][key2]
@@ -2320,83 +2320,87 @@ class GenerateForm(QWidget):
                                         Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][index2-1]
 
                                         
-                                    
+                                    # the problem is that 
+                                    # for temp > 700 and temp < 770, len(relOp_dict[key1]) == 2
+                                    # I don't want to put the conjunction but 
+                                    # for temp = 625 and pres = 210, rel(relOp_dict[key1]) == 1
+                                    # I do want the conjunction, but maybe I need a -1? 
 
 
                             elif index2 == 2:
                                 
                                 Metadata_eval_str_2 = Metadata_eval_str_2 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): #and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1: #index2 < len(relOp_dict.keys()):
                                     Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][count]+ " "
                                     counted = True
                             
                             elif index2 == 3:
                                 
                                 Metadata_eval_str_3 = Metadata_eval_str_3 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][count]+ " "
                                     counted = True
 
                             elif index2 == 4:
                                 
                                 Metadata_eval_str_4 = Metadata_eval_str_4 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][count]+ " "
                                     counted = True
                             
                             elif index2 == 5:
                                 
                                 Metadata_eval_str_5 = Metadata_eval_str_5 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][count]+ " "
                                     counted = True
 
                             elif index2 == 6:
                                 
                                 Metadata_eval_str_6 = Metadata_eval_str_6 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][count]+ " "
                                     counted = True
 
                             elif index2 == 7:
                                 
                                 Metadata_eval_str_7 = Metadata_eval_str_7 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][count]+ " "
                                     counted = True
 
                             elif index2 == 8:
                                 
                                 Metadata_eval_str_8 = Metadata_eval_str_8 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][count]+ " "
                                     counted = True  
 
                             elif index2 == 9:
                                 
                                 Metadata_eval_str_9 = Metadata_eval_str_9 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][count]+ " "
                                     counted = True 
 
                             elif index2 == 10:
                                 
                                 Metadata_eval_str_10 = Metadata_eval_str_10 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][count]+ " "
                                     counted = True
 
                             elif index2 == 11:
                                 
                                 Metadata_eval_str_11 = Metadata_eval_str_11 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][count]+ " "
                                     counted = True
 
                             elif index2 == 12:
                                 
                                 Metadata_eval_str_12 = Metadata_eval_str_12 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys(): # and index2 < len(relOp_dict.keys())-1:
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
                                     Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][count]+ " "
                                     counted = True
                             
