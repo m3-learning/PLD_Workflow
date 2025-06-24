@@ -837,9 +837,6 @@ class GenerateForm(QWidget):
         
         return target_layout
     
-    #MAYBE TRY TO CREATE A STACKING ITEM IN THE SAME GRID AS UP TOP AND SEE IF IT
-    #UPDATES WHEN TARGET CHANGES. THEN CAN BREAK UP stackUI
-    
     
     def create_search(self):
         search_layout = QFormLayout()
@@ -979,9 +976,6 @@ class GenerateForm(QWidget):
                     beginning_parens_indices.append(index)
                 if (")") in search:
                     ending_parens_indices.append(index)
-            
-
-
 
             # define lists for the relational operators, quantities (Temperature, etc. ), and conjuctions (and, or)
             relOp = []
@@ -1723,6 +1717,7 @@ class GenerateForm(QWidget):
                                                             metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
                                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
                                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
+                                                            
                                                         else:
                                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict[key2_1][i]}'] ('{metadata[key1][key2]}','{number_dict[key2_1][i]}) "
                                                 except:
@@ -1736,7 +1731,7 @@ class GenerateForm(QWidget):
                                                     # "Pre_Ablation_Atmosphere_Gas" is not in the metadata, so do the "or" search without that one 
                                                     metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
                                                     metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
-                                                
+                                                  
                                         else:
                                             if 'Pre_Ablation_Atmosphere_Gas' in metadata[key1].keys():
                                                 try:
@@ -1748,6 +1743,7 @@ class GenerateForm(QWidget):
                                                         if next_element == "Ablation_Pressure":
                                                             metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
                                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
+                                                            
                                                         else:
                                                             #pre_ablation-pressure is specified, so just do "Ablation_Atmosphere_Gas" separately 
                                                             # base pressure is also in metadata, and it is matched, but do it separately
@@ -1776,6 +1772,7 @@ class GenerateForm(QWidget):
                                         else:
                                             metadata_eval_str = metadata_eval_str + f" (ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata['Header']['Cool_Down_Atmosphere']}','{number_dict['Cool_Down_Atmosphere'][i]}') or "
                                             metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Cool_Down_Atmosphere'][i]}'] ('{metadata[key1]['Pre_Ablation_Atmosphere_Gas']}','{number_dict['Cool_Down_Atmosphere'][i]}')) "
+                                            
                                     else:
                                         metadata_eval_str = metadata_eval_str + f" ops_str['{relOp_dict['Ablation_Atmosphere_Gas'][i]}'] ('{metadata[key1]['Ablation_Atmosphere_Gas']}','{number_dict['Ablation_Atmosphere_Gas'][i]}') "
 
@@ -1808,6 +1805,7 @@ class GenerateForm(QWidget):
                                                             metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
                                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
                                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
+                                                            
                                                         else:
                                                             #pre_ablation-pressure and base pressure are matched, so do all separately 
                                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
@@ -1822,7 +1820,7 @@ class GenerateForm(QWidget):
                                                 else:
                                                     metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
                                                     metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
-                                        
+                                                   
                                         else:
                                             if 'Pre_Ablation_Pressure' in metadata[key1].keys():
                                                 try:
@@ -1834,6 +1832,7 @@ class GenerateForm(QWidget):
                                                         if next_element == "Pre_Ablation_Atmosphere_Gas":
                                                             metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Ablation_Pressure']},{number_dict['Base_Pressure'][i]}) or "
                                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
+                                                            
                                                         else:
                                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_1][i]}'] ({metadata[key1][key2]},{number_dict[key2_1][i]}) "
                                                 except:
@@ -1874,6 +1873,7 @@ class GenerateForm(QWidget):
 
                                             metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata['Header']['Base_Pressure']},{number_dict['Base_Pressure'][i]}) or "
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Base_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Base_Pressure'][i]})) "
+                                           
                                     else:
                                         # Pre-ablation pressure is not in relOp_dict.keys()
                                         # ablation_pressure is not in metadata[key1].keys()
@@ -1884,7 +1884,6 @@ class GenerateForm(QWidget):
                                         #  
                                         metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict['Ablation_Pressure'][i]}'] ({metadata[key1]['Pre_Ablation_Pressure']},{number_dict['Ablation_Pressure'][i]}) "
 
-                                                                    
                                 elif key2 == "Substrate_1":
                                     #print("key2 == substrate_1")
                                     
@@ -1957,6 +1956,7 @@ class GenerateForm(QWidget):
                                         if "Laser_Voltage" in metadata[key1].keys():
                                             metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) or "
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1]['Laser_Voltage']},{number_dict[key2][i]})) "
+                                             
                                         else:
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
                                 
@@ -1978,6 +1978,7 @@ class GenerateForm(QWidget):
                                         if "Measured_Energy_Mean" in metadata[key1].keys():
                                             metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) or "
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1]['Measured_Energy_Mean']},{number_dict[key2][i]})) "
+                                            
                                         else:
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ({metadata[key1][key2]},{number_dict[key2][i]}) "
                                 elif key2 == "Measured_Energy_Mean":
@@ -2051,6 +2052,7 @@ class GenerateForm(QWidget):
                                             except:
                                                 metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2[4:]][i]}'] ('{metadata[key1][key2[4:]]}','{number_dict[key2[4:]][i]}') or"
                                                 metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2[4:]][i]}'] ('{metadata[key1][key2]}','{number_dict[key2[4:]][i]}'))"
+                                            
                                         else:
                                             try:
                                                 metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2_2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2_2][i]})"
@@ -2064,10 +2066,7 @@ class GenerateForm(QWidget):
                                         except:
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}', '{number_dict[key2][i]}')"
 
-
-                                        
-
-                                    
+   
 
                                 else:
                                     #this is for Date, Growth_ID, Time, things specified separately?, etc. 
@@ -2076,9 +2075,11 @@ class GenerateForm(QWidget):
                                         try:
                                             metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1]['Pre_'+key2]}),{number_dict[key2][i]}) or"
                                             metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] (float({metadata[key1][key2]}),{number_dict[key2][i]}))"
+                                                                        
                                         except:
                                             metadata_eval_str = metadata_eval_str + f" (ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1]['Pre_'+key2]}','{number_dict[key2][i]}') or"
-                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}'))"    
+                                            metadata_eval_str = metadata_eval_str + f" ops_num['{relOp_dict[key2][i]}'] ('{metadata[key1][key2]}','{number_dict[key2][i]}'))"
+                                                 
                                     else:
                                         try:
                                             if type(metadata[key1][key2]) == list:
@@ -2144,7 +2145,8 @@ class GenerateForm(QWidget):
                                             metadata_eval_dict[key2].update({key1:metadata_eval_str})
                                 
                                 if i < len(number_dict[key2_1])-1 and key2_1 in conj_dict:
-                                    metadata_eval_str = metadata_eval_str + f" {conj_dict[key2_1][i-1]} "
+                                   # metadata_eval_str = metadata_eval_str + f" {conj_dict[key2_1][i-1]} "
+                                   metadata_eval_str = metadata_eval_str + f" {conj_dict[key2_1][i]} "
                                 elif i== len(number_dict[key2_1])-1:
                                     metadata_eval_str = metadata_eval_str + ") "                                                        
 
@@ -2188,12 +2190,9 @@ class GenerateForm(QWidget):
                         Metadata_eval_str_12 = ""
 
 
-                        length_list = [] 
 
                         #print("metadata_eval_dict sorted", metadata_eval_dict)
 
-                        metadata_eval_str2 = ""
-                        key1_list = []
                         # loop over search and the metadata to find matches 
                     for index1, key1 in enumerate(relOp_dict.keys()):
                         # print("key1",key1)
@@ -2218,16 +2217,9 @@ class GenerateForm(QWidget):
                         # print('value1:',metadata_eval_dict[key1])
 
                         # print("length",len(metadata_eval_dict[key1].keys()))
-                        length_list.append(len(metadata_eval_dict[key1].keys()))
-                        counter1=0
-                        counter2=1
-                        key2_list= [] 
-                        key1_list.append(key1)
-                        count = 0
-                        counted = False
+                      
                         # loop over however many Header, Target_i there are 
                         
-                        #for index2,key2 in enumerate(metadata.keys()): #enumerate(sorted(set([key3 for val3 in metadata_eval_dict.values() for key3 in val3]))): #enumerate(metadata_eval_dict[key1].keys()):
                         for key2 in metadata_eval_dict[key1].keys():
                             if key2 == "Header":
                                 index2 = 1
@@ -2241,7 +2233,6 @@ class GenerateForm(QWidget):
             
                             metadata_eval_dict2[key2] = metadata_eval_dict[key1][key2]
                             #print("key1",key1)
-                            key2_list.append(key2)
                             if index2 == 1: #Metadata_eval_str_1 in ["","False"]:
                                 if key1 in conj_dict.keys() and index2 < len(relOp_dict.keys()): # and not isinstance(relOp_dict[key1],list):
             
@@ -2294,98 +2285,74 @@ class GenerateForm(QWidget):
 
                                         Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][index2-1]
 
-                                        
-                                    # the problem is that 
-                                    # for temp > 700 and temp < 770, len(relOp_dict[key1]) == 2
-                                    # I don't want to put the conjunction but 
-                                    # for temp = 625 and pres = 210, rel(relOp_dict[key1]) == 1
-                                    # I do want the conjunction, for the first iteration but not the second
-                                    # which is acheved because conj_dict only has the condition to the left of the conjuction
-                                    # so it never has the last condition in the query
-
 
                             elif index2 == 2:
                                 
                                 Metadata_eval_str_2 = Metadata_eval_str_2 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1: #index2 < len(relOp_dict.keys()):
-                                    Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][0]+ " "
                             
                             elif index2 == 3:
                                 
                                 Metadata_eval_str_3 = Metadata_eval_str_3 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_3 = Metadata_eval_str_3 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 4:
                                 
                                 Metadata_eval_str_4 = Metadata_eval_str_4 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_4 = Metadata_eval_str_4 + " " + conj_dict[key1][0]+ " "
                             
                             elif index2 == 5:
                                 
                                 Metadata_eval_str_5 = Metadata_eval_str_5 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_5 = Metadata_eval_str_5 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 6:
                                 
                                 Metadata_eval_str_6 = Metadata_eval_str_6 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_6 = Metadata_eval_str_6 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 7:
                                 
                                 Metadata_eval_str_7 = Metadata_eval_str_7 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_7 = Metadata_eval_str_7 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 8:
                                 
                                 Metadata_eval_str_8 = Metadata_eval_str_8 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][count]+ " "
-                                    counted = True  
+                                    Metadata_eval_str_8 = Metadata_eval_str_8 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 9:
                                 
                                 Metadata_eval_str_9 = Metadata_eval_str_9 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][count]+ " "
-                                    counted = True 
+                                    Metadata_eval_str_9 = Metadata_eval_str_9 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 10:
                                 
                                 Metadata_eval_str_10 = Metadata_eval_str_10 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_10 = Metadata_eval_str_10 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 11:
                                 
                                 Metadata_eval_str_11 = Metadata_eval_str_11 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_11 = Metadata_eval_str_11 + " " + conj_dict[key1][0]+ " "
 
                             elif index2 == 12:
                                 
                                 Metadata_eval_str_12 = Metadata_eval_str_12 + metadata_eval_dict[key1][key2]
                                 if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1:
-                                    Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][count]+ " "
-                                    counted = True
+                                    Metadata_eval_str_12 = Metadata_eval_str_12 + " " + conj_dict[key1][0]+ " "
                             
-                        if counted == True:
-                            count+=1
-                            print("count", count)
-
-
+                       
                      # if the eval strings evaluate to False, remove the Header, Target_i from the metadata dictionary                 
                     if metadata != {}: 
                         Metadata_eval_str_ = "Metadata_eval_str_"
@@ -2402,15 +2369,15 @@ class GenerateForm(QWidget):
                                 if len(eval(Metadata_eval_str_+str(i))) >0 :
 
                                 
-                                    # but what if the searched term is greater than 1 word, for example
-                                    # "pre ablation pressure" (I split on relOp), then the indices will change. 
-                                    # I could reformat and then count, but idk. Note if a parenthesis is in the term when
-                                    # rewrite? Or a space/underscore in the searchStr? If specify pre or whatever
-                                    # I could decrease the index of the parenthesis that come after it, but I don't like that. 
-                                    # idk.
-                                    # # but maybe it doesn't matter 
+                                    # if some of the parameters became multiple terms because the query didn't specify which 
+                                    # one to search for (for example, the query "temp = 700" will compare 
+                                    # (Ablation_Temperature or Pre_Ablation_temperature) to 700 
+                                    # if both exist in the DataFed record
 
-                                    Metadata_eval_array = re.split('( and | or )', eval(Metadata_eval_str_+str(i)))
+                                    if "((" in eval(Metadata_eval_str_+str(i)): 
+                                        Metadata_eval_array = re.split(r'(?<=\)\)) (?=and|or)', eval(Metadata_eval_str_+str(i)))
+                                    else:
+                                        Metadata_eval_array = re.split('( and | or )', eval(Metadata_eval_str_+str(i)))
 
                                     for j in range(len(Metadata_eval_array)):
                                         if j in beginning_parens_indices:
@@ -2472,7 +2439,7 @@ class GenerateForm(QWidget):
 
                        # print('metadata',metadata)
 
-                        # hide the grandchildren not in the pruned metadata dictionary
+                        # hide the section not in the pruned metadata dictionary
                     sectionHidden = [] 
                     if str(metadata.keys()) == "dict_keys(['Header'])": 
                         recordHidden.append(False)
@@ -2492,12 +2459,12 @@ class GenerateForm(QWidget):
                             sectionHidden.append(collection.child(record_index).child(section_index).isHidden())
                         
                         if False not in sectionHidden: 
-                        # print("Child:", collection.child(childNum).text(0))
+                        # print("record:", collection.child(childNum).text(0))
                             collection.child(record_index).setHidden(True)
 
                         recordHidden.append(collection.child(record_index).isHidden())
                 if False not in recordHidden: #and collection.isHidden() == 
-                # print("VAL:", collection.text(0))
+                # print("collection:", collection.text(0))
                     collection.setHidden(True)
 
         
