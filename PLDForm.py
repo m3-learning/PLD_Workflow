@@ -224,7 +224,6 @@ class GenerateForm(QWidget):
                                     if isinstance(metaData[key][val],dict):
                                        # print(metaData[key][val])
                                         for key2 in metaData[key][val]:
-                                            # VALUE2 IS A BAD NAME
                                             new_key = QTreeWidgetItem([key2])
                                             #label.addChild(value)
                                           #  print('key2',key2)
@@ -885,7 +884,7 @@ class GenerateForm(QWidget):
         # different operators to check for equality 
         # for numbers, perform valid float comparisons so that 0.1 + 0.2 == 0.3 for example
         # for strings, check that the search is in the data records instead of doing an exact match
-        # this allows you to, for example, search for "1A" instead of "Laser_1A"
+        # this allows you to, for example, search for "1a" instead of "Laser_1A" (the search is case insensitive)
         # it is also especially useful for searching the "Notes," which is often 
         # a long sequence of words and you probably want to know if a keywords is in the 
         # sequence rather than guess the exact sequence. This is the main reason I have created
@@ -1036,7 +1035,7 @@ class GenerateForm(QWidget):
 
             # loop over the quantities and replace them with the standarized version from DataFed
             # this allows the user to not type the full keyword, for example "temp" instead of "Ablation_Temperature" and "Pre_Ablation_Temperature"
-            # the string_value_array is because I handle strings and numbers differently, to ignore units. 
+            # the string_value_array is because I handle strings and numbers differently, to ignore units that could be in the query. 
 
             parameter_array = []
     
@@ -1253,7 +1252,7 @@ class GenerateForm(QWidget):
 
     
 
-                # create a list of the values (called numbers). 
+                # create a list of the quantities (also called numbers even though some are strings). 
                 # Convert to datetime.datetime.date if it is a date, 
                 # ignore units if it is a number
                 # use .casefold() to allow it to match caselessly if it is a string
@@ -1375,7 +1374,7 @@ class GenerateForm(QWidget):
                 # instantiate a list to keep track of which records
                 # do not have matches for later
                 recordHidden = []
-                # loop over the children, these are the individual data records
+                # loop over the individual data records
                 for record_index in range(int(collection.childCount())):
                     # unhide the record
                     # record = collection.child(record_index).text(0) #define the record for testing 
@@ -1408,7 +1407,7 @@ class GenerateForm(QWidget):
 
                             DataFed_parameter = collection.child(record_index).child(section_index).child(Datafed_parameter_index).text(0)
                             DataFed_parameter_list.append(DataFed_parameter)
-                        # add the list of great grandchildren to the metadata_dict and FOR TESTING, print it out
+                        # add the list of parameters to the metadata_dict and FOR TESTING, print it out
                         metadata_dict[section] = DataFed_parameter_list 
 
                         # print("*"*25)
@@ -1526,20 +1525,10 @@ class GenerateForm(QWidget):
                                                             #if the values does not have children, the metadata has no units 
                                                             if int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).childCount()) ==0: 
                                                                     
-                                                                #units = False
-                                                                # first, check if the greatgreatGrandchild is a number by trying to convert it to a float 
                                                                 try:
-                                                                    #but first, define the greatGrandchild
                                                                     DataFed_value = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).text(0)
 
 
-                                                                    # for testing, print out some stuff 
-                                                                    # print("no units")
-
-                                                                    # print("Relop:",ops_str[relOp[parameter_index]])
-                                                                    # print("great-great-grandchild:",collection.child(childNum).child(grandchildNum).child(greatGrandchildNum).child(greatGreatGrandchildNum).text(0))
-                                                                    # print("number array",number_array)
-                                                                    # print("number:",number_array[parameter_index])
 
                                                                         
                                                                     #make sure DataFed_value is a float, use this to trigger the "except" if not
@@ -1554,7 +1543,7 @@ class GenerateForm(QWidget):
 
 
                                                                 except:
-                                                                    # in the except, the float conversion has failed, so the greatgreatGrandchild is not numeric 
+                                                                    # in the except, the float conversion has failed, so the DataFed_value is not numeric 
                                                                     # one reason is that it is a date, so check that 
                                                                     if DataFed_parameter == "Date": 
 
@@ -1574,7 +1563,7 @@ class GenerateForm(QWidget):
                                                                         #      print(f"adding value {value} to metadata")
                                                                         metadata[section_unique].update({DataFed_parameter:DataFed_value.casefold()})
                                                             else:
-                                                                #there is a great-great-great-grandchild, so the metadata has units 
+                                                                #the value has children, so the metadata has units 
                                                                 #units = True
                                                                 
                                                                 # loop over the values, where is where the numbers are 
@@ -1586,7 +1575,7 @@ class GenerateForm(QWidget):
                                                                     # print("DataFed_value:",collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).child(DataFed_value_index).text(0))
                                                                     # print("number_array",number_array)
 
-                                                                    # ensure that the greatGreatGrandchild is "Value", to more efficiently get to the number. 
+                                                                    # ensure that the value is "Value", to more efficiently get to the number. 
                                                                     # It would be pointless to search to for unit, since everything with this parameter has the same unit, so we can just skip over that 
                                                                     if collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).text(0) == "Value":
                                                                         # check if it is actually a number by trying to convert to a float. If it is somehow not, convert to a caseless string. 
@@ -1601,7 +1590,7 @@ class GenerateForm(QWidget):
                                                                             
                                                                             
                                                                             if section_unique not in metadata.keys():
-                                                                               # print("creating new metadata key:", grandchild)
+                                                                               # print("creating new metadata key:", DataFed_quantity)
                                                                                 metadata.update({section_unique:{}})
                                                                             
                                                                             metadata[section_unique].update( {DataFed_parameter:float(DataFed_quantity)})
@@ -1610,13 +1599,12 @@ class GenerateForm(QWidget):
 
                                                                         except:
                                                                            # print("could not convert value with unit to a float. Proceeding assuming a string")
-                                                                            #metadata.append(grandchild)
                                                                             if section_unique not in metadata.keys():
                                                                                # print("Creating a new metadata key:", section_unique)
                                                                                 metadata.update({section_unique:{}})
                                                                             metadata[section_unique].update({DataFed_parameter:DataFed_quantity.casefold()})
 
-                                # if there is not a match, hide the grandchild                                     
+                                # if there is not a match, hide the section                                     
                         else:
                             collection.child(record_index).child(section_idx).setHidden(True)
 
