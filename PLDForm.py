@@ -889,8 +889,8 @@ class GenerateForm(QWidget):
             "<": operator.lt,
             ">=": operator.ge ,
             "<=": operator.le,
-            "==": np.isclose, # operator.eq,
-            "!=": operator.ne #or operator.abs(a-b)>1e-9,
+            "==": np.isclose, 
+            "!=": operator.ne 
         }
 
 
@@ -899,8 +899,8 @@ class GenerateForm(QWidget):
             "<": operator.lt,
             ">=": operator.ge,
             "<=": operator.le,
-            "==": operator.contains, # operator.eq,
-            "!=": operator.ne #or operator.abs(a-b)>1e-9,
+            "==": operator.contains, 
+            "!=": operator.ne
         }
 
 
@@ -909,8 +909,8 @@ class GenerateForm(QWidget):
             "<": operator.lt,
             ">=": operator.ge,
             "<=": operator.le,
-            "==": operator.eq, # operator.eq,
-            "!=": operator.ne #or operator.abs(a-b)>1e-9,
+            "==": operator.eq, 
+            "!=": operator.ne 
         }
 
          # create a dictionary for "and", "or" and "xor"
