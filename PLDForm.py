@@ -3,16 +3,40 @@ import shutil
 import sys
 import json
 import datetime
-import os, glob, h5py
+import os
+import glob
 import numpy as np
-import matplotlib.pyplot as plt
 from datafed.CommandLib import API
 import operator
 import functools
 from collections import OrderedDict
 
 
+import re #regular expressions
 
+
+from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
+    QWidget, 
+    QLabel, 
+    QLineEdit, 
+    QComboBox, 
+    QTreeWidget, 
+    QTreeWidgetItem,
+    QPlainTextEdit,
+    QVBoxLayout,
+    QGridLayout,
+    QGroupBox,
+    QFormLayout,
+    QStackedWidget,
+    QPushButton
+    )
+from PyQt5.Qt import QStandardItemModel, QStandardItem
+
+sys.path.append('../')
+
+from ManagePlume import remove_desktop_ini, pack_to_hdf5_and_upload, pack_to_hdf5, upload_to_datafed
 # save parameters 
 # commit with User_Name and Date and Time and unique id
 
@@ -23,23 +47,7 @@ df_api.setContext('p/2022_pld_plume_recording')
 ls_resp = df_api.collectionItemsList('root')
 
 
-import re #regular expressions
 
-import getpass
-import subprocess
-from platform import platform
-
-import datetime
-
-import time
-
-from PyQt5.QtGui import QFont, QColor
-from PyQt5.QtCore import * 
-from PyQt5.QtWidgets import * 
-from PyQt5.Qt import QStandardItemModel, QStandardItem
-
-sys.path.append("/home/jgoddy2/Documents/Research_Agar/PLD_Form/PLD_Workflow/")
-from ManagePlume import remove_desktop_ini, pack_to_hdf5_and_upload, pack_to_hdf5, upload_to_datafed
 
 class message_window(QWidget):
     def __init__(self, message):
@@ -2033,11 +2041,11 @@ class GenerateForm(QWidget):
                                     # print("key2_2",key2_2)
                                     
                                     
-                                    if key2_2 in metadata[key1].keys() and type(metadata[key1][key2_2]) == list:
+                                    if key2_2 in metadata[key1].keys() and isinstance(metadata[key1][key2_2], list):
                                             # print("T1")
                                             #print(metadata[key1][key2])
                                             metadata[key1][key2_2] = metadata[key1][key2_2][0]
-                                    if type(metadata[key1][key2]) == list:
+                                    if isinstance(metadata[key1][key2], list):
                                             #print(metadata[key1][key2_2])
                                             metadata[key1][key2] = metadata[key1][key2][0]
                                     if  key2 not in relOp_dict.keys():
@@ -2082,7 +2090,7 @@ class GenerateForm(QWidget):
                                                  
                                     else:
                                         try:
-                                            if type(metadata[key1][key2]) == list:
+                                            if isinstance(metadata[key1][key2], list):
                                                 # if the metadata is a list, just select the first element for now                                             
                                                 metadata[key1][key2] = metadata[key1][key2][0]
                                                 #print("T3",metadata[key1][key2])
