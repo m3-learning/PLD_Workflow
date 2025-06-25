@@ -2145,11 +2145,8 @@ class GenerateForm(QWidget):
                                             metadata_eval_dict[key2].update({key1:metadata_eval_str})
                                 
                                 if i < len(number_dict[key2_1])-1 and key2_1 in conj_dict:
-                                   # metadata_eval_str = metadata_eval_str + f" {conj_dict[key2_1][i-1]} "
                                    metadata_eval_str = metadata_eval_str + f" {conj_dict[key2_1][i]} "
-                                elif i== len(number_dict[key2_1])-1:
-                                    metadata_eval_str = metadata_eval_str + ") "                                                        
-
+                               
                     
 
                      # print('metadata_eval_dict',metadata_eval_dict) 
@@ -2172,9 +2169,7 @@ class GenerateForm(QWidget):
                     if (metadata_eval_dict) != {}:
                         # initialize the eval strings. 
                         metadata_eval_dict2 = {}
-
-                        metadata_eval_str2 = ""
-
+                        
                         Metadata_eval_str_1 = ""
 
                         Metadata_eval_str_2 = ""
@@ -2194,10 +2189,10 @@ class GenerateForm(QWidget):
                         #print("metadata_eval_dict sorted", metadata_eval_dict)
 
                         # loop over search and the metadata to find matches 
-                    for index1, key1 in enumerate(relOp_dict.keys()):
+                    for key1 in relOp_dict.keys():
                         # print("key1",key1)
                         if key1 not in metadata_eval_dict.keys():
-                            # if this metadata only has some of the quantities required to match
+                            # the metadata only has some of the parameters required to match
                             # but not all of them, set the eval to False 
                             if key1 in conj_dict and 'and' in conj_dict[key1]:                                           
                                 Metadata_eval_str_1 = "False"
@@ -2289,7 +2284,7 @@ class GenerateForm(QWidget):
                             elif index2 == 2:
                                 
                                 Metadata_eval_str_2 = Metadata_eval_str_2 + metadata_eval_dict[key1][key2]
-                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1: #index2 < len(relOp_dict.keys()):
+                                if key1 in conj_dict.keys() and len(relOp_dict[key1]) == 1: 
                                     Metadata_eval_str_2 = Metadata_eval_str_2 + " " + conj_dict[key1][0]+ " "
                             
                             elif index2 == 3:
