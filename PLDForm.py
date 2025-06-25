@@ -212,7 +212,7 @@ class GenerateForm(QWidget):
                         session.addChild(scan) 
   
                         
-                        if type(metaData[key]) == str:
+                        if isinstance(metaData[key], str):
                             scan.addChild(QTreeWidgetItem([metaData[key]])) #target material, etc. 
                             
                         else: #type == dict
@@ -221,7 +221,7 @@ class GenerateForm(QWidget):
                                 scan.addChild(value)
                                 try: 
                                     #value.addChild(QTreeWidgetItem([str(metaData[key][val])]))
-                                    if type(metaData[key][val]) == dict:
+                                    if isinstance(metaData[key][val],dict):
                                        # print(metaData[key][val])
                                         for key2 in metaData[key][val]:
                                             # VALUE2 IS A BAD NAME
@@ -451,7 +451,7 @@ class GenerateForm(QWidget):
 # for top level, there are different sessions so it is unclear what to input
 #for top level, parents are none. for individual items, no grandchildren (i.e. child(0).childCount()=0) 
     
-        if item.parent() != None and int(item.childCount())>0 and int(item.child(0).childCount())>0:
+        if item.parent() is not None and int(item.childCount())>0 and int(item.child(0).childCount())>0:
 
             #the relevant header parameters
             self.growth_id_input.setText("")
@@ -1258,7 +1258,7 @@ class GenerateForm(QWidget):
                 # ignore units if it is a number
                 # use .casefold() to allow it to match caselessly if it is a string
 
-                if string_value_array[i] == True and parameter_array[i] != ['Date']:
+                if string_value_array[i] and parameter_array[i] != ['Date']:
                     number_array.append(search_array_without_conj[i][search_array_without_conj[i].find(relOp[i])+len(relOp[i]):].strip().replace(" ","_").casefold())
 
                 elif parameter_array[i] == ["Date"]:
@@ -1470,7 +1470,7 @@ class GenerateForm(QWidget):
                      # loop over the sections again, this time to ensure that the eval_str is True, so there is a match 
                     for section_idx in range(1,int(collection.child(record_index).childCount())):
                             
-                        if len(eval_strings) > 0 and eval_strings[section_idx] == True: 
+                        if len(eval_strings) > 0 and eval_strings[section_idx]: 
                             for section_idx_unique in np.unique([0,section_idx]):
                                 # define the unique section 
                                 section_unique = collection.child(record_index).child(section_idx_unique).text(0)
@@ -2393,7 +2393,7 @@ class GenerateForm(QWidget):
                                     # print("eval",eval(eval(f"{Metadata_eval_str_}{i}")))
 
                                     #if eval(eval(f"{Metadata_eval_str_}{i}")) == False:
-                                    if eval(Metadata_eval_str_with_parens) == False: 
+                                    if not eval(Metadata_eval_str_with_parens): 
                                         try:
                                             # print("eval = False")
                                             del metadata[f'Target_{i}']
@@ -2433,7 +2433,7 @@ class GenerateForm(QWidget):
                                 #     print("Could not delete")
                                     continue
                             # make sure the header also gets deleted             
-                            if str(metadata.keys()) == "dict_keys(['Header'])" and deleted_stuff == True:
+                            if str(metadata.keys()) == "dict_keys(['Header'])" and deleted_stuff:
                             #    print("deleting Header")
                                 del metadata['Header']
                                 
