@@ -1377,8 +1377,8 @@ class GenerateForm(QWidget):
                 recordHidden = []
                 # loop over the children, these are the individual data records
                 for record_index in range(int(collection.childCount())):
-                    # unhide the child
-                    record = collection.child(record_index).text(0)
+                    # unhide the record
+                    # record = collection.child(record_index).text(0) #define the record for testing 
                     collection.child(record_index).setHidden(False)
                     # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
                     metadata = {}
@@ -1386,14 +1386,7 @@ class GenerateForm(QWidget):
                     metadata_dict = {}
                     eval_strings = [] 
 
-
-                    # FOR TESTING, print out the child and number of grandchildren 
-                    #child = collection.child(record_index).text(0)
-                    # print("child:", collection.child(childNum).text(0))
-                    # print("num of grandchildren:", int(collection.child(childNum).childCount()))
-
-                    # loop over the grandchildren ("Header","Target_1",etc. )
-                    # I call these 'sections' but that's probably not the best name 
+                    # loop over the DataFed sections ("Header","Target_1",etc. )
                     for section_index in range(int(collection.child(record_index).childCount())):
                         #FOR TESTING: print out the number of the section
                         #print("section_index:" ,section_index)
@@ -1409,13 +1402,11 @@ class GenerateForm(QWidget):
                         # i.e. "User_Name", Ablation_Temperature", etc.
 
                         for Datafed_parameter_index in range(int(collection.child(record_index).child(section_index).childCount())):
-                            #these great-grandchildren are what someone would probably search, if it is in the parameter_array,
-                            #then loop over the great-great-grandchildren. 
-                            # But first, define and unhide it
+                            #these parameters are what someone would probably search, so create a dictionary to hold a list 
+                            # of these parameters for each section. Also unhide the parameter
                             collection.child(record_index).child(section_index).child(Datafed_parameter_index).setHidden(False)
 
                             DataFed_parameter = collection.child(record_index).child(section_index).child(Datafed_parameter_index).text(0)
-                            # print("great Grandchild:", collection.child(childNum).child(grandchildNum).child(greatGrandchildNum).text(0))
                             DataFed_parameter_list.append(DataFed_parameter)
                         # add the list of great grandchildren to the metadata_dict and FOR TESTING, print it out
                         metadata_dict[section] = DataFed_parameter_list 
@@ -1423,37 +1414,32 @@ class GenerateForm(QWidget):
                         # print("*"*25)
                         # print('metadata_dict',metadata_dict)
 
-                        # if there is no metadata, hide the child (the data record), since this is a metadata search
+                        # if there is no metadata, hide the data record, since this is a metadata search
                         if 'no metadata found' in metadata_dict.keys():
                             collection.child(record_index).setHidden(True)
                         else:
-                                # make a list of the greatgrandchildren that includes the header so that it always shows
-                                # or example parameters in "Header" and "Target_1", then "Header" and "Target_2", etc. 
-                                # and then if the search is for something in the target, it will show the header as well. 
+                                # make a list of the parameters that includes the header so that it always shows
+                                # for example parameters in "Header" and "Target_1", then "Header" and "Target_2", etc. 
+                                # that way if the search is for something in the target, it will show the header as well. 
                                 
                                # print("metadata_dict:",metadata_dict)
                                 concatinated_DataFed_parameters = metadata_dict['Header'] + metadata_dict[section]
                                 # FOR TESTING, print out this concatinated list
                                 # print('concatinated_DataFed_parameters',concatinated_DataFed_parameters)
 
-                                # create a string to evaluate to determine if the searched parameter is in the parameters from DataFed 
+                                # create a string to evaluate to determine if the searched parameter is one of the parameters from DataFed 
                                 eval_str = ""
 
                                 for i in range(len(conj_list)):
                                     if conj_list[i] == "xor":
-                                        
                                         eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_DataFed_parameters)) {conj_dict1[conj_list[i]][0]} "
-                                        # not necessary since just for the end. 
-                                        #eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_DataFed_parameters))"
                             
                                     else:
                                         eval_str = eval_str + f"bool(set({parameter_array[i]}) & set(concatinated_DataFed_parameters)) {conj_dict1[conj_list[i]]} "
                                 eval_str = eval_str + f"bool(set({parameter_array[-1]}) & set(concatinated_DataFed_parameters))"
 
                             
-                                # for some reason goes through the target out of order of > 10 i.e. Target_1,Target_10,Target_11,Target_12,Target_2, etc. 
 
-                                # I think I have to be more flexible if a target gets skipped, i.e. no Target_3 
 
                                 # FOR TESTING, print stuff out  
                                 #  make a list out of these eval_strings,
@@ -1470,7 +1456,12 @@ class GenerateForm(QWidget):
                      # loop over the sections again, this time to ensure that the eval_str is True, so there is a match 
                     for section_idx in range(1,int(collection.child(record_index).childCount())):
                             
-                        if len(eval_strings) > 0 and eval_strings[section_idx]: 
+                        if len(eval_strings) > 0 and eval_strings[section_idx]:
+                            # the header is the first section, so section_idx_unique does: 
+                            # Header -> Target_1
+                            # Header -> Target_2 
+                            # Header -> Target_3
+                            # etc.  
                             for section_idx_unique in np.unique([0,section_idx]):
                                 # define the unique section 
                                 section_unique = collection.child(record_index).child(section_idx_unique).text(0)
@@ -1488,8 +1479,8 @@ class GenerateForm(QWidget):
                                     # print("types:")
                                     # print(type(metadata_dict['Header']))
                                     # print(metadata_dict['Header'])
-                                    # print(type(metadata_dict[grandchild]))
-                                    # print(metadata_dict[grandchild])
+                                    # print(type(metadata_dict[section_unique]))
+                                    # print(metadata_dict[section_unique])
 
                                     concatinated_DataFed_parameters = metadata_dict['Header'] + metadata_dict[section_unique]
                                 # print out this new concatinated_DataFed_parameters list, which has matches. 
@@ -1504,9 +1495,9 @@ class GenerateForm(QWidget):
                                     # print("parameter_array:",parameter_array)
                                     # print("DataFed_parameter",DataFed_parameter)
                                     
-                                    #if this greatGrandchild is the match, proceed trying to match it  
+                                    #if this parameter is the match, proceed trying to match it  
                                     if DataFed_parameter in functools.reduce(operator.iconcat,parameter_array,[]):
-                                        # for each greatGrandchild that has a match, loop over the search and find the match
+                                        # for each parameter that has a match, loop over the search and find the match
                                         for concatinated_DataFed_parameter in concatinated_DataFed_parameters:
                                             for parameter_index in range(len(parameter_array)):
                                                 # print("parameter_index not matched:",parameter_index)
@@ -1529,10 +1520,10 @@ class GenerateForm(QWidget):
                                                         #since this is a match, proceed to the values in DataFed ("Oxygen","Laser_1C","Value", etc. )
 
                                                         for DataFed_value_index in range(int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).childCount())):
-                                                            # unhide the greatgreatGrandchild 
+                                                            # unhide the value 
                                                             collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).setHidden(False)
                                                             
-                                                            #if there are no great-great-great-grandchildren, the metadata has no units 
+                                                            #if the values does not have children, the metadata has no units 
                                                             if int(collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).child(DataFed_value_index).childCount()) ==0: 
                                                                     
                                                                 #units = False
