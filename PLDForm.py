@@ -1377,7 +1377,7 @@ class GenerateForm(QWidget):
                 # loop over the individual data records
                 for record_index in range(int(collection.childCount())):
                     # unhide the record
-                    # record = collection.child(record_index).text(0) #define the record for testing 
+                    record = collection.child(record_index).text(0) #define the record for testing 
                     collection.child(record_index).setHidden(False)
                     # for each record, create a some dictionaries and lists to hold the data and perform the iterating 
                     metadata = {}
@@ -1488,14 +1488,15 @@ class GenerateForm(QWidget):
                                 # since there are matches, continue to the DataFed parameters ("Chamber", "Ablation_Temperature", etc. )
                                 for DataFed_parameter_idx in range(int(collection.child(record_index).child(section_idx_unique).childCount())):
                                     #define the DataFed_parameter
-                                    DataFed_parameter = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).text(0)
+                                        DataFed_parameter = collection.child(record_index).child(section_idx_unique).child(DataFed_parameter_idx).text(0)
                                     # FOR TESTING, print uot the DataFed parameter
                                     # print("DataFed_parameter_idx",DataFed_parameter_idx)
                                     # print("parameter_array:",parameter_array)
                                     # print("DataFed_parameter",DataFed_parameter)
                                     
-                                    #if this parameter is the match, proceed trying to match it  
-                                    if DataFed_parameter in functools.reduce(operator.iconcat,parameter_array,[]):
+                                    #if this parameter is the match, proceed trying to match it
+                                    # TESTING THE BELOW IF STATEMENT   
+                                    #if DataFed_parameter in functools.reduce(operator.iconcat,parameter_array,[]):
                                         # for each parameter that has a match, loop over the search and find the match
                                         for concatinated_DataFed_parameter in concatinated_DataFed_parameters:
                                             for parameter_index in range(len(parameter_array)):
@@ -1507,11 +1508,11 @@ class GenerateForm(QWidget):
                                                     # print("concatinated_DataFed_parameter:",concatinated_DataFed_parameter)
                                                     # print('parameter_index:',parameter_index)
                                                     # is this just np.where because of the second if statement term? 
-                                                    parameter_indices.append(parameter_index)
+                                                        parameter_indices.append(parameter_index)
 
                             
                                     
-                                                    if DataFed_parameter == concatinated_DataFed_parameter:
+                                                    #if DataFed_parameter == concatinated_DataFed_parameter:
                                                         # FOR TESTING: print out some stuff 
                                                         # print("DataFed_parameter",DataFed_parameter)
                                                         # print("DataFed_parameter_idx",DataFed_parameter_idx)
@@ -2356,8 +2357,9 @@ class GenerateForm(QWidget):
                                     # (Ablation_Temperature or Pre_Ablation_temperature) to 700 
                                     # if both exist in the DataFed record
 
-                                    if "((" in eval(Metadata_eval_str_+str(i)): 
-                                        Metadata_eval_array = re.split(r'(?<=\)\)) (?=and|or)', eval(Metadata_eval_str_+str(i)))
+                                    if "))" in eval(Metadata_eval_str_+str(i)): 
+                                        Metadata_eval_array = re.split(r'(\)\))\s*(?=\b(?:and|or)\b)|\b(and|or)\b\s*(?=\()', eval(Metadata_eval_str_+str(i)))
+                                        Metadata_eval_array = [m for m in Metadata_eval_array if m not in (None,'')]
                                     else:
                                         Metadata_eval_array = re.split('( and | or )', eval(Metadata_eval_str_+str(i)))
 
